@@ -16,10 +16,10 @@ import com.example.chatapp.modules.User;
 
 import java.util.List;
 
-public class contactsAdapter extends ArrayAdapter<User> {
+public class ContactsAdapter extends ArrayAdapter<User> {
     private Context context;
 
-    public contactsAdapter(@NonNull Context context, int resource, @NonNull List<User> objects) {
+    public ContactsAdapter(@NonNull Context context, int resource, @NonNull List<User> objects) {
         super(context, resource, objects);
         this.context = context;
     }

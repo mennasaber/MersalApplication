@@ -59,6 +59,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void pushDataInDB() {
+        if (phoneNumber.contains("+2")) {
+            String[] array = phoneNumber.split("\\+2");
+            phoneNumber = array[1];
+        }
         user = new User(usernameEditText.getText().toString().trim(), "", phoneNumber);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("users");

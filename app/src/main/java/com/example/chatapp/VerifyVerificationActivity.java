@@ -26,6 +26,7 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
     private FirebaseAuth firebaseAuth;
     private String verificationId;
     private String phoneNumber;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,8 +36,7 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
         Button verifyButton = findViewById(R.id.verifyButton);
         verifyButton.setOnClickListener(this);
         firebaseAuth = FirebaseAuth.getInstance();
-        goToRegisterActivity();
-        //sendVerificationCode(phoneNumber);
+        sendVerificationCode(phoneNumber);
     }
 
     private void sendVerificationCode(String phoneNumber) {
@@ -84,7 +84,7 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
 
     private void goToRegisterActivity() {
         Intent intent = new Intent(this, RegisterActivity.class);
-        intent.putExtra("phoneNumber",phoneNumber);
+        intent.putExtra("phoneNumber", phoneNumber);
         startActivity(intent);
     }
 

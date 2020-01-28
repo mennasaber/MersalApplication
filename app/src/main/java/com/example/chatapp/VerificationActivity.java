@@ -42,7 +42,7 @@ public class VerificationActivity extends AppCompatActivity implements View.OnCl
 
     private void goToVerifyActivity(String phone) {
         Intent intent = new Intent(this, VerifyVerificationActivity.class);
-        intent.putExtra("phoneNumber", "+20" + phone);
+        intent.putExtra("phoneNumber", "+2" + phone);
         startActivity(intent);
     }
 }
