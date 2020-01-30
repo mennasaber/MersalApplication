@@ -86,6 +86,7 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
         Intent intent = new Intent(this, RegisterActivity.class);
         intent.putExtra("phoneNumber", phoneNumber);
         startActivity(intent);
+        finish();
     }
 
     @Override
