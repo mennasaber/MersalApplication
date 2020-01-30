@@ -1,4 +1,4 @@
-package com.example.chatapp.modules;
+package com.example.chatapp.Models;
 
 public class User {
     private String image;

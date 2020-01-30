@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,10 +7,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+
+import com.example.chatapp.R;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 public class VerificationActivity extends AppCompatActivity implements View.OnClickListener {
     private EditText phoneEditText;
+    private FirebaseAuth firebaseAuth;
+    private FirebaseUser firebaseUser ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +23,15 @@ public class VerificationActivity extends AppCompatActivity implements View.OnCl
         setContentView(R.layout.activity_verification);
         Button nextButton = findViewById(R.id.nextButton);
         phoneEditText = findViewById(R.id.phoneEditText);
+        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
         nextButton.setOnClickListener(this);
+
+
+        if (firebaseUser!=null){
+            startActivity(new Intent (getApplicationContext() , MainActivity.class));
+            finish();
+        }
     }
 
     @Override
@@ -44,5 +57,6 @@ public class VerificationActivity extends AppCompatActivity implements View.OnCl
         Intent intent = new Intent(this, VerifyVerificationActivity.class);
         intent.putExtra("phoneNumber", "+2" + phone);
         startActivity(intent);
+        finish() ;
     }
 }

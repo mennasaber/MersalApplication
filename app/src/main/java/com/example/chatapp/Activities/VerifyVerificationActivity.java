@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -36,7 +37,7 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
         Button verifyButton = findViewById(R.id.verifyButton);
         verifyButton.setOnClickListener(this);
         firebaseAuth = FirebaseAuth.getInstance();
-        sendVerificationCode(phoneNumber);
+       sendVerificationCode(phoneNumber);
     }
 
     private void sendVerificationCode(String phoneNumber) {
@@ -86,6 +87,7 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
         Intent intent = new Intent(this, RegisterActivity.class);
         intent.putExtra("phoneNumber", phoneNumber);
         startActivity(intent);
+        finish();
     }
 
     @Override

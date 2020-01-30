@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorAccent"
+    tools:context=".Activities.ChatActivity">
+        <EditText
+            android:id="@+id/messageTextview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:padding="8dp"
+            android:textColor="@android:color/white"
+            android:layout_toLeftOf="@+id/sendButton"
+            android:layout_alignParentBottom="true"
+            android:textColorHint="@android:color/darker_gray"
+            android:hint="@string/type_a_message"/>
+
+    <ImageButton
+        android:id="@+id/sendButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@android:drawable/ic_menu_send" />
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/sendButton"
+            android:id="@+id/messagesLV"/>
+    </RelativeLayout>

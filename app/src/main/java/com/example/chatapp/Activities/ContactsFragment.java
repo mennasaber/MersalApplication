@@ -1,7 +1,8 @@
-package com.example.chatapp;
+package com.example.chatapp.Activities;
 
 import android.Manifest;
 import android.content.ContentResolver;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -10,15 +11,17 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import android.os.RemoteException;
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.example.chatapp.R;
 import com.example.chatapp.adapters.ContactsAdapter;
-import com.example.chatapp.modules.User;
+import com.example.chatapp.Models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -56,6 +59,17 @@ public class ContactsFragment extends Fragment {
                 contactsListView = view.findViewById(R.id.contactsListView);
                 contactsAdapter = new ContactsAdapter(Objects.requireNonNull(getActivity()).getApplicationContext(), R.layout.contact_item, contactsHaveAccount);
                 contactsListView.setAdapter(contactsAdapter);
+
+                contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        Intent intent = new Intent(getActivity(),ChatActivity.class);
+                        intent.putExtra("recieverNumber" , contactsAdapter.getItem(position).getPhoneNumber());
+                        intent.putExtra("recieverUsername" , contactsAdapter.getItem(position).getUsername());
+                        intent.putExtra("recieverImage" , contactsAdapter.getItem(position).getImage());
+                        startActivity(intent);
+                    }
+                });
             }
 
             @Override

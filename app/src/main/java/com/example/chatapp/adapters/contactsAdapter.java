@@ -12,7 +12,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.chatapp.R;
-import com.example.chatapp.modules.User;
+import com.example.chatapp.Models.User;
 
 import java.util.List;
 
