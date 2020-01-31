@@ -69,7 +69,7 @@ public class ChatActivity extends AppCompatActivity {
         messageTextView = findViewById(R.id.messageEditText);
         messagesLV = findViewById(R.id.messagesLV);
         messageArrayList = new ArrayList<>();
-        final String [] splitNumber = mUser.getPhoneNumber().split("\\+2");
+        final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
 
 
         mDatabaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
@@ -96,7 +96,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!messageTextView.getText().toString().trim().equals("")) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                    String messageId = dateFormat.format(new Date())+"";
+                    String messageId = dateFormat.format(new Date()) + "";
                     Message message = new Message(messageTextView.getText().toString(), messageId
                             , splitNumber[1], recieverNumber, 0);
                     mDatabaseReference.child(chatId).child(messageId).setValue(message);

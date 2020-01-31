@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.ChatActivity"/>
+
+        <activity android:name=".Activities.ChatActivity" />
         <activity android:name=".Activities.MainActivity" />
         <activity android:name=".Activities.VerifyVerificationActivity" />
         <activity android:name=".Activities.RegisterActivity" />

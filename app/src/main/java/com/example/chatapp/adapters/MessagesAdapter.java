@@ -35,7 +35,7 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         View view;
         String userPhoneNumber = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhoneNumber();
         Message currentMessage = getItem(position);
-        final String [] splitNumber = userPhoneNumber.split("\\+2");
+        final String[] splitNumber = userPhoneNumber.split("\\+2");
         userPhoneNumber = splitNumber[1];
         if (Objects.requireNonNull(currentMessage).getSenderPhone().equals(userPhoneNumber)) {
             view = View.inflate(context, R.layout.my_message, null);
@@ -44,14 +44,13 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
 
             TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
             String time = currentMessage.getTime();
-            if(time.charAt(1)==':')
-                time  += "AM";
-            else
-            {
-                String hours = time.substring(0,2);
+            if (time.charAt(1) == ':')
+                time += "AM";
+            else {
+                String hours = time.substring(0, 2);
                 String minutes = time.substring(2);
-                int nHours = Integer.parseInt(hours)-12;
-                time = nHours + minutes +"PM";
+                int nHours = Integer.parseInt(hours) - 12;
+                time = nHours + minutes + "PM";
             }
             timeTV.setText(time);
             if (currentMessage.getSeen() == 1) {
@@ -65,16 +64,17 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             message.setText(currentMessage.getMessage());
             TextView usernameTV = view.findViewById(R.id.usernameMessageTV);
             usernameTV.setText(username);
-            String time = currentMessage.getTime();
-            long milliseconds = Long.parseLong(time);
-            time = String.format("%02d:%02d",
-                    TimeUnit.MILLISECONDS.toHours(milliseconds),
-                    TimeUnit.MILLISECONDS.toMinutes(milliseconds) -
-                            TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(milliseconds)));
             TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);
+            String time = currentMessage.getTime();
+            if (time.charAt(1) == ':')
+                time += "AM";
+            else {
+                String hours = time.substring(0, 2);
+                String minutes = time.substring(2);
+                int nHours = Integer.parseInt(hours) - 12;
+                time = nHours + minutes + "PM";
+            }
             timeTV.setText(time);
-            //TODO : get name of user from firebase
-            //TODO : get time
         }
         return view;
     }
