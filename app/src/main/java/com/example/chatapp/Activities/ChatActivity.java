@@ -80,7 +80,7 @@ public class ChatActivity extends AppCompatActivity {
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     Message message = d.getValue(Message.class);
                     if (!message.getSenderPhone().equals(splitNumber[1]))
-                        mDatabaseReference.child(chatId).child(message.getTime()).child("seen").setValue(1);
+                        mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
                     messageArrayList.add(d.getValue(Message.class));
                 }
                 messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, recieverUsername);
