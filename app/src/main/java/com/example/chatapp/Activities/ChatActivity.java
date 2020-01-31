@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class ChatActivity extends AppCompatActivity {
     ImageButton sendButton;
@@ -96,8 +97,8 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!messageTextView.getText().toString().trim().equals("")) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                    String messageId = dateFormat.format(new Date()) + "";
-                    Message message = new Message(messageTextView.getText().toString(), messageId
+                    String messageId = System.currentTimeMillis() + "";
+                    Message message = new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
                             , splitNumber[1], recieverNumber, 0);
                     mDatabaseReference.child(chatId).child(messageId).setValue(message);
                     messageTextView.setText("");
