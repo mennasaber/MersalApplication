@@ -21,7 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
-    FirebaseUser firebaseUser ;
+    FirebaseUser firebaseUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,13 +34,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         navigationView.setNavigationItemSelectedListener(this);
-<<<<<<< HEAD:app/src/main/java/com/example/chatapp/Activities/MainActivity.java
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-=======
+
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        Toast.makeText(getApplicationContext() , firebaseUser.getPhoneNumber() , Toast.LENGTH_LONG).show();
->>>>>>> 052a7abea2961a69f6ce307917cc9945b9c41a56:app/src/main/java/com/example/chatapp/MainActivity.java
+        Toast.makeText(getApplicationContext(), firebaseUser.getPhoneNumber(), Toast.LENGTH_LONG).show();
     }
 
     @Override

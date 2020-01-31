@@ -17,8 +17,6 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class VerificationActivity extends AppCompatActivity implements View.OnClickListener {
     private EditText phoneEditText;
-    private FirebaseAuth firebaseAuth;
-    private FirebaseUser firebaseUser ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +24,11 @@ public class VerificationActivity extends AppCompatActivity implements View.OnCl
         setContentView(R.layout.activity_verification);
         Button nextButton = findViewById(R.id.nextButton);
         phoneEditText = findViewById(R.id.phoneEditText);
-        firebaseAuth = FirebaseAuth.getInstance();
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         nextButton.setOnClickListener(this);
 
 
-        if (firebaseUser!=null){
+        if (firebaseUser !=null){
             startActivity(new Intent (getApplicationContext() , MainActivity.class));
             finish();
         }
@@ -47,7 +44,7 @@ public class VerificationActivity extends AppCompatActivity implements View.OnCl
     }
 
     private boolean checkPhoneValidation(String phone) {
-        if (phone != "" && phone.length() == 11)
+        if (!phone.equals("") && phone.length() == 11)
             return true;
         else {
             phoneEditText.setError("Valid number is required");

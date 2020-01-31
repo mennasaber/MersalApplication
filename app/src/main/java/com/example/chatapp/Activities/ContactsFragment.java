@@ -65,7 +65,7 @@ public class ContactsFragment extends Fragment {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Intent intent = new Intent(getActivity(),ChatActivity.class);
                         intent.putExtra("recieverNumber" , contactsAdapter.getItem(position).getPhoneNumber());
-                        intent.putExtra("recieverUsername" , contactsAdapter.getItem(position).getUsername());
+                        intent.putExtra("recieverUsername" , contactsHaveAccount.get(position).getUsername());
                         intent.putExtra("recieverImage" , contactsAdapter.getItem(position).getImage());
                         startActivity(intent);
                     }

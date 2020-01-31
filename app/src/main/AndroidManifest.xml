@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.chatapp">
 
@@ -11,18 +10,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-<<<<<<< HEAD
-        <activity android:name=".Activities.ChatActivity"></activity>
+        <activity android:name=".Activities.ChatActivity"/>
         <activity android:name=".Activities.MainActivity" />
         <activity android:name=".Activities.VerifyVerificationActivity" />
         <activity android:name=".Activities.RegisterActivity" />
         <activity android:name=".Activities.VerificationActivity">
-=======
-        <activity android:name=".MainActivity"/>
-        <activity android:name=".VerifyVerificationActivity" />
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".VerificationActivity">
->>>>>>> 052a7abea2961a69f6ce307917cc9945b9c41a56
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

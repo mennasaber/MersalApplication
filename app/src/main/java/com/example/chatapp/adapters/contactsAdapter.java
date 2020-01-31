@@ -11,8 +11,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.chatapp.R;
 import com.example.chatapp.Models.User;
+import com.example.chatapp.R;
 
 import java.util.List;
 

@@ -5,15 +5,24 @@ public class Message {
     String time ;
     String senderPhone ;
     String recieverPhone ;
+    int seen;
+    public int getSeen() {
+        return seen;
+    }
+
+    public void setSeen(int seen) {
+        this.seen = seen;
+    }
 
     public Message() {
     }
 
-    public Message(String message, String time, String senderPhone, String recieverPhone) {
+    public Message(String message, String time, String senderPhone, String recieverPhone,int seen) {
         this.message = message;
         this.time = time;
         this.senderPhone = senderPhone;
         this.recieverPhone = recieverPhone;
+        this.seen = seen;
     }
 
     public String getMessage() {
