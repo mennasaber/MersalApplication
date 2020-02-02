@@ -2,20 +2,22 @@ package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
-import com.example.chatapp.adapters.MessagesAdapter;
+import com.example.chatapp.Adapters.MessagesAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -27,16 +29,18 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class ChatActivity extends AppCompatActivity {
     ImageButton sendButton;
-    TextView messageTextView;
+    Button confirm  ;
+    TextView confirmationMessage;
+    EditText messageTextView ;
     ListView messagesLV;
     MessagesAdapter messagesAdapter;
-
+    List<String> blocks = new ArrayList<>();
     FirebaseDatabase firebaseDatabase;
     DatabaseReference mDatabaseReference;
     FirebaseUser mUser;
@@ -45,7 +49,8 @@ public class ChatActivity extends AppCompatActivity {
     String recieverNumber;
     String recieverUsername;
     String chatId;
-
+    AlertDialog.Builder alertBuilder ;
+    AlertDialog alertDialog ;
     ArrayList<Message> messageArrayList;
 
     @Override
@@ -64,7 +69,6 @@ public class ChatActivity extends AppCompatActivity {
 
         Objects.requireNonNull(getSupportActionBar()).setTitle(recieverUsername);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         sendButton = findViewById(R.id.sendButton);
         messageTextView = findViewById(R.id.messageEditText);
@@ -105,6 +109,11 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
+
+        //TODO if chatid match a block id
+        //messageTextView.setText("You can't reply to this conversation");
+        //messageTextView.setEnabled(false);
+        //sendButton.setEnabled(false);
     }
 
 
@@ -121,10 +130,25 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
+        switch (item.getItemId()){
+            case  android.R.id.home :
             finish();
-            return true;
+
+            case R.id.viewProfile:
+                Intent intent= new Intent(getApplicationContext() , ContactProfileActivity.class) ;
+                intent.putExtra("recieverUserName" ,recieverUsername ) ;
+                intent.putExtra("recieverNum" ,recieverNumber ) ;
+                startActivity(intent);
+                break;
+
         }
         return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.chat_menu , menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
 }

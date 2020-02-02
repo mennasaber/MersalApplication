@@ -1,4 +1,4 @@
-package com.example.chatapp.adapters;
+package com.example.chatapp.Adapters;
 
 import android.content.Context;
 import android.view.View;
@@ -13,11 +13,9 @@ import androidx.annotation.Nullable;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class MessagesAdapter extends ArrayAdapter<Message> {
     Context context;

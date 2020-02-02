@@ -1,17 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorAccent"
-    tools:context=".Fragments.SettingsFragment">
+    tools:context=".Activities.ContactProfileActivity">
+
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:cardElevation="-1dp"
-        android:id="@+id/cv"
+        android:id="@+id/cv2"
         >
 
         <ImageView
@@ -21,23 +22,24 @@
             android:src="@drawable/header_background5" />
 
     </androidx.cardview.widget.CardView>
-<ImageView
-    android:layout_width="120dp"
-    android:layout_height="120dp"
-    android:scaleType="centerCrop"
-    android:id="@+id/profilepicture"
-    android:layout_centerHorizontal="true"
-    android:layout_marginTop="150dp"
-    android:src="@mipmap/ic_launcher"/>
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:scaleType="centerCrop"
+        android:id="@+id/profilepicture2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="150dp"
+        android:src="@mipmap/ic_launcher"/>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/cv"
+        android:layout_below="@+id/cv2"
+        android:id="@+id/RL"
         android:layout_marginTop="60dp">
 
         <ImageView
-            android:id="@+id/usernameicon"
+            android:id="@+id/usernameicon2"
             android:layout_width="55dp"
             android:layout_height="55dp"
             android:layout_margin="8dp"
@@ -45,37 +47,46 @@
             tools:ignore="VectorDrawableCompat" />
 
         <TextView
-            android:id="@+id/usernameTextView"
+            android:id="@+id/usernameTextView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:layout_toRightOf="@id/usernameicon"
+            android:layout_toRightOf="@id/usernameicon2"
             android:text="@string/user_name"
             android:textColor="@android:color/white"
             android:textSize="22sp"
             android:textStyle="bold" />
 
         <ImageView
-            android:id="@+id/phonenumicon"
+            android:id="@+id/phonenumicon2"
             android:layout_width="55dp"
             android:layout_height="55dp"
-            android:layout_below="@+id/usernameicon"
+            android:layout_below="@+id/usernameicon2"
             android:layout_centerVertical="true"
             android:layout_marginLeft="8dp"
             android:contentDescription="TODO"
             app:srcCompat="@android:drawable/ic_menu_call" />
 
         <TextView
-            android:id="@+id/phoneNumberTextView"
+            android:id="@+id/phoneNumberTextView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginTop="80dp"
-            android:layout_toRightOf="@id/phonenumicon"
+            android:layout_toRightOf="@id/phonenumicon2"
             android:text="@string/user_phone_number"
             android:textColor="@android:color/white"
             android:textSize="22sp"
             android:textStyle="bold" />
     </RelativeLayout>
-
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/RL"
+        android:id="@+id/blockButton"
+        android:layout_margin="32dp"
+        android:text="@string/block"
+        android:background="@color/colorLightYellow"
+        android:textColor="@android:color/black"
+        android:textSize="16sp"/>
 </RelativeLayout>

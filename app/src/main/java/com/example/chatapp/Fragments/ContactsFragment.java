@@ -1,4 +1,4 @@
-package com.example.chatapp.Activities;
+package com.example.chatapp.Fragments;
 
 import android.Manifest;
 import android.content.ContentResolver;
@@ -17,10 +17,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
 
+import com.example.chatapp.Activities.ChatActivity;
 import com.example.chatapp.R;
-import com.example.chatapp.adapters.ContactsAdapter;
+import com.example.chatapp.Adapters.contactsAdapter;
 import com.example.chatapp.Models.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,7 +35,7 @@ import java.util.Objects;
 public class ContactsFragment extends Fragment {
     ArrayList<User> contactsHaveAccount = new ArrayList<>();
     public static final int REQUEST_READ_CONTACTS = 79;
-    ContactsAdapter contactsAdapter;
+    com.example.chatapp.Adapters.contactsAdapter contactsAdapter;
     ListView contactsListView;
     ArrayList<User> allUsers = new ArrayList<>();
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
@@ -57,13 +57,13 @@ public class ContactsFragment extends Fragment {
                 }
                 contactsHaveAccount = getContactsHaveAccount(allUsers);
                 contactsListView = view.findViewById(R.id.contactsListView);
-                contactsAdapter = new ContactsAdapter(Objects.requireNonNull(getActivity()).getApplicationContext(), R.layout.contact_item, contactsHaveAccount);
+                contactsAdapter = new contactsAdapter(Objects.requireNonNull(getActivity()).getApplicationContext(), R.layout.contact_item, contactsHaveAccount);
                 contactsListView.setAdapter(contactsAdapter);
 
                 contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent intent = new Intent(getActivity(),ChatActivity.class);
+                        Intent intent = new Intent(getActivity(), ChatActivity.class);
                         intent.putExtra("recieverNumber" , contactsAdapter.getItem(position).getPhoneNumber());
                         intent.putExtra("recieverUsername" , contactsHaveAccount.get(position).getUsername());
                         intent.putExtra("recieverImage" , contactsAdapter.getItem(position).getImage());

@@ -1,4 +1,4 @@
-package com.example.chatapp.adapters;
+package com.example.chatapp.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -16,10 +16,10 @@ import com.example.chatapp.R;
 
 import java.util.List;
 
-public class ContactsAdapter extends ArrayAdapter<User> {
+public class contactsAdapter extends ArrayAdapter<User> {
     private Context context;
 
-    public ContactsAdapter(@NonNull Context context, int resource, @NonNull List<User> objects) {
+    public contactsAdapter(@NonNull Context context, int resource, @NonNull List<User> objects) {
         super(context, resource, objects);
         this.context = context;
     }
