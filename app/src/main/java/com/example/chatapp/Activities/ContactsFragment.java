@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.example.chatapp.R;
 import com.example.chatapp.adapters.ContactsAdapter;
 import com.example.chatapp.Models.User;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,17 +34,23 @@ import java.util.Objects;
 
 
 public class ContactsFragment extends Fragment {
-    ArrayList<User> contactsHaveAccount = new ArrayList<>();
     public static final int REQUEST_READ_CONTACTS = 79;
+    ArrayList<User> contactsHaveAccount = new ArrayList<>();
     ContactsAdapter contactsAdapter;
     ListView contactsListView;
     ArrayList<User> allUsers = new ArrayList<>();
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+    String mUserNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
+    final String[] splitNumber = mUserNumber.split("\\+2");
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.fragment_contacts, container, false);
+
+        contactsListView = view.findViewById(R.id.contactsListView);
+
+
         if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getActivity()).getApplicationContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
         } else {
             requestPermission();
@@ -56,20 +63,8 @@ public class ContactsFragment extends Fragment {
                     allUsers.add(d.getValue(User.class));
                 }
                 contactsHaveAccount = getContactsHaveAccount(allUsers);
-                contactsListView = view.findViewById(R.id.contactsListView);
                 contactsAdapter = new ContactsAdapter(Objects.requireNonNull(getActivity()).getApplicationContext(), R.layout.contact_item, contactsHaveAccount);
                 contactsListView.setAdapter(contactsAdapter);
-
-                contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        Intent intent = new Intent(getActivity(),ChatActivity.class);
-                        intent.putExtra("recieverNumber" , contactsAdapter.getItem(position).getPhoneNumber());
-                        intent.putExtra("recieverUsername" , contactsHaveAccount.get(position).getUsername());
-                        intent.putExtra("recieverImage" , contactsAdapter.getItem(position).getImage());
-                        startActivity(intent);
-                    }
-                });
             }
 
             @Override
@@ -77,6 +72,16 @@ public class ContactsFragment extends Fragment {
             }
         });
 
+        contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), ChatActivity.class);
+                intent.putExtra("receiverNumber", contactsAdapter.getItem(position).getPhoneNumber());
+                intent.putExtra("receiverUsername", contactsHaveAccount.get(position).getUsername());
+                intent.putExtra("receiverImage", contactsAdapter.getItem(position).getImage());
+                startActivity(intent);
+            }
+        });
         return view;
     }
 
@@ -124,7 +129,7 @@ public class ContactsFragment extends Fragment {
                     }
                     //checkUserHasAccount(number);
                     for (User u : listOfUsers)
-                        if (u.getPhoneNumber().equals(number)) {
+                        if (u.getPhoneNumber().equals(number) && !u.getPhoneNumber().equals(splitNumber[1])) {
                             u.setUsername(name);
                             users.add(u);
                         }
@@ -135,23 +140,4 @@ public class ContactsFragment extends Fragment {
         }
         return users;
     }
-
-
-    private void checkUserHasAccount(String number) {
-
-        databaseReference.child(number).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.exists())
-                    contactsHaveAccount.add(dataSnapshot.getValue(User.class));
-                contactsAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
-
-    }
-
 }

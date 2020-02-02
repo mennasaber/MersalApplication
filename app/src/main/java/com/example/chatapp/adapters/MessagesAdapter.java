@@ -32,48 +32,40 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View view;
+        View view = convertView;
         String userPhoneNumber = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhoneNumber();
         Message currentMessage = getItem(position);
+        String time = currentMessage.getTime();
+        if (time.charAt(0) == '0' || time.charAt(1) == '0')
+            time += " AM";
+        if (time.charAt(1) == '0')
+            time = "12" + time.substring(2);
+        else {
+            String hours = time.substring(0, 2);
+            String minutes = time.substring(2);
+            int nHours = Integer.parseInt(hours) - 12;
+            time = nHours + minutes + " PM";
+        }
         final String[] splitNumber = userPhoneNumber.split("\\+2");
         userPhoneNumber = splitNumber[1];
         if (Objects.requireNonNull(currentMessage).getSenderPhone().equals(userPhoneNumber)) {
             view = View.inflate(context, R.layout.my_message, null);
             TextView message = view.findViewById(R.id.myMessageTextView);
             message.setText(currentMessage.getMessage());
-
             TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
-            String time = currentMessage.getTime();
-            if (time.charAt(1) == ':')
-                time += "AM";
-            else {
-                String hours = time.substring(0, 2);
-                String minutes = time.substring(2);
-                int nHours = Integer.parseInt(hours) - 12;
-                time = nHours + minutes + "PM";
-            }
             timeTV.setText(time);
             if (currentMessage.getSeen() == 1) {
                 ImageView seenImage = view.findViewById(R.id.seenImage);
                 seenImage.setImageResource(R.drawable.ic_baseline_done_all_24);
             }
-
         } else {
             view = View.inflate(context, R.layout.their_message, null);
+            TextView usernameTV = view.findViewById(R.id.usernameMessageTV);
+            ImageView imageView = view.findViewById(R.id.imageView);
             TextView message = view.findViewById(R.id.theirMessageTV);
             message.setText(currentMessage.getMessage());
-            TextView usernameTV = view.findViewById(R.id.usernameMessageTV);
             usernameTV.setText(username);
             TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);
-            String time = currentMessage.getTime();
-            if (time.charAt(1) == ':')
-                time += "AM";
-            else {
-                String hours = time.substring(0, 2);
-                String minutes = time.substring(2);
-                int nHours = Integer.parseInt(hours) - 12;
-                time = nHours + minutes + "PM";
-            }
             timeTV.setText(time);
         }
         return view;

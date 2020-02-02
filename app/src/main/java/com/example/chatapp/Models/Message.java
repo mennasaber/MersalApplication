@@ -1,27 +1,28 @@
 package com.example.chatapp.Models;
 
 public class Message {
-    String message ;
-    String time ;
-    String senderPhone ;
-    String recieverPhone ;
+    String message;
+    String time;
+    String senderPhone;
+    String receiverPhone;
     int seen;
+
+    public Message() {
+    }
+
+    public Message(String message, String time, String senderPhone, String receiverPhone, int seen) {
+        this.message = message;
+        this.time = time;
+        this.senderPhone = senderPhone;
+        this.receiverPhone = receiverPhone;
+        this.seen = seen;
+    }
+
     public int getSeen() {
         return seen;
     }
 
     public void setSeen(int seen) {
-        this.seen = seen;
-    }
-
-    public Message() {
-    }
-
-    public Message(String message, String time, String senderPhone, String recieverPhone,int seen) {
-        this.message = message;
-        this.time = time;
-        this.senderPhone = senderPhone;
-        this.recieverPhone = recieverPhone;
         this.seen = seen;
     }
 
@@ -49,11 +50,11 @@ public class Message {
         this.senderPhone = senderPhone;
     }
 
-    public String getRecieverPhone() {
-        return recieverPhone;
+    public String getReceiverPhone() {
+        return receiverPhone;
     }
 
-    public void setRecieverPhone(String recieverPhone) {
-        this.recieverPhone = recieverPhone;
+    public void setReceiverPhone(String receiverPhone) {
+        this.receiverPhone = receiverPhone;
     }
 }
