@@ -28,8 +28,8 @@ public class VerificationActivity extends AppCompatActivity implements View.OnCl
         nextButton.setOnClickListener(this);
 
 
-        if (firebaseUser !=null){
-            startActivity(new Intent (getApplicationContext() , MainActivity.class));
+        if (firebaseUser != null) {
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
         }
     }
@@ -57,6 +57,6 @@ public class VerificationActivity extends AppCompatActivity implements View.OnCl
         Intent intent = new Intent(this, VerifyVerificationActivity.class);
         intent.putExtra("phoneNumber", "+2" + phone);
         startActivity(intent);
-        finish() ;
+        finish();
     }
 }

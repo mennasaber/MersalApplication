@@ -1,6 +1,7 @@
 package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
@@ -17,6 +18,7 @@ import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -36,6 +38,8 @@ public class ContactProfileActivity extends AppCompatActivity {
     FirebaseAuth firebaseAuth ;
     FirebaseUser mUser ;
     List<String> blocks = new ArrayList<>();
+    FirebaseDatabase mDatabase ;
+    DatabaseReference mDatabaseReference ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,22 +60,45 @@ public class ContactProfileActivity extends AppCompatActivity {
             }
         });
         String blockId = getChatId(userPhone.getText().toString() , mUser.getPhoneNumber().substring(2));
-        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-        final DatabaseReference databaseReference = firebaseDatabase.getReference().child("Blocks") ;
+        mDatabase = FirebaseDatabase.getInstance() ;
+        mDatabaseReference = mDatabase.getReference().child("Blocks");
+        mDatabaseReference.keepSynced(true);
 
-        databaseReference.addValueEventListener(new ValueEventListener() {
+
+    }
+
+  /*  @Override
+    protected void onStart() {
+        super.onStart();
+        mDatabaseReference.addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    blocks.add(d.getValue(String.class));
-                }
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                String block = dataSnapshot.getValue(String.class);
+                blocks.add(block);
             }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
             }
         });
-    }
+
+    }*/
 
     private void createPopupDialogue(){
         alertBuilder = new AlertDialog.Builder(this) ;
@@ -87,9 +114,8 @@ public class ContactProfileActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (blockButton.getText().toString().equals("Block")) {
                     FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-                    DatabaseReference databaseReference = firebaseDatabase.getReference().child("Blocks");
-                    databaseReference.child(getChatId(userPhone.getText().toString() , mUser.getPhoneNumber().substring(2)))
-                            .setValue(getChatId(userPhone.getText().toString(), mUser.getPhoneNumber().substring(2)));
+                    DatabaseReference databaseReference = firebaseDatabase.getReference().child("Blocks").push();
+                    databaseReference.child("Block ID").setValue(getChatId(userPhone.getText().toString(), mUser.getPhoneNumber().substring(2)));
                 blockButton.setText(R.string.unblock);
                 }
                 else {

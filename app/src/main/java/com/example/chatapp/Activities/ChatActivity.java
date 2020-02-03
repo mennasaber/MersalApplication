@@ -46,8 +46,8 @@ public class ChatActivity extends AppCompatActivity {
     FirebaseUser mUser;
     FirebaseAuth mAuth;
 
-    String recieverNumber;
-    String recieverUsername;
+    String receiverNumber;
+    String receiverUsername;
     String chatId;
     AlertDialog.Builder alertBuilder ;
     AlertDialog alertDialog ;
@@ -57,17 +57,17 @@ public class ChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
-        recieverNumber = getIntent().getStringExtra("recieverNumber");
-        recieverUsername = getIntent().getStringExtra("recieverUsername");
+        receiverNumber = getIntent().getStringExtra("receiverNumber");
+        receiverUsername = getIntent().getStringExtra("receiverUsername");
 
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = firebaseDatabase.getReference().child("Chats");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-        chatId = getChatId(Objects.requireNonNull(Objects.requireNonNull(mUser).getPhoneNumber()).substring(2), recieverNumber);
+        chatId = getChatId(Objects.requireNonNull(Objects.requireNonNull(mUser).getPhoneNumber()).substring(2), receiverNumber);
 
-        Objects.requireNonNull(getSupportActionBar()).setTitle(recieverUsername);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(receiverUsername);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         sendButton = findViewById(R.id.sendButton);
@@ -76,7 +76,8 @@ public class ChatActivity extends AppCompatActivity {
         messageArrayList = new ArrayList<>();
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
 
-
+        messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, receiverUsername);
+        messagesLV.setAdapter(messagesAdapter);
         mDatabaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -86,9 +87,9 @@ public class ChatActivity extends AppCompatActivity {
                     if (!message.getSenderPhone().equals(splitNumber[1]))
                         mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
                     messageArrayList.add(d.getValue(Message.class));
+                    messagesAdapter.notifyDataSetChanged();
                 }
-                messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, recieverUsername);
-                messagesLV.setAdapter(messagesAdapter);
+
             }
 
             @Override
@@ -103,7 +104,7 @@ public class ChatActivity extends AppCompatActivity {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     String messageId = System.currentTimeMillis() + "";
                     Message message = new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
-                            , splitNumber[1], recieverNumber, 0);
+                            , splitNumber[1], receiverNumber, 0);
                     mDatabaseReference.child(chatId).child(messageId).setValue(message);
                     messageTextView.setText("");
                 }
@@ -116,9 +117,9 @@ public class ChatActivity extends AppCompatActivity {
         //sendButton.setEnabled(false);
     }
 
-
-    String getChatId(String num1, String num2) {  // get the chat id in firebase in order to put the new messages between the
-        // 2 Contacts with the old ones .
+    // get the chat id in firebase in order to put the new messages between the
+    // 2 Contacts with the old ones .
+    String getChatId(String num1, String num2) {
         for (int i = 0; i < num1.length(); i++) {
             if (num1.charAt(i) > num2.charAt(i))
                 return num1 + num2;
@@ -136,8 +137,8 @@ public class ChatActivity extends AppCompatActivity {
 
             case R.id.viewProfile:
                 Intent intent= new Intent(getApplicationContext() , ContactProfileActivity.class) ;
-                intent.putExtra("recieverUserName" ,recieverUsername ) ;
-                intent.putExtra("recieverNum" ,recieverNumber ) ;
+                intent.putExtra("recieverUserName" ,receiverUsername ) ;
+                intent.putExtra("recieverNum" ,receiverNumber ) ;
                 startActivity(intent);
                 break;
 

@@ -6,8 +6,9 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
-<style name="navigationStyle">
-    <item name="android:textSize">15sp</item>
-    <item name="android:textStyle">bold</item>
-</style>
+
+    <style name="navigationStyle">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
 </resources>

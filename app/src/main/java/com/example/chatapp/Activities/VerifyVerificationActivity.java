@@ -37,7 +37,7 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
         Button verifyButton = findViewById(R.id.verifyButton);
         verifyButton.setOnClickListener(this);
         firebaseAuth = FirebaseAuth.getInstance();
-       sendVerificationCode(phoneNumber);
+        sendVerificationCode(phoneNumber);
     }
 
     private void sendVerificationCode(String phoneNumber) {

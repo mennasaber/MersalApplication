@@ -19,19 +19,19 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
+    public User user;
+    ImageView userImage;
+    Uri imageURI;
+    StorageReference firebaseStorage;
+    String imageUri = "";
     private EditText usernameEditText;
     private String phoneNumber;
-    ImageView userImage ;
-    Uri imageURI ;
-    public User user;
-    StorageReference firebaseStorage ;
-    String imageUri ="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        firebaseStorage= FirebaseStorage.getInstance().getReference() ;
+        firebaseStorage = FirebaseStorage.getInstance().getReference();
         phoneNumber = getIntent().getStringExtra("phoneNumber");
         usernameEditText = findViewById(R.id.usernameEditText);
         Button nextRegisterButton = findViewById(R.id.nextRegisterButton);
@@ -50,9 +50,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     goToMainActivity();
                 }
             case R.id.userImage:
-                Intent intent = new Intent (Intent.ACTION_GET_CONTENT) ;
-                intent.setType("image/*") ;
-                startActivityForResult(intent , 1);
+                Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                intent.setType("image/*");
+                startActivityForResult(intent, 1);
         }
     }
 
@@ -91,7 +91,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             });
         }*/
         if (phoneNumber.contains("+2")) {
-           String[] array = phoneNumber.split("\\+2");
+            String[] array = phoneNumber.split("\\+2");
             phoneNumber = array[1];
         }
         user = new User(usernameEditText.getText().toString().trim(), imageUri, phoneNumber);
@@ -107,8 +107,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==1 && resultCode==RESULT_OK){
-            imageURI= data.getData() ;
+        if (requestCode == 1 && resultCode == RESULT_OK) {
+            imageURI = data.getData();
             userImage.setImageURI(imageURI);
         }
     }
