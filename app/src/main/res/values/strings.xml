@@ -18,4 +18,9 @@
     <string name="user_phone_number">User Phone Number</string>
     <string name="type_new_username">Type new username</string>
     <string name="save">Save</string>
+    <string name="view_profile">View profile</string>
+    <string name="block">Block</string>
+    <string name="confirm">Confirm</string>
+    <string name="unblock">Unblock</string>
+    <string name="Confirmationmessage">\"By confirming this you won\'t be able to send or recieve messages from \"</string>
 </resources>

@@ -11,9 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.GroupDataActivity"></activity>
+
+        <activity android:name=".Activities.GroupDataActivity"/>
         <activity android:name=".Activities.SelectGroupMembersActivity" />
-        <activity android:name=".SelectGroupMemebersActivity" />
+        <activity android:name=".Activities.ContactProfileActivity"/>
         <activity android:name=".Activities.ChatActivity" />
         <activity android:name=".Activities.MainActivity" />
         <activity android:name=".Activities.VerifyVerificationActivity" />

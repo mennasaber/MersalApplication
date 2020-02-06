@@ -1,13 +1,15 @@
-package com.example.chatapp.Activities;
+package com.example.chatapp.Fragments;
 
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import android.provider.ContactsContract;
@@ -16,7 +18,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
+
+import com.example.chatapp.Activities.ChatActivity;
 import com.example.chatapp.Models.Chat;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.Models.User;
@@ -44,7 +49,8 @@ public class ChatsFragment extends Fragment {
     public static String getContactName(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
-        Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME}, null, null, null);
+        Cursor cursor = cr.query(uri, new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME},  null, null, null);
+
         if (cursor == null) {
             return null;
         }

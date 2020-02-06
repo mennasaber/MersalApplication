@@ -14,6 +14,9 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.example.chatapp.Fragments.ChatsFragment;
+import com.example.chatapp.Fragments.ContactsFragment;
+import com.example.chatapp.Fragments.SettingsFragment;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
 import com.google.android.material.navigation.NavigationView;
@@ -32,7 +35,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     ArrayList<User> allUsers = new ArrayList<>();
 
+
     public static User currentUser;
+
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
 

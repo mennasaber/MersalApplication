@@ -15,6 +15,10 @@ import com.example.chatapp.Models.Chat;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -45,15 +49,15 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         Chat currentChat = getItem(position);
 
         String time = currentChat.getLastMessage().getTime();
-        if (time.charAt(0) == '0' || time.charAt(1) == '0')
-            time += " AM";
-        if (time.charAt(1) == '0')
-            time = "12" + time.substring(2);
-        else {
-            String hours = time.substring(0, 2);
-            String minutes = time.substring(2);
-            int nHours = Integer.parseInt(hours) - 12;
-            time = nHours + minutes + " PM";
+
+        DateFormat df = new SimpleDateFormat("HH:mm");
+        DateFormat outputFormat = new SimpleDateFormat("hh:mm aa");
+        Date date = null;
+        try {
+            date = df.parse(time);
+            time = outputFormat.format(date);
+        } catch (ParseException pe) {
+            pe.printStackTrace();
         }
 
         usernameTV.setText(currentChat.getUser().getUsername());
