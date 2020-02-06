@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     ArrayList<User> allUsers = new ArrayList<>();
 
-    String userName;
+    public static User currentUser;
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
                 for (int i = 0; i < allUsers.size(); i++) {
                     if (allUsers.get(i).getPhoneNumber().equals(firebaseUser.getPhoneNumber().substring(2))) {
-                        userName = allUsers.get(i).getUsername();
+                        currentUser = allUsers.get(i);
                         break;
                     }
                 }
@@ -100,6 +100,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.settingOption:
                 fragment = new SettingsFragment();
+                break;
+            case R.id.newGroupOption:
+                Intent intent = new Intent(this, SelectGroupMembersActivity.class);
+                startActivity(intent);
                 break;
         }
         if (fragment != null) {

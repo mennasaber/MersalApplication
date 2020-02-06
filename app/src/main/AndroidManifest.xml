@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.chatapp">
 
@@ -10,7 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
+        <activity android:name=".Activities.GroupDataActivity"></activity>
+        <activity android:name=".Activities.SelectGroupMembersActivity" />
+        <activity android:name=".SelectGroupMemebersActivity" />
         <activity android:name=".Activities.ChatActivity" />
         <activity android:name=".Activities.MainActivity" />
         <activity android:name=".Activities.VerifyVerificationActivity" />

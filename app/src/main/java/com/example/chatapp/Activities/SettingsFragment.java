@@ -52,7 +52,7 @@ public class SettingsFragment extends Fragment {
         username = view.findViewById(R.id.usernameTextView) ;
         phone = view.findViewById(R.id.phoneNumberTextView) ;
         MainActivity mainActivity = (MainActivity)getActivity() ;
-        username.setText(mainActivity.userName);
+        username.setText(mainActivity.currentUser.getUsername());
         phone.setText(firebaseUser.getPhoneNumber().substring(2));
 
         username.setOnLongClickListener(new View.OnLongClickListener() {

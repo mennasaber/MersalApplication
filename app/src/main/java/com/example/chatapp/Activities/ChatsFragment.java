@@ -81,6 +81,8 @@ public class ChatsFragment extends Fragment {
                     String chatId = d.getKey();
                     if (chatId.contains(splitNumber[1])) {
                         final String[] numbers = chatId.split(splitNumber[1]);
+                        if(numbers[0].equals(""))
+                            numbers[0]=numbers[1];
                         final String username = getContactName(view.getContext(), numbers[0]);
                         databaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
                             @Override
