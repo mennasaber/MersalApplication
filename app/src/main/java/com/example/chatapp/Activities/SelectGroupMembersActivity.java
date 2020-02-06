@@ -1,9 +1,5 @@
 package com.example.chatapp.Activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -15,9 +11,13 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
+
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
-import com.example.chatapp.adapters.GroupMembersAdapter;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -33,7 +33,7 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
     public static final int REQUEST_READ_CONTACTS = 79;
     ArrayList<User> contactsHaveAccount = new ArrayList<>();
     ArrayList<User> allUsers = new ArrayList<>();
-    GroupMembersAdapter groupMembersAdapter;
+    com.example.chatapp.adapters.GroupMembersAdapter groupMembersAdapter;
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
     String mUserNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
     final String[] splitNumber = mUserNumber.split("\\+2");
@@ -59,7 +59,7 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
                     allUsers.add(d.getValue(User.class));
                 }
                 contactsHaveAccount = getContactsHaveAccount(allUsers);
-                groupMembersAdapter = new GroupMembersAdapter(getApplicationContext(), R.layout.contact_member_item, contactsHaveAccount);
+                groupMembersAdapter = new com.example.chatapp.adapters.GroupMembersAdapter(getApplicationContext(), R.layout.contact_member_item, contactsHaveAccount);
                 contactsMemberLV.setAdapter(groupMembersAdapter);
             }
 

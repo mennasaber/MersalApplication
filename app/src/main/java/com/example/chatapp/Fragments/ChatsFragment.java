@@ -7,11 +7,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
-
 import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,14 +17,13 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
-
 import com.example.chatapp.Activities.ChatActivity;
 import com.example.chatapp.Models.Chat;
+import com.example.chatapp.Models.Group;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
-import com.example.chatapp.adapters.ChatsAdapter;
+import com.example.chatapp.Adapters.ChatsAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -41,6 +38,8 @@ public class ChatsFragment extends Fragment {
 
     FirebaseUser mUser;
     ArrayList<Chat> chats;
+    ArrayList<String> groupsIds ;
+    ArrayList<Group> groups ;
     ChatsAdapter chatsAdapter;
     ListView chatsListView;
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
@@ -113,6 +112,43 @@ public class ChatsFragment extends Fragment {
 
             }
         });
+
+
+       DatabaseReference mdataReference =FirebaseDatabase.getInstance().getReference("userGroups").child(mUser.getPhoneNumber().substring(2)).child("groupsIds");
+        mdataReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                    //get all groupids for this user
+                    groupsIds.add(d.getValue(String.class));
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+        /*DatabaseReference chatsDR = FirebaseDatabase.getInstance().getReference("groups");
+        chatsDR.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot g : dataSnapshot.getChildren())
+                {
+                    groups.add(g.getValue(Group.class));
+                    Group group = g.getValue(Group.class);
+                    Toast.makeText(getContext(),group.getGroupName() , Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });*/
 
         chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override

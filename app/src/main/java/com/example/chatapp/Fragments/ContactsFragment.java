@@ -21,7 +21,7 @@ import android.widget.ListView;
 import com.example.chatapp.Activities.ChatActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.Models.User;
-import com.example.chatapp.adapters.ContactsAdapter;
+import com.example.chatapp.Adapters.ContactsAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

@@ -1,18 +1,19 @@
 package com.example.chatapp.Models;
 
-import java.util.ArrayList;
+import java.util.Map;
 
 public class Group {
     String groupId;
     String groupName;
     String groupImage;
-    ArrayList<Message> messages ;
-    ArrayList<User> users;
+    Map<String , String> messages ;
+    Map<String , User> users ;
+
 
     public Group() {
     }
 
-    public Group(String groupName, ArrayList<Message> messages, ArrayList<User> users,String groupId,String groupImage) {
+    public Group(String groupName, Map<String , String> messages, Map<String , User> users,String groupId,String groupImage) {
         this.groupName = groupName;
         this.messages = messages;
         this.users = users;
@@ -28,19 +29,19 @@ public class Group {
         this.groupName = groupName;
     }
 
-    public ArrayList<Message> getMessages() {
+    public Map<String , String> getMessages() {
         return messages;
     }
 
-    public void setMessages(ArrayList<Message> messages) {
+    public void setMessages(Map<String , String> messages) {
         this.messages = messages;
     }
 
-    public ArrayList<User> getUsers() {
+    public Map<String , User> getUsers() {
         return users;
     }
 
-    public void setUsers(ArrayList<User> users) {
+    public void setUsers(Map<String , User> users) {
         this.users = users;
     }
 

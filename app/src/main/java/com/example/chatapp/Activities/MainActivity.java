@@ -61,9 +61,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction.commit();
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        Toast.makeText(getApplicationContext(), firebaseUser.getPhoneNumber(), Toast.LENGTH_LONG).show();
-
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         //getting list of users form firebase
         FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -86,7 +83,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-
     }
 
     @Override

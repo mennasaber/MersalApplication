@@ -63,7 +63,7 @@ public class GroupDataActivity extends AppCompatActivity {
 //
 //            }
 //        });
-        createGroupFAB.setOnClickListener(new View.OnClickListener() {
+       /* createGroupFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!groupNameEditText.getText().toString().trim().equals("")) {
@@ -79,7 +79,7 @@ public class GroupDataActivity extends AppCompatActivity {
                     startActivity(intent);
                 }
             }
-        });
+        });*/
 
     }
 
