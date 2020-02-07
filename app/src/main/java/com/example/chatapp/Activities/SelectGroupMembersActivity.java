@@ -33,7 +33,7 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
     public static final int REQUEST_READ_CONTACTS = 79;
     ArrayList<User> contactsHaveAccount = new ArrayList<>();
     ArrayList<User> allUsers = new ArrayList<>();
-    com.example.chatapp.adapters.GroupMembersAdapter groupMembersAdapter;
+    com.example.chatapp.Adapters.GroupMembersAdapter groupMembersAdapter;
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
     String mUserNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
     final String[] splitNumber = mUserNumber.split("\\+2");
@@ -59,7 +59,7 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
                     allUsers.add(d.getValue(User.class));
                 }
                 contactsHaveAccount = getContactsHaveAccount(allUsers);
-                groupMembersAdapter = new com.example.chatapp.adapters.GroupMembersAdapter(getApplicationContext(), R.layout.contact_member_item, contactsHaveAccount);
+                groupMembersAdapter = new com.example.chatapp.Adapters.GroupMembersAdapter(getApplicationContext(), R.layout.contact_member_item, contactsHaveAccount);
                 contactsMemberLV.setAdapter(groupMembersAdapter);
             }
 

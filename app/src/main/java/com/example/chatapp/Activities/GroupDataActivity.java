@@ -32,6 +32,7 @@ public class GroupDataActivity extends AppCompatActivity {
     private EditText groupNameEditText;
     private DatabaseReference databaseReference1;
     private DatabaseReference databaseReference2;
+    private DatabaseReference databaseReference3;
     private UserGroups userGroups;
     private String userPhoneNumber;
 
@@ -47,39 +48,39 @@ public class GroupDataActivity extends AppCompatActivity {
         userGroups = new UserGroups(new ArrayList<String>());
         groupNameEditText = findViewById(R.id.groupNameEditText);
         databaseReference1 = FirebaseDatabase.getInstance().getReference("groups");
-        //databaseReference2 = FirebaseDatabase.getInstance().getReference("userGroups").child(userPhoneNumber);
+        databaseReference2 = FirebaseDatabase.getInstance().getReference("userGroups").child(userPhoneNumber);
+        databaseReference3 = FirebaseDatabase.getInstance().getReference("groupUsers");
 
         createGroupFAB = findViewById(R.id.createGroupFAB);
-//        databaseReference2.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                 userGroups = dataSnapshot.getValue(UserGroups.class);
-//                 if(userGroups==null)
-//                     userGroups = new UserGroups(new ArrayList<String>());
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-       /* createGroupFAB.setOnClickListener(new View.OnClickListener() {
+        databaseReference2.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                userGroups = dataSnapshot.getValue(UserGroups.class);
+                if (userGroups == null)
+                    userGroups = new UserGroups(new ArrayList<String>());
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+        createGroupFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!groupNameEditText.getText().toString().trim().equals("")) {
                     group = new Group();
-                    group.setUsers(membersList);
                     group.setGroupImage("");
                     group.setGroupName(groupNameEditText.getText().toString().trim());
-                    group.setMessages(new ArrayList<Message>());
                     group.setGroupId(databaseReference1.push().getKey());
                     databaseReference1.child(group.getGroupId()).setValue(group);
+                    databaseReference3.child(group.getGroupId()).setValue(membersList);
                     UpdateMembersGroups();
-                    Intent intent = new Intent(GroupDataActivity.this,MainActivity.class);
+                    Intent intent = new Intent(GroupDataActivity.this, MainActivity.class);
                     startActivity(intent);
                 }
             }
-        });*/
+        });
 
     }
 
