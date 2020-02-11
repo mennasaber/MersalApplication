@@ -72,6 +72,8 @@ public class ChatsFragment extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_chats, container, false);
         chats = new ArrayList<>();
+        groups=new ArrayList<>() ;
+        groupsIds = new ArrayList<>();
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         chatsListView = view.findViewById(R.id.chatsListView);
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
@@ -119,11 +121,31 @@ public class ChatsFragment extends Fragment {
         mdataReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    //get all groupids for this user
                     groupsIds.add(d.getValue(String.class));
+
                 }
+                DatabaseReference chatsDR = FirebaseDatabase.getInstance().getReference("groups");
+                chatsDR.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot g : dataSnapshot.getChildren())
+                        {
+                            Group group = g.getValue(Group.class);
+
+                            if (groupsIds.contains(group.getGroupId())) {
+                                chats.add(new Chat(new User(group.getGroupName(), "", group.getGroupId()),
+                                new Message("Last Group Message","00:00 AM","sender phone", "receiver Phone",1)));
+                                chatsAdapter.notifyDataSetChanged();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
             }
 
             @Override
@@ -133,23 +155,6 @@ public class ChatsFragment extends Fragment {
         });
 
 
-        /*DatabaseReference chatsDR = FirebaseDatabase.getInstance().getReference("groups");
-        chatsDR.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot g : dataSnapshot.getChildren())
-                {
-                    groups.add(g.getValue(Group.class));
-                    Group group = g.getValue(Group.class);
-                    Toast.makeText(getContext(),group.getGroupName() , Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });*/
 
         chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
