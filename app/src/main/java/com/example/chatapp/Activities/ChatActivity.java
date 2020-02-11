@@ -14,6 +14,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
@@ -42,15 +43,13 @@ public class ChatActivity extends AppCompatActivity {
     MessagesAdapter messagesAdapter;
     List<String> blocks = new ArrayList<>();
     FirebaseDatabase firebaseDatabase;
-    DatabaseReference mDatabaseReference;
+    DatabaseReference mDatabaseReference,databaseReference;
     FirebaseUser mUser;
     FirebaseAuth mAuth;
 
     String receiverNumber;
     String receiverUsername;
     String chatId;
-    AlertDialog.Builder alertBuilder ;
-    AlertDialog alertDialog ;
     ArrayList<Message> messageArrayList;
 
     @Override
@@ -63,6 +62,7 @@ public class ChatActivity extends AppCompatActivity {
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = firebaseDatabase.getReference().child("Chats");
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("GroupsMessages");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         chatId = getChatId(Objects.requireNonNull(Objects.requireNonNull(mUser).getPhoneNumber()).substring(2), receiverNumber);
@@ -97,6 +97,24 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+        //Loading group messages
+        databaseReference.child(receiverNumber).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                messageArrayList.clear();
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                    Message message = d.getValue(Message.class);
+                    databaseReference.child(receiverNumber).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
+                    messageArrayList.add(d.getValue(Message.class));
+                    messagesAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,8 +122,13 @@ public class ChatActivity extends AppCompatActivity {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     String messageId = System.currentTimeMillis() + "";
                     Message message = new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
-                            , splitNumber[1], receiverNumber, 0);
-                    mDatabaseReference.child(chatId).child(messageId).setValue(message);
+                            , splitNumber[1], receiverNumber, 1);
+
+                    if (receiverNumber.length()==11){
+                        mDatabaseReference.child(chatId).child(messageId).setValue(message);}
+                    else {
+                        databaseReference.child(receiverNumber).child(messageId).setValue(message);
+                    }
                     messageTextView.setText("");
                 }
             }
