@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.chatapp.Fragments.ChatsFragment;
 import com.example.chatapp.Fragments.ContactsFragment;
+import com.example.chatapp.Fragments.GroupsFragment;
 import com.example.chatapp.Fragments.SettingsFragment;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
@@ -106,6 +107,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent intent = new Intent(this, SelectGroupMembersActivity.class);
                 startActivity(intent);
                 break;
+            case  R.id.Groups:
+                fragment = new GroupsFragment();
+                break;
+
         }
         if (fragment != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();

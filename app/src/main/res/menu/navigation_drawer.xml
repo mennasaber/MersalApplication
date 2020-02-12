@@ -5,6 +5,10 @@
         android:title="@string/newGroup"
         android:icon="@drawable/ic_baseline_group_24"/>
     <item
+        android:id="@+id/Groups"
+        android:title="@string/groups"
+        android:icon="@drawable/ic_baseline_group_24"/>
+    <item
         android:id="@+id/contactsOption"
         android:title="@string/contacts"
         android:icon="@drawable/ic_baseline_perm_contact_calendar_24"/>

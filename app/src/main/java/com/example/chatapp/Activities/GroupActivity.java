@@ -3,19 +3,14 @@ package com.example.chatapp.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.chatapp.Adapters.GroupMessagesAdapter;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.example.chatapp.Adapters.MessagesAdapter;
@@ -33,60 +28,54 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+public class GroupActivity extends AppCompatActivity {
 
-public class ChatActivity extends AppCompatActivity {
     ImageButton sendButton;
-    EditText messageTextView ;
+    EditText messageTextView;
     ListView messagesLV;
-    MessagesAdapter messagesAdapter;
-    List<String> blocks = new ArrayList<>();
+    GroupMessagesAdapter groupMessagesAdapter;
     FirebaseDatabase firebaseDatabase;
-    DatabaseReference mDatabaseReference;
+    DatabaseReference  databaseReference;
     FirebaseUser mUser;
     FirebaseAuth mAuth;
 
     String receiverNumber;
     String receiverUsername;
-    String chatId;
     ArrayList<Message> messageArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_chat);
+        setContentView(R.layout.activity_group);
         receiverNumber = getIntent().getStringExtra("receiverNumber");
         receiverUsername = getIntent().getStringExtra("receiverUsername");
 
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        mDatabaseReference = firebaseDatabase.getReference().child("Chats");
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("GroupsMessages");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-        chatId = getChatId(Objects.requireNonNull(Objects.requireNonNull(mUser).getPhoneNumber()).substring(2), receiverNumber);
 
         Objects.requireNonNull(getSupportActionBar()).setTitle(receiverUsername);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        sendButton = findViewById(R.id.sendButton);
-        messageTextView = findViewById(R.id.messageEditText);
-        messagesLV = findViewById(R.id.messagesLV);
+        sendButton = findViewById(R.id.groupSendButton);
+        messageTextView = findViewById(R.id.groupMessageEditText);
+        messagesLV = findViewById(R.id.groupMessagesLV);
         messageArrayList = new ArrayList<>();
+        groupMessagesAdapter = new GroupMessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList);
+        messagesLV.setAdapter(groupMessagesAdapter);
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
-
-        messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, receiverUsername);
-        messagesLV.setAdapter(messagesAdapter);
-        mDatabaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
+        //Loading group messages
+        databaseReference.child(receiverNumber).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 messageArrayList.clear();
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    Message message = d.getValue(Message.class);
-                    if (!message.getSenderPhone().equals(splitNumber[1]))
-                        mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
+                    databaseReference.child(receiverNumber).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
                     messageArrayList.add(d.getValue(Message.class));
-                    messagesAdapter.notifyDataSetChanged();
+                    groupMessagesAdapter.notifyDataSetChanged();
                 }
-
             }
 
             @Override
@@ -102,51 +91,13 @@ public class ChatActivity extends AppCompatActivity {
                     String messageId = System.currentTimeMillis() + "";
                     Message message = new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
                             , splitNumber[1], receiverNumber, 0);
-                     mDatabaseReference.child(chatId).child(messageId).setValue(message);
+                        databaseReference.child(receiverNumber).child(messageId).setValue(message);
                     messageTextView.setText("");
                 }
             }
         });
 
-        //TODO if chatid match a block id
-        //messageTextView.setText("You can't reply to this conversation");
-        //messageTextView.setEnabled(false);
-        //sendButton.setEnabled(false);
     }
-
-    // get the chat id in firebase in order to put the new messages between the
-    // 2 Contacts with the old ones .
-    String getChatId(String num1, String num2) {
-        for (int i = 0; i < num1.length(); i++) {
-            if (num1.charAt(i) > num2.charAt(i))
-                return num1 + num2;
-            else if (num1.charAt(i) < num2.charAt(i))
-                return num2 + num1;
-        }
-        return num2 + num1;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case  android.R.id.home :
-            finish();
-
-            case R.id.viewProfile:
-                Intent intent= new Intent(getApplicationContext() , ContactProfileActivity.class) ;
-                intent.putExtra("recieverUserName" ,receiverUsername ) ;
-                intent.putExtra("recieverNum" ,receiverNumber ) ;
-                startActivity(intent);
-                break;
-
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chat_menu , menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
 }
+
+

@@ -23,4 +23,5 @@
     <string name="confirm">Confirm</string>
     <string name="unblock">Unblock</string>
     <string name="Confirmationmessage">\"By confirming this you won\'t be able to send or recieve messages from \"</string>
+    <string name="groups">Groups</string>
 </resources>

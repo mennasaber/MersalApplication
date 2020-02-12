@@ -39,8 +39,6 @@ public class ChatsFragment extends Fragment {
 
     FirebaseUser mUser;
     ArrayList<Chat> chats;
-    ArrayList<String> groupsIds ;
-    ArrayList<Group> groups ;
     ChatsAdapter chatsAdapter;
     ListView chatsListView;
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
@@ -72,8 +70,6 @@ public class ChatsFragment extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_chats, container, false);
         chats = new ArrayList<>();
-        groups=new ArrayList<>() ;
-        groupsIds = new ArrayList<>();
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         chatsListView = view.findViewById(R.id.chatsListView);
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
@@ -115,46 +111,6 @@ public class ChatsFragment extends Fragment {
 
             }
         });
-
-
-       DatabaseReference mdataReference =FirebaseDatabase.getInstance().getReference("userGroups").child(mUser.getPhoneNumber().substring(2)).child("groupsIds");
-        mdataReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    groupsIds.add(d.getValue(String.class));
-
-                }
-                DatabaseReference chatsDR = FirebaseDatabase.getInstance().getReference("groups");
-                chatsDR.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot g : dataSnapshot.getChildren())
-                        {
-                            Group group = g.getValue(Group.class);
-
-                            if (groupsIds.contains(group.getGroupId())) {
-                                chats.add(new Chat(new User(group.getGroupName(), "", group.getGroupId()),
-                                new Message("Last Group Message","00:00 AM","sender phone", "receiver Phone",1)));
-                                chatsAdapter.notifyDataSetChanged();
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                    }
-                });
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext() , databaseError.getMessage(),Toast.LENGTH_LONG).show();
-            }
-        });
-
-
 
         chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
