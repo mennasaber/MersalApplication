@@ -9,4 +9,5 @@
     <color name="colorMyMessage">#314359</color>
     <color name="colorSelect">#334191</color>
     <color name="colorUnRead">#4E8ED6</color>
+    <color name="colorActionBar">#518AA7C8</color>
 </resources>

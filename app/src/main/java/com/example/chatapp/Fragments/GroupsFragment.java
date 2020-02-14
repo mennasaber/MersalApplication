@@ -3,15 +3,18 @@ package com.example.chatapp.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
+
 import com.example.chatapp.Activities.ChatActivity;
 import com.example.chatapp.Activities.GroupActivity;
 import com.example.chatapp.Models.Chat;
@@ -34,11 +37,11 @@ public class GroupsFragment extends Fragment {
 
     FirebaseUser mUser;
     ArrayList<Chat> chats;
-    ArrayList<String> groupsIds ;
-    ArrayList<Group> groups ;
+    ArrayList<String> groupsIds;
+    ArrayList<Group> groups;
     ChatsAdapter chatsAdapter;
     ListView groupsListView;
-     Message lastMessage ;
+    Message lastMessage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,7 +49,7 @@ public class GroupsFragment extends Fragment {
 
         final View view = inflater.inflate(R.layout.fragment_groups, container, false);
         chats = new ArrayList<>();
-         groups=new ArrayList<>() ;
+        groups = new ArrayList<>();
         groupsIds = new ArrayList<>();
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         groupsListView = view.findViewById(R.id.groupsListView);
@@ -55,7 +58,7 @@ public class GroupsFragment extends Fragment {
         groupsListView.setAdapter(chatsAdapter);
 
         //getting all group ids for this user
-       DatabaseReference mdataReference =FirebaseDatabase.getInstance().getReference("userGroups").child(mUser.getPhoneNumber().substring(2)).child("groupsIds");
+        DatabaseReference mdataReference = FirebaseDatabase.getInstance().getReference("userGroups").child(mUser.getPhoneNumber().substring(2)).child("groupsIds");
         mdataReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -69,9 +72,8 @@ public class GroupsFragment extends Fragment {
                 chatsDR.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        for (DataSnapshot g : dataSnapshot.getChildren())
-                        {
-                           final Group group = g.getValue(Group.class);
+                        for (DataSnapshot g : dataSnapshot.getChildren()) {
+                            final Group group = g.getValue(Group.class);
 
                             if (groupsIds.contains(group.getGroupId())) { // get the last message
                                 final DatabaseReference lastMessageDR = FirebaseDatabase.getInstance().getReference().child("GroupsMessages").child(group.getGroupId());
@@ -80,6 +82,9 @@ public class GroupsFragment extends Fragment {
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         for (DataSnapshot c : dataSnapshot.getChildren()) {
                                             lastMessage = c.getValue(Message.class);
+                                        }
+                                        if (lastMessage == null) {
+                                            lastMessage = new Message("No Messages Yet", "", "", "", 0);
                                         }
                                         chats.add(new Chat(new User(group.getGroupName(), "", group.getGroupId()), lastMessage));
                                         chatsAdapter.notifyDataSetChanged();
@@ -104,10 +109,9 @@ public class GroupsFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-                Toast.makeText(getContext() , databaseError.getMessage(),Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
-
 
 
         groupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

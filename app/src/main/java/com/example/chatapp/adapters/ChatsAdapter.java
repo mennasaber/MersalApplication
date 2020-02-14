@@ -54,8 +54,10 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         DateFormat outputFormat = new SimpleDateFormat("hh:mm aa");
         Date date = null;
         try {
-            date = df.parse(time);
-            time = outputFormat.format(date);
+            if (!time.equals("")) {
+                date = df.parse(time);
+                time = outputFormat.format(date);
+            }
         } catch (ParseException pe) {
             pe.printStackTrace();
         }

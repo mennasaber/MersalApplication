@@ -32,13 +32,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    FirebaseUser firebaseUser;
-
-    ArrayList<User> allUsers = new ArrayList<>();
-
-
     public static User currentUser;
-
+    FirebaseUser firebaseUser;
+    ArrayList<User> allUsers = new ArrayList<>();
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
 
@@ -104,13 +100,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 fragment = new SettingsFragment();
                 break;
             case R.id.newGroupOption:
-                Intent intent = new Intent(this, SelectGroupMembersActivity.class);
-                startActivity(intent);
+                Intent intent1 = new Intent(this, SelectGroupMembersActivity.class);
+                startActivity(intent1);
                 break;
-            case  R.id.Groups:
+            case R.id.Groups:
                 fragment = new GroupsFragment();
                 break;
-
+            case R.id.savedMessagesOption:
+                Intent intent2 = new Intent(this, SavedMessagesActivity.class);
+                startActivity(intent2);
+                break;
         }
         if (fragment != null) {
             FragmentManager fragmentManager = getSupportFragmentManager();

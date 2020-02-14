@@ -3,17 +3,17 @@ package com.example.chatapp.Activities;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.AlertDialog;
+
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatapp.Models.Message;
@@ -36,7 +36,7 @@ import java.util.Objects;
 
 public class ChatActivity extends AppCompatActivity {
     ImageButton sendButton;
-    EditText messageTextView ;
+    EditText messageTextView;
     ListView messagesLV;
     MessagesAdapter messagesAdapter;
     List<String> blocks = new ArrayList<>();
@@ -49,6 +49,9 @@ public class ChatActivity extends AppCompatActivity {
     String receiverUsername;
     String chatId;
     ArrayList<Message> messageArrayList;
+    String userPhoneNumber;
+    private ActionMode currentActionMode;
+    private ArrayList<Message> selectedItems;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,12 +60,53 @@ public class ChatActivity extends AppCompatActivity {
         receiverNumber = getIntent().getStringExtra("receiverNumber");
         receiverUsername = getIntent().getStringExtra("receiverUsername");
 
-
         firebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = firebaseDatabase.getReference().child("Chats");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         chatId = getChatId(Objects.requireNonNull(Objects.requireNonNull(mUser).getPhoneNumber()).substring(2), receiverNumber);
+
+        selectedItems = new ArrayList<>();
+
+
+        final ActionMode.Callback callback = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                currentActionMode = mode;
+                mode.setTitle("");
+                mode.getMenuInflater().inflate(R.menu.action_bar, menu);
+                return true;
+            }
+
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.deleteMessage:
+                        mode.finish();
+                        DeleteMessages();
+                        Toast.makeText(ChatActivity.this, "Deleted", Toast.LENGTH_SHORT).show();
+                        break;
+                    case R.id.saveMessage:
+                        mode.finish();
+                        SaveMessages();
+                        Toast.makeText(ChatActivity.this, "Saved", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        break;
+                }
+                return false;
+            }
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                currentActionMode = null;
+            }
+        };
 
         Objects.requireNonNull(getSupportActionBar()).setTitle(receiverUsername);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -72,7 +116,7 @@ public class ChatActivity extends AppCompatActivity {
         messagesLV = findViewById(R.id.messagesLV);
         messageArrayList = new ArrayList<>();
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
-
+        userPhoneNumber = splitNumber[1];
         messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, receiverUsername);
         messagesLV.setAdapter(messagesAdapter);
         mDatabaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
@@ -83,10 +127,11 @@ public class ChatActivity extends AppCompatActivity {
                     Message message = d.getValue(Message.class);
                     if (!message.getSenderPhone().equals(splitNumber[1]))
                         mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
-                    messageArrayList.add(d.getValue(Message.class));
-                    messagesAdapter.notifyDataSetChanged();
-                }
+                    message.messageId = d.getKey();
+                    messageArrayList.add(message);
 
+                }
+                messagesAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -102,7 +147,7 @@ public class ChatActivity extends AppCompatActivity {
                     String messageId = System.currentTimeMillis() + "";
                     Message message = new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
                             , splitNumber[1], receiverNumber, 0);
-                     mDatabaseReference.child(chatId).child(messageId).setValue(message);
+                    mDatabaseReference.child(chatId).child(messageId).setValue(message);
                     messageTextView.setText("");
                 }
             }
@@ -112,6 +157,51 @@ public class ChatActivity extends AppCompatActivity {
         //messageTextView.setText("You can't reply to this conversation");
         //messageTextView.setEnabled(false);
         //sendButton.setEnabled(false);
+
+        messagesLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if (!view.isSelected() && selectedItems.size() == 0) {
+                    selectedItems.add(messageArrayList.get(i));
+                    startActionMode(callback);
+                    view.setSelected(true);
+                    view.setBackgroundResource(R.color.colorLightYellow);
+                }
+                return true;
+            }
+        });
+        messagesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if (selectedItems.contains(messageArrayList.get(i))) {
+                    selectedItems.remove(messageArrayList.get(i));
+                    view.setSelected(false);
+                    view.setBackgroundResource(R.color.colorAccent);
+                    if (selectedItems.size() == 0)
+                        currentActionMode.finish();
+                } else if (currentActionMode != null) {
+                    selectedItems.add(messageArrayList.get(i));
+                    view.setSelected(true);
+                    view.setBackgroundResource(R.color.colorLightYellow);
+                }
+            }
+        });
+    }
+
+    private void SaveMessages() {
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("savedMessages").child(userPhoneNumber);
+        for (int i = 0; i < selectedItems.size(); i++) {
+            databaseReference.child(selectedItems.get(i).messageId).setValue(selectedItems.get(i));
+        }
+        messagesAdapter.notifyDataSetChanged();
+        selectedItems.clear();
+    }
+
+    private void DeleteMessages() {
+        for (int i = 0; i < selectedItems.size(); i++) {
+            mDatabaseReference.child(chatId).child(selectedItems.get(i).messageId).removeValue();
+        }
+        selectedItems.clear();
     }
 
     // get the chat id in firebase in order to put the new messages between the
@@ -128,14 +218,14 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()){
-            case  android.R.id.home :
-            finish();
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
 
             case R.id.viewProfile:
-                Intent intent= new Intent(getApplicationContext() , ContactProfileActivity.class) ;
-                intent.putExtra("recieverUserName" ,receiverUsername ) ;
-                intent.putExtra("recieverNum" ,receiverNumber ) ;
+                Intent intent = new Intent(getApplicationContext(), ContactProfileActivity.class);
+                intent.putExtra("recieverUserName", receiverUsername);
+                intent.putExtra("recieverNum", receiverNumber);
                 startActivity(intent);
                 break;
 
@@ -145,8 +235,9 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chat_menu , menu);
+        getMenuInflater().inflate(R.menu.chat_menu, menu);
         return super.onCreateOptionsMenu(menu);
     }
+
 
 }
