@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.net.Uri;
@@ -66,10 +67,8 @@ public class GroupActivity extends AppCompatActivity {
     FirebaseUser mUser;
     FirebaseAuth mAuth;
     StorageReference recordsFolder;
-    String receiverNumber;
-    String receiverUsername;
     ArrayList<Message> messageArrayList;
-    String userPhoneNumber;
+    String userPhoneNumber, chatId , groupName;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
 
@@ -81,8 +80,8 @@ public class GroupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group);
-        receiverNumber = getIntent().getStringExtra("receiverNumber");
-        receiverUsername = getIntent().getStringExtra("receiverUsername");
+        chatId = getIntent().getStringExtra("receiverNumber");
+        groupName = getIntent().getStringExtra("receiverUsername");
         recordButton = findViewById(R.id.groupRecordButton);
         loadImageButton = findViewById(R.id.groupLoadImageButton);
 
@@ -97,7 +96,7 @@ public class GroupActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
-        Objects.requireNonNull(getSupportActionBar()).setTitle(receiverUsername);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(groupName);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         selectedItems = new ArrayList<>();
@@ -130,6 +129,11 @@ public class GroupActivity extends AppCompatActivity {
                         SaveMessages();
                         Toast.makeText(GroupActivity.this, "Saved", Toast.LENGTH_SHORT).show();
                         break;
+                    case R.id.forward:
+                        mode.finish();
+                        Intent intent = new Intent(getApplicationContext(), AllContacts.class) ;
+                        startActivityForResult(intent,1);
+                        break;
                     default:
                         break;
                 }
@@ -152,7 +156,7 @@ public class GroupActivity extends AppCompatActivity {
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
         userPhoneNumber = splitNumber[1];
         //Loading group messages
-        databaseReference.child(receiverNumber).addValueEventListener(new ValueEventListener() {
+        databaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 messageArrayList.clear();
@@ -160,7 +164,7 @@ public class GroupActivity extends AppCompatActivity {
                     Message message = d.getValue(Message.class);
                     if (message != null) {
                         message.messageId = d.getKey();
-                        databaseReference.child(receiverNumber).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
+                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
                         messageArrayList.add(message);
                     }
                 }
@@ -175,13 +179,10 @@ public class GroupActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!messageTextView.getText().toString().trim().equals("")) {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                    String messageId = System.currentTimeMillis() + "";
-                    Message message = new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
-                            , splitNumber[1], receiverNumber, 0);
-                    databaseReference.child(receiverNumber).child(messageId).setValue(message);
-                    messageTextView.setText("");
+                    if (!messageTextView.getText().toString().trim().equals("")) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                        sendMessage(new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
+                                , userPhoneNumber, chatId, 0));
                 }
             }
         });
@@ -278,9 +279,16 @@ public class GroupActivity extends AppCompatActivity {
 
     private void DeleteMessages() {
         for (int i = 0; i < selectedItems.size(); i++) {
-            databaseReference.child(receiverNumber).child(selectedItems.get(i).messageId).removeValue();
+            databaseReference.child(chatId).child(selectedItems.get(i).messageId).removeValue();
         }
         selectedItems.clear();
+    }
+
+    private  void sendMessage(Message message){
+        String messageId = System.currentTimeMillis() + "";
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
+        databaseReference.child(chatId).child(messageId).setValue(message);
+        messageTextView.setText("");
     }
 
     private void pickImageFromGallery() {
@@ -327,12 +335,29 @@ public class GroupActivity extends AppCompatActivity {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                             String messageId = System.currentTimeMillis() + "";
                             Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
-                                    , userPhoneNumber, receiverNumber, 0);
-                            databaseReference.child(receiverNumber).child(messageId).setValue(message);
+                                    , userPhoneNumber, chatId, 0);
+                            databaseReference.child(chatId).child(messageId).setValue(message);
                         }
                     });
                 }
             });
+        }
+        else {
+            super.onActivityResult(requestCode, resultCode, data);
+            SharedPreferences sharedPreferences = getSharedPreferences("forward", MODE_PRIVATE);
+            String thisReciever = chatId ;
+            String receiverNumber = sharedPreferences.getString("recNumber", "");
+            String thisChat = chatId;
+            chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
+            for (int i = 0; i < selectedItems.size(); i++) {
+                selectedItems.get(i).setReceiverPhone(receiverNumber);
+                selectedItems.get(i).setSeen(0);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                selectedItems.get(i).setTime(dateFormat.format(new Date()));
+                sendMessage(selectedItems.get(i));
+            }
+            chatId = thisChat;
+            chatId=thisReciever ;
         }
     }
 
@@ -348,8 +373,8 @@ public class GroupActivity extends AppCompatActivity {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                         String messageId = System.currentTimeMillis() + "";
                         Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
-                                , userPhoneNumber, receiverNumber, 0);
-                        databaseReference.child(receiverNumber).child(messageId).setValue(message);
+                                , userPhoneNumber, chatId, 0);
+                        databaseReference.child(chatId).child(messageId).setValue(message);
 
                     }
                 });
@@ -391,7 +416,17 @@ public class GroupActivity extends AppCompatActivity {
             v.vibrate(150);
         }
     }
-
+    // get the chat id in firebase in order to put the new messages between the
+    // 2 Contacts with the old ones .
+    String getChatId(String num1, String num2) {
+        for (int i = 0; i < num1.length(); i++) {
+            if (num1.charAt(i) > num2.charAt(i))
+                return num1 + num2;
+            else if (num1.charAt(i) < num2.charAt(i))
+                return num2 + num1;
+        }
+        return num2 + num1;
+    }
 }
 
 

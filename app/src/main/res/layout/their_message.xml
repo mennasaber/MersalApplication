@@ -69,9 +69,7 @@
             android:scaleType="centerCrop"
             android:layout_gravity="left|top"
             android:paddingBottom="2dp"
-            android:textColor="@color/colorWhite"
-            android:src="@drawable/background"
-            />
+            android:textColor="@color/colorWhite" />
         <TextView
             android:id="@+id/timeTheirMessageTV"
             android:layout_width="wrap_content"

@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -58,13 +59,17 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
         userPhoneNumber = splitNumber[1];
         if (Objects.requireNonNull(currentMessage).getSenderPhone().equals(userPhoneNumber)) {
             view = View.inflate(context, R.layout.my_message, null);
+            ImageView imageView = view.findViewById(R.id.myMessageIV);
+            TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
             if (!currentMessage.getMessage().contains("https")) {
                 TextView message = view.findViewById(R.id.myMessageTextView);
                 message.setText(currentMessage.getMessage());
-                ImageView imageView = view.findViewById(R.id.myMessageIV);
                 imageView.setVisibility(View.GONE);
             }
-            TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
+            else {
+                Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
+            }
+
             timeTV.setText(time);
             if (currentMessage.getSeen() == 1) {
                 ImageView seenImage = view.findViewById(R.id.seenImage);
@@ -79,6 +84,9 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
                 message.setText(currentMessage.getMessage());
                 ImageView imageView2 = view.findViewById(R.id.theirMessageIV);
                 imageView2.setVisibility(View.GONE);
+            }
+            else {
+                Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
             }
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("users");
             databaseReference.child(currentMessage.getSenderPhone()).addValueEventListener(new ValueEventListener() {

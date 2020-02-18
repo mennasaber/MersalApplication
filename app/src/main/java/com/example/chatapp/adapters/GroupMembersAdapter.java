@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -34,7 +35,8 @@ public class GroupMembersAdapter extends ArrayAdapter<User> {
         TextView usernameTV = view.findViewById(R.id.usernameMemberTV);
         final ImageView selectImageView = view.findViewById(R.id.selectedImageView);
         ImageView userImageView = view.findViewById(R.id.imageView2);
-
+        if (!currentUser.getImage().equals(""))
+        Picasso.with(context).load(currentUser.getImage()).into(userImageView);
         usernameTV.setText(currentUser.getUsername());
         selectImageView.setVisibility(View.INVISIBLE);
         return view;

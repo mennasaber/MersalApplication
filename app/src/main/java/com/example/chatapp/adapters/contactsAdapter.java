@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -35,7 +36,7 @@ public class ContactsAdapter extends ArrayAdapter<User> {
         TextView usernameTextView = view.findViewById(R.id.usernameTextView);
         TextView phoneNumberTextView = view.findViewById(R.id.phoneNumberTextView);
         ImageView userImage = view.findViewById(R.id.imageView);
-
+        Picasso.with(context).load(currentUser.getImage()).into(userImage);
         usernameTextView.setText(currentUser.getUsername());
         phoneNumberTextView.setText(currentUser.getPhoneNumber());
 

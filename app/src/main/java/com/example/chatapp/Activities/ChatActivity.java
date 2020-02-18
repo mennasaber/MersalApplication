@@ -441,7 +441,6 @@ public class ChatActivity extends AppCompatActivity {
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
             databaseReference.child(chatId).child(messageId).setValue(message);
             messageTextView.setText("");
-
     }
     // get the chat id in firebase in order to put the new messages between the
     // 2 Contacts with the old ones .

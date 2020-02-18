@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -48,11 +49,18 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
         if (view == null)
             view = View.inflate(context, R.layout.their_message, null);
         TextView usernameTV = view.findViewById(R.id.usernameMessageTV);
-        ImageView imageView = view.findViewById(R.id.imageView);
+        ImageView profPic = view.findViewById(R.id.imageView);
+        ImageView messagePic = view.findViewById(R.id.theirMessageIV);
         TextView message = view.findViewById(R.id.theirMessageTV);
-        message.setText(currentMessage.getMessage());
-        usernameTV.setText(currentMessage.username);
         TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);
+        if (currentMessage.getMessage().contains("https")) {
+            Picasso.with(context).load(currentMessage.getMessage()).into(messagePic);
+        }
+        else {
+            message.setText(currentMessage.getMessage());
+            messagePic.setVisibility(View.GONE);
+        }
+        usernameTV.setText(currentMessage.username);
         timeTV.setText(time);
         return view;
     }
