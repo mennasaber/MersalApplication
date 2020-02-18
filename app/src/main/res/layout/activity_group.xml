@@ -22,8 +22,8 @@
         android:paddingStart="10dp"
         android:paddingLeft="10dp"
         android:paddingTop="10dp"
-        android:paddingEnd="45dp"
-        android:paddingRight="45dp"
+        android:paddingEnd="95dp"
+        android:paddingRight="95dp"
         android:paddingBottom="10dp"
         android:textColor="@android:color/white"
         android:textColorHighlight="@color/colorMyMessage"
@@ -41,7 +41,19 @@
         android:background="@android:color/transparent"
         android:scaleType="centerCrop"
         android:src="@android:drawable/ic_menu_send" />
-
+    <ImageButton
+        android:id="@+id/groupLoadImageButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_toLeftOf="@id/groupSendButton"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="5dp"
+        android:padding="5dp"
+        android:background="@android:color/transparent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/attach"
+        />
     <ListView
         android:id="@+id/groupMessagesLV"
         android:layout_width="match_parent"
