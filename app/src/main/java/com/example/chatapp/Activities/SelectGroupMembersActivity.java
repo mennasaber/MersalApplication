@@ -32,6 +32,7 @@ import java.util.ArrayList;
 public class SelectGroupMembersActivity extends AppCompatActivity {
 
     public static final int REQUEST_READ_CONTACTS = 79;
+    public static ArrayList<User> usersSelected;
     ArrayList<User> contactsHaveAccount = new ArrayList<>();
     ArrayList<User> allUsers = new ArrayList<>();
     com.example.chatapp.Adapters.GroupMembersAdapter groupMembersAdapter;
@@ -39,8 +40,7 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
     String mUserNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
     final String[] splitNumber = mUserNumber.split("\\+2");
     ListView contactsMemberLV;
-    public static ArrayList<User> usersSelected;
-    FloatingActionButton floatingActionButton ;
+    FloatingActionButton floatingActionButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +77,7 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
                 if (!v.isShown()) {
                     v.setVisibility(View.VISIBLE);
                     usersSelected.add(contactsHaveAccount.get(i));
-                } else if(v.isShown()){
+                } else if (v.isShown()) {
                     v.setVisibility(View.INVISIBLE);
                     usersSelected.remove(contactsHaveAccount.get(i));
                 }
@@ -90,9 +90,9 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                    usersSelected.add(MainActivity.currentUser);
-                    Intent intent = new Intent(SelectGroupMembersActivity.this, GroupDataActivity.class);
-                    startActivity(intent);
+                usersSelected.add(MainActivity.currentUser);
+                Intent intent = new Intent(SelectGroupMembersActivity.this, GroupDataActivity.class);
+                startActivity(intent);
             }
         });
     }

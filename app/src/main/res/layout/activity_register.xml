@@ -46,4 +46,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.7" />
+
+    <ImageButton
+        android:id="@+id/choiceImageRegister"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/camera"
+        android:background="@android:color/transparent"
+        app:layout_constraintBottom_toTopOf="@+id/usernameEditText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.612"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.769" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

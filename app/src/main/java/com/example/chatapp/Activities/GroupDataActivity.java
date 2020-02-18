@@ -1,12 +1,23 @@
 package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.example.chatapp.Models.Group;
 import com.example.chatapp.Models.Message;
@@ -21,11 +32,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class GroupDataActivity extends AppCompatActivity {
+    final static int PICK_CODE = 1000;
+    final static int PERMISSION_CODE = 1001;
     int index = 0;
+    ImageButton imageButton;
+    Uri imageURI;
+    ImageView imageView;
+    String imageEncoded = "";
     private ArrayList<User> membersList = SelectGroupMembersActivity.usersSelected;
     private Group group;
     private FloatingActionButton createGroupFAB;
@@ -44,7 +65,8 @@ public class GroupDataActivity extends AppCompatActivity {
         userPhoneNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
         String[] arr = userPhoneNumber.split("\\+2");
         userPhoneNumber = arr[1];
-
+        imageView = findViewById(R.id.groupImage);
+        imageButton = findViewById(R.id.choiceImageGroupData);
         userGroups = new UserGroups(new ArrayList<String>());
         groupNameEditText = findViewById(R.id.groupNameEditText);
         databaseReference1 = FirebaseDatabase.getInstance().getReference("groups");
@@ -70,7 +92,7 @@ public class GroupDataActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (!groupNameEditText.getText().toString().trim().equals("")) {
                     group = new Group();
-                    group.setGroupImage("");
+                    group.setGroupImage(imageEncoded);
                     group.setGroupName(groupNameEditText.getText().toString().trim());
                     group.setGroupId(databaseReference1.push().getKey());
                     databaseReference1.child(group.getGroupId()).setValue(group);
@@ -81,7 +103,21 @@ public class GroupDataActivity extends AppCompatActivity {
                 }
             }
         });
-
+        imageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                        requestPermissions(permissions, PERMISSION_CODE);
+                    } else {
+                        pickImageFromGallery();
+                    }
+                } else {
+                    pickImageFromGallery();
+                }
+            }
+        });
     }
 
     private void UpdateMembersGroups() {
@@ -109,5 +145,43 @@ public class GroupDataActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
+            Bitmap bitmap = null;
+            imageURI = Objects.requireNonNull(data).getData();
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageURI);
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
+                imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
+                imageView.setImageURI(imageURI);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    pickImageFromGallery();
+                } else {
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+
+                }
+                break;
+        }
+    }
+
+    private void pickImageFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, PICK_CODE);
     }
 }
