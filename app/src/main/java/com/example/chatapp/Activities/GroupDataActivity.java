@@ -24,6 +24,7 @@ import com.example.chatapp.Models.Message;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.Models.UserGroups;
 import com.example.chatapp.R;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,7 +33,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -56,12 +59,14 @@ public class GroupDataActivity extends AppCompatActivity {
     private DatabaseReference databaseReference3;
     private UserGroups userGroups;
     private String userPhoneNumber;
+    StorageReference imageFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_data);
 
+        imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
         userPhoneNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
         String[] arr = userPhoneNumber.split("\\+2");
         userPhoneNumber = arr[1];
@@ -151,17 +156,21 @@ public class GroupDataActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
-            Bitmap bitmap = null;
-            imageURI = Objects.requireNonNull(data).getData();
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageURI);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                imageView.setImageURI(imageURI);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            final Uri imageData = Objects.requireNonNull(data).getData();
+            final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
+            imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(GroupDataActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                    imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            imageView.setImageURI(imageData);
+                            imageEncoded = String.valueOf(imageData);
+                        }
+                    });
+                }
+            });
         }
     }
 

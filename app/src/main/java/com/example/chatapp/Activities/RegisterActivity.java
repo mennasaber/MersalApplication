@@ -20,15 +20,21 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.example.chatapp.Models.User;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
@@ -38,8 +44,8 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     ImageButton userImage;
     Uri imageURI;
     StorageReference firebaseStorage;
-    String imageEncoded = "";
     ImageView imageView;
+    StorageReference imageFolder;
     private EditText usernameEditText;
     private String phoneNumber;
 
@@ -47,7 +53,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
+        imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
         imageView = findViewById(R.id.userImage);
         firebaseStorage = FirebaseStorage.getInstance().getReference();
         phoneNumber = getIntent().getStringExtra("phoneNumber");
@@ -97,7 +103,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             String[] array = phoneNumber.split("\\+2");
             phoneNumber = array[1];
         }
-        user = new User(usernameEditText.getText().toString().trim(), imageEncoded, phoneNumber);
+        user = new User(usernameEditText.getText().toString().trim(), String.valueOf(imageURI), phoneNumber);
         myRef.child(user.getPhoneNumber()).setValue(user);
     }
 
@@ -126,20 +132,24 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
-            Bitmap bitmap = null;
-            imageURI = Objects.requireNonNull(data).getData();
-            try {
-                bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), imageURI);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                imageView.setImageURI(imageURI);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            final Uri imageData = Objects.requireNonNull(data).getData();
+            final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
+            imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(RegisterActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                    imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            imageView.setImageURI(imageData);
+                            imageURI = imageData;
+                        }
+                    });
+                }
+            });
         }
     }
 }

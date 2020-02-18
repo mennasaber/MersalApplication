@@ -28,12 +28,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatapp.Activities.MainActivity;
+import com.example.chatapp.Activities.RegisterActivity;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -54,6 +59,7 @@ public class SettingsFragment extends Fragment {
     EditText editUsername;
     Button save;
     ImageButton imageButton;
+    StorageReference imageFolder;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -67,6 +73,7 @@ public class SettingsFragment extends Fragment {
         MainActivity mainActivity = (MainActivity) getActivity();
         username.setText(mainActivity.currentUser.getUsername());
         phone.setText(firebaseUser.getPhoneNumber().substring(2));
+        imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
 
         username.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
@@ -79,7 +86,7 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (ActivityCompat.checkSelfPermission(getContext(),Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
                         String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
                         requestPermissions(permissions, PERMISSION_CODE);
                     } else {
@@ -92,27 +99,33 @@ public class SettingsFragment extends Fragment {
         });
         return mainView;
     }
+
     private void pickImageFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_CODE);
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_CODE && resultCode == RESULT_OK){
-            imageURI = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageURI);
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.PNG, 100, baos);
-                String imageEncoded = Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
-                profileImage.setImageURI(imageURI);
-                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
-                databaseReference.child(firebaseUser.getPhoneNumber().substring(2)).child("image").setValue(imageEncoded);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
+            final Uri imageData = Objects.requireNonNull(data).getData();
+            final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
+            imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+                    imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            profileImage.setImageURI(imageData);
+                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+                            databaseReference.child(firebaseUser.getPhoneNumber().substring(2)).child("image").setValue(String.valueOf(imageData));
+                        }
+                    });
+                }
+            });
         }
     }
 

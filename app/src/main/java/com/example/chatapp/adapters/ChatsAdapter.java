@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import com.example.chatapp.Models.Chat;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -47,7 +48,7 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         ImageView seenImageView = view.findViewById(R.id.seenChatImage);
         ImageView UnReadImageView = view.findViewById(R.id.UnReadImageView);
         Chat currentChat = getItem(position);
-
+        //Picasso.with(context).load(currentChat.get).into(imageView);   :))))))
         String time = currentChat.getLastMessage().getTime();
 
         DateFormat df = new SimpleDateFormat("HH:mm");

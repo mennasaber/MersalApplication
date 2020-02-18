@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -61,10 +62,13 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         if (Objects.requireNonNull(currentMessage).getSenderPhone().equals(userPhoneNumber)) {
             view = View.inflate(context, R.layout.my_message, null);
             TextView message = view.findViewById(R.id.myMessageTextView);
+            ImageView imageView = view.findViewById(R.id.myMessageIV);
             if (!currentMessage.getMessage().contains("https")) {
                 message.setText(currentMessage.getMessage());
-                ImageView imageView = view.findViewById(R.id.myMessageIV);
                 imageView.setVisibility(View.GONE);
+            }
+            else {
+                Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
             }
             TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
             timeTV.setText(time);
@@ -77,11 +81,14 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             view = View.inflate(context, R.layout.their_message, null);
             TextView usernameTV = view.findViewById(R.id.usernameMessageTV);
             ImageView imageView = view.findViewById(R.id.imageView);
+            ImageView imageView2 = view.findViewById(R.id.theirMessageIV);
             if (!currentMessage.getMessage().contains("https")) {
                 TextView message = view.findViewById(R.id.theirMessageTV);
                 message.setText(currentMessage.getMessage());
-                ImageView imageView2 = view.findViewById(R.id.theirMessageIV);
                 imageView2.setVisibility(View.GONE);
+            }
+            else {
+                Picasso.with(context).load(currentMessage.getMessage()).into(imageView2);
             }
             usernameTV.setText(username);
             TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);

@@ -76,7 +76,11 @@ public class ContactProfileActivity extends AppCompatActivity {
                     Block block = dataSnapshot.getValue(Block.class);
                     if (block.getBlockId().equals(blockId)) {
                         blockButton.setText(R.string.unblock);
+                        if (!block.getBlockerNumber().equals(mUser.getPhoneNumber().substring(2))){
+                            blockButton.setEnabled(false);
+                        }
                     }
+
                 }
             }
 
@@ -108,8 +112,8 @@ public class ContactProfileActivity extends AppCompatActivity {
                 if (blockButton.getText().toString().equals("Block")) {
                     FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
                     DatabaseReference databaseReference = firebaseDatabase.getReference().child("Blocks").child(blockId);
-                    databaseReference.child("blockId").setValue(blockId);
-                    blockButton.setText(R.string.unblock);
+                    databaseReference.setValue(new Block(blockId , mUser.getPhoneNumber().substring(2)));
+                blockButton.setText(R.string.unblock);
                 } else {
                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Blocks").child(blockId);
                     databaseReference.removeValue();

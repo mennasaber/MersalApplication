@@ -399,7 +399,6 @@ public class ChatActivity extends AppCompatActivity {
                 }
             });
         } else {
-            super.onActivityResult(requestCode, resultCode, data);
             SharedPreferences sharedPreferences = getSharedPreferences("forward", MODE_PRIVATE);
             String thisReciever = receiverNumber;
             receiverNumber = sharedPreferences.getString("recNumber", "");
@@ -459,13 +458,11 @@ public class ChatActivity extends AppCompatActivity {
         }
         selectedItems.clear();
     }
-
-    private void sendMessage(Message message) {
-        String messageId = System.currentTimeMillis() + "";
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
-        databaseReference.child(chatId).child(messageId).setValue(message);
-        messageEditText.setText("");
-
+    private  void sendMessage(Message message){
+            String messageId = System.currentTimeMillis() + "";
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
+            databaseReference.child(chatId).child(messageId).setValue(message);
+            messageEditText.setText("");
     }
 
     // get the chat id in firebase in order to put the new messages between the
