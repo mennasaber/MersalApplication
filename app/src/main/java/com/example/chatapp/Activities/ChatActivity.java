@@ -10,13 +10,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,11 +47,9 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -59,7 +58,7 @@ public class ChatActivity extends AppCompatActivity {
     final static int PICK_CODE = 1000;
     private final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     ImageButton sendButton;
-    EditText messageTextView;
+    EditText messageEditText;
     ListView messagesLV;
     MessagesAdapter messagesAdapter;
     FirebaseDatabase firebaseDatabase;
@@ -69,7 +68,7 @@ public class ChatActivity extends AppCompatActivity {
     String receiverNumber;
     String receiverUsername;
     String chatId;
-    boolean blocked ;
+    boolean blocked;
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
     ImageButton loadImageButton;
@@ -104,7 +103,7 @@ public class ChatActivity extends AppCompatActivity {
         chatId = getChatId(Objects.requireNonNull(Objects.requireNonNull(mUser).getPhoneNumber()).substring(2), receiverNumber);
 
         selectedItems = new ArrayList<>();
-        blocked = false ;
+        blocked = false;
 
         final ActionMode.Callback callback = new ActionMode.Callback() {
             @Override
@@ -135,8 +134,8 @@ public class ChatActivity extends AppCompatActivity {
                         break;
                     case R.id.forward:
                         mode.finish();
-                        Intent intent = new Intent(getApplicationContext(), AllContacts.class) ;
-                        startActivityForResult(intent,1);
+                        Intent intent = new Intent(getApplicationContext(), AllContacts.class);
+                        startActivityForResult(intent, 1);
                         break;
                     default:
                         break;
@@ -155,7 +154,7 @@ public class ChatActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         sendButton = findViewById(R.id.sendButton);
-        messageTextView = findViewById(R.id.messageEditText);
+        messageEditText = findViewById(R.id.messageEditText);
         messagesLV = findViewById(R.id.messagesLV);
         messageArrayList = new ArrayList<>();
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
@@ -188,15 +187,40 @@ public class ChatActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!messageTextView.getText().toString().trim().equals("")) {
+                if (!messageEditText.getText().toString().trim().equals("")) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                    sendMessage(new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
+                    sendMessage(new Message(messageEditText.getText().toString(), dateFormat.format(new Date())
                             , userPhoneNumber, receiverNumber, 0));
                 }
             }
         });
 
+        messageEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(!messageEditText.getText().toString().trim().equals("")){
+                    sendButton.setVisibility(View.VISIBLE);
+                    recordButton.setVisibility(View.INVISIBLE);
+                    loadImageButton.setVisibility(View.INVISIBLE);
+                }
+                else
+                {
+                    recordButton.setVisibility(View.VISIBLE);
+                    sendButton.setVisibility(View.INVISIBLE);
+                    loadImageButton.setVisibility(View.VISIBLE);
+                }
+            }
+        }) ;
         loadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -355,8 +379,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_CODE && resultCode == RESULT_OK)
-        {
+        if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
             Uri imageData = Objects.requireNonNull(data).getData();
             final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
             imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -375,11 +398,9 @@ public class ChatActivity extends AppCompatActivity {
                     });
                 }
             });
-        }
-        else {
-            super.onActivityResult(requestCode, resultCode, data);
+        } else {
             SharedPreferences sharedPreferences = getSharedPreferences("forward", MODE_PRIVATE);
-            String thisReciever = receiverNumber ;
+            String thisReciever = receiverNumber;
             receiverNumber = sharedPreferences.getString("recNumber", "");
             String thisChat = chatId;
             chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
@@ -391,7 +412,7 @@ public class ChatActivity extends AppCompatActivity {
                 sendMessage(selectedItems.get(i));
             }
             chatId = thisChat;
-            receiverNumber=thisReciever ;
+            receiverNumber = thisReciever;
         }
     }
 
@@ -403,17 +424,18 @@ public class ChatActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue(Block.class) == null) {}
-                else {
+                if (dataSnapshot.getValue(Block.class) == null) {
+                } else {
                     Block block = dataSnapshot.getValue(Block.class);
-                    if (block.getBlockId().equals(chatId)){
-                        blocked=true ;
+                    if (block.getBlockId().equals(chatId)) {
+                        blocked = true;
                         sendButton.setEnabled(false);
-                        messageTextView.setText(R.string.blocked_tv);
-                        messageTextView.setEnabled(false);
+                        messageEditText.setText(R.string.blocked_tv);
+                        messageEditText.setEnabled(false);
                     }
                 }
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -440,8 +462,9 @@ public class ChatActivity extends AppCompatActivity {
             String messageId = System.currentTimeMillis() + "";
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
             databaseReference.child(chatId).child(messageId).setValue(message);
-            messageTextView.setText("");
+            messageEditText.setText("");
     }
+
     // get the chat id in firebase in order to put the new messages between the
     // 2 Contacts with the old ones .
     String getChatId(String num1, String num2) {

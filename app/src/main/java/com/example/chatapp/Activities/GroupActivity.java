@@ -15,6 +15,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,7 +31,6 @@ import android.widget.Toast;
 import com.example.chatapp.Adapters.GroupMessagesAdapter;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
-import com.example.chatapp.Adapters.MessagesAdapter;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -47,7 +48,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -59,7 +59,7 @@ public class GroupActivity extends AppCompatActivity {
     StorageReference Folder;
     ImageButton recordButton;
     ImageButton sendButton;
-    EditText messageTextView;
+    EditText messageEditText;
     ListView messagesLV;
     GroupMessagesAdapter groupMessagesAdapter;
     FirebaseDatabase firebaseDatabase;
@@ -148,13 +148,40 @@ public class GroupActivity extends AppCompatActivity {
 
 
         sendButton = findViewById(R.id.groupSendButton);
-        messageTextView = findViewById(R.id.groupMessageEditText);
+        messageEditText = findViewById(R.id.groupMessageEditText);
         messagesLV = findViewById(R.id.groupMessagesLV);
         messageArrayList = new ArrayList<>();
         groupMessagesAdapter = new GroupMessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList);
         messagesLV.setAdapter(groupMessagesAdapter);
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
         userPhoneNumber = splitNumber[1];
+
+        messageEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if(!messageEditText.getText().toString().trim().equals("")){
+                    sendButton.setVisibility(View.VISIBLE);
+                    recordButton.setVisibility(View.INVISIBLE);
+                    loadImageButton.setVisibility(View.INVISIBLE);
+                }
+                else
+                {
+                    recordButton.setVisibility(View.VISIBLE);
+                    sendButton.setVisibility(View.INVISIBLE);
+                    loadImageButton.setVisibility(View.VISIBLE);
+                }
+            }
+        }) ;
         //Loading group messages
         databaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
@@ -179,13 +206,14 @@ public class GroupActivity extends AppCompatActivity {
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    if (!messageTextView.getText().toString().trim().equals("")) {
-                        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                        sendMessage(new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
-                                , userPhoneNumber, chatId, 0));
+                if (!messageEditText.getText().toString().trim().equals("")) {
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                    sendMessage(new Message(messageEditText.getText().toString(), dateFormat.format(new Date())
+                            , userPhoneNumber, chatId, 0));
                 }
             }
         });
+
         messagesLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -265,8 +293,8 @@ public class GroupActivity extends AppCompatActivity {
                 return false;
             }
         });
-    }
 
+    }
 
     private void SaveMessages() {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("savedMessages").child(userPhoneNumber);
@@ -288,7 +316,7 @@ public class GroupActivity extends AppCompatActivity {
         String messageId = System.currentTimeMillis() + "";
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
         databaseReference.child(chatId).child(messageId).setValue(message);
-        messageTextView.setText("");
+        messageEditText.setText("");
     }
 
     private void pickImageFromGallery() {
@@ -427,6 +455,8 @@ public class GroupActivity extends AppCompatActivity {
         }
         return num2 + num1;
     }
-}
+    }
+
+
 
 

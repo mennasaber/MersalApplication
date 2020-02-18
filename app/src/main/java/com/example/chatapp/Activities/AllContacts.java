@@ -1,4 +1,3 @@
-
 package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
@@ -40,6 +39,7 @@ public class AllContacts extends AppCompatActivity {
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
     String mUserNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
     final String[] splitNumber = mUserNumber.split("\\+2");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,8 +70,8 @@ public class AllContacts extends AppCompatActivity {
         contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                SharedPreferences sharedPreferences = getSharedPreferences("forward" , MODE_PRIVATE) ;
-                SharedPreferences.Editor editor = sharedPreferences.edit() ;
+                SharedPreferences sharedPreferences = getSharedPreferences("forward", MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("recNumber", contactsAdapter.getItem(position).getPhoneNumber());
                 editor.putString("recUsername", contactsHaveAccount.get(position).getUsername());
                 editor.putString("recImage", contactsAdapter.getItem(position).getImage());
@@ -80,6 +80,7 @@ public class AllContacts extends AppCompatActivity {
             }
         });
     }
+
     private void requestPermission() {
         ActivityCompat.requestPermissions(Objects.requireNonNull(this), new String[]{android.Manifest.permission.READ_CONTACTS},
                 REQUEST_READ_CONTACTS);

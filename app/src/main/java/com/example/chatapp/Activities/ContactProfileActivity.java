@@ -32,19 +32,20 @@ import java.util.Objects;
 
 public class ContactProfileActivity extends AppCompatActivity {
 
-    TextView userPhone , userName,confirmationMessage ;
-    Button blockButton ,confirm  ;
-    String blockId ;
-    AlertDialog.Builder alertBuilder ;
-    AlertDialog alertDialog ;
-    FirebaseAuth firebaseAuth ;
-    FirebaseUser mUser ;
-    FirebaseDatabase mDatabase ;
-    DatabaseReference mDatabaseReference ;
+    TextView userPhone, userName, confirmationMessage;
+    Button blockButton, confirm;
+    String blockId;
+    AlertDialog.Builder alertBuilder;
+    AlertDialog alertDialog;
+    FirebaseAuth firebaseAuth;
+    FirebaseUser mUser;
+    FirebaseDatabase mDatabase;
+    DatabaseReference mDatabaseReference;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        firebaseAuth= FirebaseAuth.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
         mUser = firebaseAuth.getCurrentUser();
 
         setContentView(R.layout.activity_contact_profile);
@@ -60,8 +61,8 @@ public class ContactProfileActivity extends AppCompatActivity {
                 createPopupDialogue();
             }
         });
-         blockId= getChatId(userPhone.getText().toString() , mUser.getPhoneNumber().substring(2));
-        mDatabase = FirebaseDatabase.getInstance() ;
+        blockId = getChatId(userPhone.getText().toString(), mUser.getPhoneNumber().substring(2));
+        mDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mDatabase.getReference().child("Blocks");
         mDatabaseReference.keepSynced(true);
 
@@ -70,10 +71,10 @@ public class ContactProfileActivity extends AppCompatActivity {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.getValue(Block.class) == null) {}
-                else {
+                if (dataSnapshot.getValue(Block.class) == null) {
+                } else {
                     Block block = dataSnapshot.getValue(Block.class);
-                    if (block.getBlockId().equals(blockId)){
+                    if (block.getBlockId().equals(blockId)) {
                         blockButton.setText(R.string.unblock);
                         if (!block.getBlockerNumber().equals(mUser.getPhoneNumber().substring(2))){
                             blockButton.setEnabled(false);
@@ -91,16 +92,16 @@ public class ContactProfileActivity extends AppCompatActivity {
 
 
     }
-    private void createPopupDialogue(){
-        alertBuilder = new AlertDialog.Builder(this) ;
-        View view = getLayoutInflater().inflate(R.layout.block_confirmation_message,null);
-        confirm = view.findViewById(R.id.confirm) ;
-        confirmationMessage = view.findViewById(R.id.confirmationMessage) ;
-        if (blockButton.getText().toString().equals("Unblock")){
-            confirmationMessage.setText("By confirming this you will be able to text "+userName.getText().toString());
-        }
-        else {
-            confirmationMessage.setText( "By confirming this you won't be able to text" + userName.getText().toString());
+
+    private void createPopupDialogue() {
+        alertBuilder = new AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.block_confirmation_message, null);
+        confirm = view.findViewById(R.id.confirm);
+        confirmationMessage = view.findViewById(R.id.confirmationMessage);
+        if (blockButton.getText().toString().equals("Unblock")) {
+            confirmationMessage.setText("By confirming this you will be able to text " + userName.getText().toString());
+        } else {
+            confirmationMessage.setText("By confirming this you won't be able to text" + userName.getText().toString());
         }
         alertBuilder.setView(view);
         alertDialog = alertBuilder.create();
@@ -111,22 +112,21 @@ public class ContactProfileActivity extends AppCompatActivity {
                 if (blockButton.getText().toString().equals("Block")) {
                     FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
                     DatabaseReference databaseReference = firebaseDatabase.getReference().child("Blocks").child(blockId);
-                    databaseReference.child("blockId").setValue(new Block(blockId , mUser.getPhoneNumber().substring(2)));
+                    databaseReference.setValue(new Block(blockId , mUser.getPhoneNumber().substring(2)));
                 blockButton.setText(R.string.unblock);
+                } else {
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Blocks").child(blockId);
+                    databaseReference.removeValue();
+                    blockButton.setText(R.string.block);
                 }
-                else {
-                        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Blocks").child(blockId);
-                        databaseReference.removeValue();
-                        blockButton.setText(R.string.block);
+                alertDialog.hide();
 
-                }
-                    alertDialog.hide();
-
-                }
+            }
         });
     }
+
     String getChatId(String num1, String num2) {  // get the chat id in firebase in order to put the new messages between the
-                                                 // 2 Contacts with the old ones .
+        // 2 Contacts with the old ones .
         for (int i = 0; i < num1.length(); i++) {
             if (num1.charAt(i) > num2.charAt(i))
                 return num1 + num2;
