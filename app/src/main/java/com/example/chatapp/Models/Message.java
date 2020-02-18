@@ -1,6 +1,6 @@
 package com.example.chatapp.Models;
 
-public class Message {
+public class Message  {
     public String username;
     public String messageId;
     String message;

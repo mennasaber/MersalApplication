@@ -24,4 +24,8 @@
     <string name="unblock">Unblock</string>
     <string name="Confirmationmessage">\"By confirming this you won\'t be able to send or recieve messages from \"</string>
     <string name="groups">Groups</string>
+    <string name="blocked_tv">You can\'t reply to this conversation</string>
+    <string name="delete_message">Delete Message</string>
+    <string name="save_message">Save Message</string>
+    <string name="forward_message">Forward Message</string>
 </resources>

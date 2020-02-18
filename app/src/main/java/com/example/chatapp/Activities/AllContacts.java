@@ -1,8 +1,14 @@
+
 package com.example.chatapp.Activities;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
@@ -10,16 +16,11 @@ import android.provider.ContactsContract;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
-
-import com.example.chatapp.Models.Message;
+import com.example.chatapp.Adapters.ContactsAdapter;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,28 +29,24 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
-public class SelectGroupMembersActivity extends AppCompatActivity {
-
+public class AllContacts extends AppCompatActivity {
     public static final int REQUEST_READ_CONTACTS = 79;
+    ContactsAdapter contactsAdapter;
     ArrayList<User> contactsHaveAccount = new ArrayList<>();
+    ListView contactsListView;
     ArrayList<User> allUsers = new ArrayList<>();
-    com.example.chatapp.Adapters.GroupMembersAdapter groupMembersAdapter;
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
     String mUserNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
     final String[] splitNumber = mUserNumber.split("\\+2");
-    ListView contactsMemberLV;
-    public static ArrayList<User> usersSelected;
-    FloatingActionButton floatingActionButton ;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select_group_members);
-        usersSelected = new ArrayList<>();
-        floatingActionButton = findViewById(R.id.floatingActionButton);
-        contactsMemberLV = findViewById(R.id.contactsMembersLV);
-        if (ActivityCompat.checkSelfPermission(getApplicationContext().getApplicationContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+        setContentView(R.layout.activity_all_contacts);
+        contactsListView = findViewById(R.id.contactsListView);
+
+        if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
         } else {
             requestPermission();
         }
@@ -60,41 +57,42 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
                     allUsers.add(d.getValue(User.class));
                 }
                 contactsHaveAccount = getContactsHaveAccount(allUsers);
-                groupMembersAdapter = new com.example.chatapp.Adapters.GroupMembersAdapter(getApplicationContext(), R.layout.contact_member_item, contactsHaveAccount);
-                contactsMemberLV.setAdapter(groupMembersAdapter);
+                contactsListView = findViewById(R.id.contactsListView);
+                contactsAdapter = new ContactsAdapter(getApplicationContext(), R.layout.contact_item, contactsHaveAccount);
+                contactsListView.setAdapter(contactsAdapter);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-        contactsMemberLV.setItemsCanFocus(false);
-        contactsMemberLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                View v = view.findViewById(R.id.selectedImageView);
-                if (!v.isShown()) {
-                    v.setVisibility(View.VISIBLE);
-                    usersSelected.add(contactsHaveAccount.get(i));
-                } else if(v.isShown()){
-                    v.setVisibility(View.INVISIBLE);
-                    usersSelected.remove(contactsHaveAccount.get(i));
-                }
-                if (usersSelected.size() >= 1) {
-                    floatingActionButton.show();
-                } else
-                    floatingActionButton.hide();
-            }
-        });
-        floatingActionButton.setOnClickListener(new View.OnClickListener() {
+        contactsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onClick(View view) {
-                    usersSelected.add(MainActivity.currentUser);
-                    Intent intent = new Intent(SelectGroupMembersActivity.this, GroupDataActivity.class);
-                    startActivity(intent);
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                SharedPreferences sharedPreferences = getSharedPreferences("forward" , MODE_PRIVATE) ;
+                SharedPreferences.Editor editor = sharedPreferences.edit() ;
+                editor.putString("recNumber", contactsAdapter.getItem(position).getPhoneNumber());
+                editor.putString("recUsername", contactsHaveAccount.get(position).getUsername());
+                editor.putString("recImage", contactsAdapter.getItem(position).getImage());
+                editor.apply();
+                finish();
             }
         });
+    }
+    private void requestPermission() {
+        ActivityCompat.requestPermissions(Objects.requireNonNull(this), new String[]{android.Manifest.permission.READ_CONTACTS},
+                REQUEST_READ_CONTACTS);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        } else {
+            contactsHaveAccount = new ArrayList<>();
+            // permission denied,Disable the
+            // functionality that depends on this permission.
+        }
     }
 
     private ArrayList<User> getContactsHaveAccount(ArrayList<User> listOfUsers) {
@@ -104,7 +102,7 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
                 ContactsContract.Contacts.DISPLAY_NAME,
                 ContactsContract.CommonDataKinds.Phone.NUMBER
         };
-        ContentResolver cr = getApplicationContext().getContentResolver();
+        ContentResolver cr = Objects.requireNonNull(getApplicationContext()).getContentResolver();
         Cursor cursor = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, PROJECTION, null, null, null);
         if (cursor != null) {
             try {
@@ -119,7 +117,6 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
                         String[] array = number.split("\\+2");
                         number = array[1];
                     }
-                    //checkUserHasAccount(number);
                     for (User u : listOfUsers)
                         if (u.getPhoneNumber().equals(number) && !u.getPhoneNumber().equals(splitNumber[1])) {
                             u.setUsername(name);
@@ -131,10 +128,5 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
             }
         }
         return users;
-    }
-
-    private void requestPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_CONTACTS},
-                REQUEST_READ_CONTACTS);
     }
 }

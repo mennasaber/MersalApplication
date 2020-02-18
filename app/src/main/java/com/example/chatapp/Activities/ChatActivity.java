@@ -1,10 +1,12 @@
 package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -16,6 +18,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.example.chatapp.Models.Block;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.example.chatapp.Adapters.MessagesAdapter;
@@ -39,7 +42,6 @@ public class ChatActivity extends AppCompatActivity {
     EditText messageTextView;
     ListView messagesLV;
     MessagesAdapter messagesAdapter;
-    List<String> blocks = new ArrayList<>();
     FirebaseDatabase firebaseDatabase;
     DatabaseReference mDatabaseReference;
     FirebaseUser mUser;
@@ -48,6 +50,7 @@ public class ChatActivity extends AppCompatActivity {
     String receiverNumber;
     String receiverUsername;
     String chatId;
+    boolean blocked ;
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
     private ActionMode currentActionMode;
@@ -67,7 +70,7 @@ public class ChatActivity extends AppCompatActivity {
         chatId = getChatId(Objects.requireNonNull(Objects.requireNonNull(mUser).getPhoneNumber()).substring(2), receiverNumber);
 
         selectedItems = new ArrayList<>();
-
+        blocked = false ;
 
         final ActionMode.Callback callback = new ActionMode.Callback() {
             @Override
@@ -96,11 +99,17 @@ public class ChatActivity extends AppCompatActivity {
                         SaveMessages();
                         Toast.makeText(ChatActivity.this, "Saved", Toast.LENGTH_SHORT).show();
                         break;
+                    case R.id.forward:
+                        mode.finish();
+                        Intent intent = new Intent(getApplicationContext(), AllContacts.class) ;
+                        startActivityForResult(intent,1);
+                        break;
                     default:
                         break;
                 }
                 return false;
             }
+
 
             @Override
             public void onDestroyActionMode(ActionMode mode) {
@@ -139,24 +148,17 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (!messageTextView.getText().toString().trim().equals("")) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-                    String messageId = System.currentTimeMillis() + "";
-                    Message message = new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
-                            , splitNumber[1], receiverNumber, 0);
-                    mDatabaseReference.child(chatId).child(messageId).setValue(message);
-                    messageTextView.setText("");
+                    sendMessage(new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
+                            , userPhoneNumber, receiverNumber, 0));
                 }
             }
         });
-
-        //TODO if chatid match a block id
-        //messageTextView.setText("You can't reply to this conversation");
-        //messageTextView.setEnabled(false);
-        //sendButton.setEnabled(false);
 
         messagesLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -188,6 +190,32 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // checking if one user blocked another
+        final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Blocks").child(chatId);
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.getValue(Block.class) == null) {}
+                else {
+                    Block block = dataSnapshot.getValue(Block.class);
+                    if (block.getBlockId().equals(chatId)){
+                        blocked=true ;
+                        sendButton.setEnabled(false);
+                        messageTextView.setText(R.string.blocked_tv);
+                        messageTextView.setEnabled(false);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     private void SaveMessages() {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("savedMessages").child(userPhoneNumber);
         for (int i = 0; i < selectedItems.size(); i++) {
@@ -203,7 +231,13 @@ public class ChatActivity extends AppCompatActivity {
         }
         selectedItems.clear();
     }
+    private  void sendMessage(Message message){
+            String messageId = System.currentTimeMillis() + "";
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
+            databaseReference.child(chatId).child(messageId).setValue(message);
+            messageTextView.setText("");
 
+    }
     // get the chat id in firebase in order to put the new messages between the
     // 2 Contacts with the old ones .
     String getChatId(String num1, String num2) {
@@ -239,5 +273,20 @@ public class ChatActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        SharedPreferences sharedPreferences = getSharedPreferences("forward" ,MODE_PRIVATE) ;
+        receiverNumber = sharedPreferences.getString("recNumber","");
+        String thisChat = chatId ;
+        chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
+        for(int i = 0 ; i<selectedItems.size();i++) {
+            selectedItems.get(i).setReceiverPhone(receiverNumber);
+            selectedItems.get(i).setSeen(0);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+            selectedItems.get(i).setTime(dateFormat.format(new Date()));
+            sendMessage(selectedItems.get(i));
+        }
+        chatId = thisChat ;
+    }
 }

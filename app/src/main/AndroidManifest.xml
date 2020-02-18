@@ -11,7 +11,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Activities.SavedMessagesActivity"></activity>
+        <activity android:name=".Activities.AllContacts"></activity>
+        <activity android:name=".Activities.SavedMessagesActivity" />
         <activity android:name=".Activities.GroupActivity" />
         <activity android:name=".Activities.GroupDataActivity" />
         <activity android:name=".Activities.SelectGroupMembersActivity" />
