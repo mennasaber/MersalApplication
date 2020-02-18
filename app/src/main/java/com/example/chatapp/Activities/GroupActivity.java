@@ -2,12 +2,14 @@ package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
@@ -25,6 +27,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatapp.Adapters.GroupMessagesAdapter;
@@ -97,8 +100,28 @@ public class GroupActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
-        Objects.requireNonNull(getSupportActionBar()).setTitle(receiverUsername);
+
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Disable the default and enable the custom
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayShowCustomEnabled(true);
+            View customView = getLayoutInflater().inflate(R.layout.actionbar_title, null);
+            // Get the textView of the title
+            TextView customTitle = (TextView) customView.findViewById(R.id.actionbarTitle);
+            customTitle.setText(receiverUsername);
+            // Set the on click listener for the title
+            customTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+            // Apply the custom view
+            actionBar.setCustomView(customView);
+        }
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         selectedItems = new ArrayList<>();
 
@@ -165,19 +188,17 @@ public class GroupActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if(!messageEditText.getText().toString().trim().equals("")){
+                if (!messageEditText.getText().toString().trim().equals("")) {
                     sendButton.setVisibility(View.VISIBLE);
                     recordButton.setVisibility(View.INVISIBLE);
                     loadImageButton.setVisibility(View.INVISIBLE);
-                }
-                else
-                {
+                } else {
                     recordButton.setVisibility(View.VISIBLE);
                     sendButton.setVisibility(View.INVISIBLE);
                     loadImageButton.setVisibility(View.VISIBLE);
                 }
             }
-        }) ;
+        });
         //Loading group messages
         databaseReference.child(receiverNumber).addValueEventListener(new ValueEventListener() {
             @Override
@@ -419,6 +440,14 @@ public class GroupActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
 
 
