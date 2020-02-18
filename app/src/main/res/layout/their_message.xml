@@ -62,7 +62,16 @@
             android:paddingBottom="2dp"
             android:textColor="@color/colorAccent"
             android:textSize="17sp" />
-
+        <ImageView
+            android:id="@+id/theirMessageIV"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:scaleType="centerCrop"
+            android:layout_gravity="left|top"
+            android:paddingBottom="2dp"
+            android:textColor="@color/colorWhite"
+            android:src="@drawable/background"
+            />
         <TextView
             android:id="@+id/timeTheirMessageTV"
             android:layout_width="wrap_content"
@@ -71,5 +80,7 @@
             android:gravity="center_vertical"
             android:textColor="@android:color/darker_gray"
             android:textSize="10sp" />
+
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

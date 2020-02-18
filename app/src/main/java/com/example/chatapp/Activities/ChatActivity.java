@@ -1,11 +1,20 @@
 package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,12 +22,14 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.example.chatapp.Adapters.MessagesAdapter;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -26,7 +37,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URI;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +54,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class ChatActivity extends AppCompatActivity {
+    final static int PERMISSION_CODE = 1001;
+    final static int PICK_CODE = 1000;
     ImageButton sendButton;
     EditText messageTextView;
     ListView messagesLV;
@@ -44,12 +65,13 @@ public class ChatActivity extends AppCompatActivity {
     DatabaseReference mDatabaseReference;
     FirebaseUser mUser;
     FirebaseAuth mAuth;
-
     String receiverNumber;
     String receiverUsername;
     String chatId;
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
+    ImageButton loadImageButton;
+    StorageReference Folder;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
 
@@ -60,6 +82,9 @@ public class ChatActivity extends AppCompatActivity {
         receiverNumber = getIntent().getStringExtra("receiverNumber");
         receiverUsername = getIntent().getStringExtra("receiverUsername");
 
+        loadImageButton = findViewById(R.id.loadImageButton);
+
+        Folder = FirebaseStorage.getInstance().getReference("imagesFolder");
         firebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = firebaseDatabase.getReference().child("Chats");
         mAuth = FirebaseAuth.getInstance();
@@ -127,8 +152,10 @@ public class ChatActivity extends AppCompatActivity {
                     Message message = d.getValue(Message.class);
                     if (!message.getSenderPhone().equals(splitNumber[1]))
                         mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
+
                     message.messageId = d.getKey();
                     messageArrayList.add(message);
+
 
                 }
                 messagesAdapter.notifyDataSetChanged();
@@ -153,6 +180,21 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+        loadImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                        requestPermissions(permissions, PERMISSION_CODE);
+                    } else {
+                        pickImageFromGallery();
+                    }
+                } else {
+                    pickImageFromGallery();
+                }
+            }
+        });
         //TODO if chatid match a block id
         //messageTextView.setText("You can't reply to this conversation");
         //messageTextView.setEnabled(false);
@@ -186,6 +228,51 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private void pickImageFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, PICK_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    pickImageFromGallery();
+                } else {
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
+            Uri imageData = Objects.requireNonNull(data).getData();
+            final StorageReference imageName = Folder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
+            imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(ChatActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                    imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                            String messageId = System.currentTimeMillis() + "";
+                            Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
+                                    , userPhoneNumber, receiverNumber, 0);
+                            mDatabaseReference.child(chatId).child(messageId).setValue(message);
+                        }
+                    });
+                }
+            });
+        }
     }
 
     private void SaveMessages() {
