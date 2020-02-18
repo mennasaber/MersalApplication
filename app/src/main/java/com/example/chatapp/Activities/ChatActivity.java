@@ -6,23 +6,24 @@ import androidx.appcompat.app.AppCompatActivity;
 
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -41,11 +42,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -56,6 +55,7 @@ import java.util.Objects;
 public class ChatActivity extends AppCompatActivity {
     final static int PERMISSION_CODE = 1001;
     final static int PICK_CODE = 1000;
+    private final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     ImageButton sendButton;
     EditText messageTextView;
     ListView messagesLV;
@@ -71,9 +71,14 @@ public class ChatActivity extends AppCompatActivity {
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
     ImageButton loadImageButton;
-    StorageReference Folder;
+    StorageReference imageFolder;
+    StorageReference recordsFolder;
+    ImageButton recordButton;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
+    private boolean record = false;
+    private MediaRecorder mediaRecorder;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,10 +86,15 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         receiverNumber = getIntent().getStringExtra("receiverNumber");
         receiverUsername = getIntent().getStringExtra("receiverUsername");
-
+        recordButton = findViewById(R.id.recordButton);
         loadImageButton = findViewById(R.id.loadImageButton);
 
-        Folder = FirebaseStorage.getInstance().getReference("imagesFolder");
+        fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
+        fileName += "/audioRecordTest.3gp";
+
+        imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
+        recordsFolder = FirebaseStorage.getInstance().getReference("recordsFolder");
+
         firebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = firebaseDatabase.getReference().child("Chats");
         mAuth = FirebaseAuth.getInstance();
@@ -228,12 +238,93 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
+        recordButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        Toast.makeText(ChatActivity.this, "start", Toast.LENGTH_SHORT).show();
+                        if (!record) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+                                    String[] permissions = {Manifest.permission.RECORD_AUDIO};
+                                    requestPermissions(permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+                                } else {
+                                    Vibrate();
+                                    startRecord();
+                                }
+                            } else {
+                                startRecord();
+                            }
+
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        Toast.makeText(ChatActivity.this, "stop", Toast.LENGTH_SHORT).show();
+                        if (record) {
+                            stopRecord();
+                            Vibrate();
+                            saveRecordToDB();
+                            Toast.makeText(ChatActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void stopRecord() {
+        if (record) {
+            mediaRecorder.stop();
+            mediaRecorder.release();
+            mediaRecorder = null;
+            record = false;
+        }
+    }
+
+    private void startRecord() {
+        if (!record) {
+            mediaRecorder = new MediaRecorder();
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mediaRecorder.setOutputFile(fileName);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            try {
+                mediaRecorder.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mediaRecorder.start();
+            record = true;
+        }
     }
 
     private void pickImageFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_CODE);
+    }
+
+    private void saveRecordToDB() {
+        Uri recordData = Uri.fromFile(new File(fileName));
+        final StorageReference recordName = recordsFolder.child("record" + System.currentTimeMillis());
+        recordName.putFile(recordData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                recordName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                        String messageId = System.currentTimeMillis() + "";
+                        Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
+                                , userPhoneNumber, receiverNumber, 0);
+                        mDatabaseReference.child(chatId).child(messageId).setValue(message);
+
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -247,6 +338,14 @@ public class ChatActivity extends AppCompatActivity {
 
                 }
                 break;
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startRecord();
+                } else {
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+
+                }
+                break;
         }
     }
 
@@ -255,7 +354,7 @@ public class ChatActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
             Uri imageData = Objects.requireNonNull(data).getData();
-            final StorageReference imageName = Folder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
+            final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
             imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
@@ -326,5 +425,12 @@ public class ChatActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-
+    private void Vibrate() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            v.vibrate(150);
+        }
+    }
 }

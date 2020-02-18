@@ -5,14 +5,19 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -36,6 +41,8 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,9 +53,10 @@ import java.util.Objects;
 public class GroupActivity extends AppCompatActivity {
     final static int PERMISSION_CODE = 1001;
     final static int PICK_CODE = 1000;
+    private final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     ImageButton loadImageButton;
     StorageReference Folder;
-
+    ImageButton recordButton;
     ImageButton sendButton;
     EditText messageTextView;
     ListView messagesLV;
@@ -57,7 +65,7 @@ public class GroupActivity extends AppCompatActivity {
     DatabaseReference databaseReference;
     FirebaseUser mUser;
     FirebaseAuth mAuth;
-
+    StorageReference recordsFolder;
     String receiverNumber;
     String receiverUsername;
     ArrayList<Message> messageArrayList;
@@ -65,16 +73,25 @@ public class GroupActivity extends AppCompatActivity {
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
 
+    private boolean record = false;
+    private MediaRecorder mediaRecorder;
+    private String fileName;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group);
         receiverNumber = getIntent().getStringExtra("receiverNumber");
         receiverUsername = getIntent().getStringExtra("receiverUsername");
-
+        recordButton = findViewById(R.id.groupRecordButton);
         loadImageButton = findViewById(R.id.groupLoadImageButton);
 
+        fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
+        fileName += "/audioRecordTest.3gp";
+
         Folder = FirebaseStorage.getInstance().getReference("imagesFolder");
+        recordsFolder = FirebaseStorage.getInstance().getReference("recordsFolder");
+
         firebaseDatabase = FirebaseDatabase.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference().child("GroupsMessages");
         mAuth = FirebaseAuth.getInstance();
@@ -212,6 +229,41 @@ public class GroupActivity extends AppCompatActivity {
                 }
             }
         });
+
+        recordButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        Toast.makeText(GroupActivity.this, "start", Toast.LENGTH_SHORT).show();
+                        if (!record) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+                                    String[] permissions = {Manifest.permission.RECORD_AUDIO};
+                                    requestPermissions(permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+                                } else {
+                                    Vibrate();
+                                    startRecord();
+                                }
+                            } else {
+                                startRecord();
+                            }
+
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        Toast.makeText(GroupActivity.this, "stop", Toast.LENGTH_SHORT).show();
+                        if (record) {
+                            stopRecord();
+                            Vibrate();
+                            saveRecordToDB();
+                            Toast.makeText(GroupActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
     }
 
 
@@ -230,6 +282,7 @@ public class GroupActivity extends AppCompatActivity {
         }
         selectedItems.clear();
     }
+
     private void pickImageFromGallery() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
@@ -242,6 +295,14 @@ public class GroupActivity extends AppCompatActivity {
             case PERMISSION_CODE:
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     pickImageFromGallery();
+                } else {
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+
+                }
+                break;
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startRecord();
                 } else {
                     Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
 
@@ -265,13 +326,69 @@ public class GroupActivity extends AppCompatActivity {
                         public void onSuccess(Uri uri) {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                             String messageId = System.currentTimeMillis() + "";
-                            Message message = new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
+                            Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
                                     , userPhoneNumber, receiverNumber, 0);
                             databaseReference.child(receiverNumber).child(messageId).setValue(message);
                         }
                     });
                 }
             });
+        }
+    }
+
+    private void saveRecordToDB() {
+        Uri recordData = Uri.fromFile(new File(fileName));
+        final StorageReference recordName = recordsFolder.child("record" + System.currentTimeMillis());
+        recordName.putFile(recordData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                recordName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                        String messageId = System.currentTimeMillis() + "";
+                        Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
+                                , userPhoneNumber, receiverNumber, 0);
+                        databaseReference.child(receiverNumber).child(messageId).setValue(message);
+
+                    }
+                });
+            }
+        });
+    }
+
+    private void stopRecord() {
+        if (record) {
+            mediaRecorder.stop();
+            mediaRecorder.release();
+            mediaRecorder = null;
+            record = false;
+        }
+    }
+
+    private void startRecord() {
+        if (!record) {
+            mediaRecorder = new MediaRecorder();
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mediaRecorder.setOutputFile(fileName);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            try {
+                mediaRecorder.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mediaRecorder.start();
+            record = true;
+        }
+    }
+
+    private void Vibrate() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            v.vibrate(150);
         }
     }
 
