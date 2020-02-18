@@ -5,12 +5,22 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 
+import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.media.MediaRecorder;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
@@ -22,6 +32,7 @@ import com.example.chatapp.Models.Block;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.example.chatapp.Adapters.MessagesAdapter;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,7 +40,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -38,6 +55,9 @@ import java.util.Locale;
 import java.util.Objects;
 
 public class ChatActivity extends AppCompatActivity {
+    final static int PERMISSION_CODE = 1001;
+    final static int PICK_CODE = 1000;
+    private final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     ImageButton sendButton;
     EditText messageTextView;
     ListView messagesLV;
@@ -46,15 +66,21 @@ public class ChatActivity extends AppCompatActivity {
     DatabaseReference mDatabaseReference;
     FirebaseUser mUser;
     FirebaseAuth mAuth;
-
     String receiverNumber;
     String receiverUsername;
     String chatId;
     boolean blocked ;
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
+    ImageButton loadImageButton;
+    StorageReference imageFolder;
+    StorageReference recordsFolder;
+    ImageButton recordButton;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
+    private boolean record = false;
+    private MediaRecorder mediaRecorder;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +88,14 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         receiverNumber = getIntent().getStringExtra("receiverNumber");
         receiverUsername = getIntent().getStringExtra("receiverUsername");
+        recordButton = findViewById(R.id.recordButton);
+        loadImageButton = findViewById(R.id.loadImageButton);
+
+        fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
+        fileName += "/audioRecordTest.3gp";
+
+        imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
+        recordsFolder = FirebaseStorage.getInstance().getReference("recordsFolder");
 
         firebaseDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = firebaseDatabase.getReference().child("Chats");
@@ -136,8 +170,10 @@ public class ChatActivity extends AppCompatActivity {
                     Message message = d.getValue(Message.class);
                     if (!message.getSenderPhone().equals(splitNumber[1]))
                         mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
+
                     message.messageId = d.getKey();
                     messageArrayList.add(message);
+
 
                 }
                 messagesAdapter.notifyDataSetChanged();
@@ -156,6 +192,23 @@ public class ChatActivity extends AppCompatActivity {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     sendMessage(new Message(messageTextView.getText().toString(), dateFormat.format(new Date())
                             , userPhoneNumber, receiverNumber, 0));
+                }
+            }
+        });
+
+
+        loadImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+                        String[] permissions = {Manifest.permission.READ_EXTERNAL_STORAGE};
+                        requestPermissions(permissions, PERMISSION_CODE);
+                    } else {
+                        pickImageFromGallery();
+                    }
+                } else {
+                    pickImageFromGallery();
                 }
             }
         });
@@ -188,6 +241,158 @@ public class ChatActivity extends AppCompatActivity {
                 }
             }
         });
+        recordButton.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                switch (motionEvent.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        Toast.makeText(ChatActivity.this, "start", Toast.LENGTH_SHORT).show();
+                        if (!record) {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
+                                    String[] permissions = {Manifest.permission.RECORD_AUDIO};
+                                    requestPermissions(permissions, REQUEST_RECORD_AUDIO_PERMISSION);
+                                } else {
+                                    Vibrate();
+                                    startRecord();
+                                }
+                            } else {
+                                startRecord();
+                            }
+
+                        }
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        Toast.makeText(ChatActivity.this, "stop", Toast.LENGTH_SHORT).show();
+                        if (record) {
+                            stopRecord();
+                            Vibrate();
+                            saveRecordToDB();
+                            Toast.makeText(ChatActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                }
+                return false;
+            }
+        });
+    }
+
+    private void stopRecord() {
+        if (record) {
+            mediaRecorder.stop();
+            mediaRecorder.release();
+            mediaRecorder = null;
+            record = false;
+        }
+    }
+
+    private void startRecord() {
+        if (!record) {
+            mediaRecorder = new MediaRecorder();
+            mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+            mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+            mediaRecorder.setOutputFile(fileName);
+            mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+            try {
+                mediaRecorder.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            mediaRecorder.start();
+            record = true;
+        }
+    }
+
+    private void pickImageFromGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, PICK_CODE);
+    }
+
+    private void saveRecordToDB() {
+        Uri recordData = Uri.fromFile(new File(fileName));
+        final StorageReference recordName = recordsFolder.child("record" + System.currentTimeMillis());
+        recordName.putFile(recordData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                recordName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                        String messageId = System.currentTimeMillis() + "";
+                        Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
+                                , userPhoneNumber, receiverNumber, 0);
+                        mDatabaseReference.child(chatId).child(messageId).setValue(message);
+
+                    }
+                });
+            }
+        });
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    pickImageFromGallery();
+                } else {
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+
+                }
+                break;
+            case REQUEST_RECORD_AUDIO_PERMISSION:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    startRecord();
+                } else {
+                    Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
+
+                }
+                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PICK_CODE && resultCode == RESULT_OK)
+        {
+            Uri imageData = Objects.requireNonNull(data).getData();
+            final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
+            imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Toast.makeText(ChatActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                    imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                            String messageId = System.currentTimeMillis() + "";
+                            Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
+                                    , userPhoneNumber, receiverNumber, 0);
+                            mDatabaseReference.child(chatId).child(messageId).setValue(message);
+                        }
+                    });
+                }
+            });
+        }
+        else {
+            super.onActivityResult(requestCode, resultCode, data);
+            SharedPreferences sharedPreferences = getSharedPreferences("forward", MODE_PRIVATE);
+            String thisReciever = receiverNumber ;
+            receiverNumber = sharedPreferences.getString("recNumber", "");
+            String thisChat = chatId;
+            chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
+            for (int i = 0; i < selectedItems.size(); i++) {
+                selectedItems.get(i).setReceiverPhone(receiverNumber);
+                selectedItems.get(i).setSeen(0);
+                SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                selectedItems.get(i).setTime(dateFormat.format(new Date()));
+                sendMessage(selectedItems.get(i));
+            }
+            chatId = thisChat;
+            receiverNumber=thisReciever ;
+        }
     }
 
     @Override
@@ -273,20 +478,12 @@ public class ChatActivity extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        SharedPreferences sharedPreferences = getSharedPreferences("forward" ,MODE_PRIVATE) ;
-        receiverNumber = sharedPreferences.getString("recNumber","");
-        String thisChat = chatId ;
-        chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
-        for(int i = 0 ; i<selectedItems.size();i++) {
-            selectedItems.get(i).setReceiverPhone(receiverNumber);
-            selectedItems.get(i).setSeen(0);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-            selectedItems.get(i).setTime(dateFormat.format(new Date()));
-            sendMessage(selectedItems.get(i));
+    private void Vibrate() {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            v.vibrate(150);
         }
-        chatId = thisChat ;
     }
 }

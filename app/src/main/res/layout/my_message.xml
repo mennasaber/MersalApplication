@@ -22,7 +22,16 @@
             android:paddingBottom="2dp"
             android:textColor="@color/colorWhite"
             android:textSize="17sp" />
-
+        <ImageView
+            android:id="@+id/myMessageIV"
+            android:layout_width="250dp"
+            android:layout_height="250dp"
+            android:scaleType="centerCrop"
+            android:layout_gravity="right"
+            android:paddingBottom="2dp"
+            android:textColor="@color/colorWhite"
+            android:src="@drawable/background"
+             />
         <LinearLayout
             android:id="@+id/seenLayout"
             android:layout_width="wrap_content"

@@ -1,6 +1,9 @@
 package com.example.chatapp.Adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -14,6 +17,12 @@ import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,7 +61,11 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         if (Objects.requireNonNull(currentMessage).getSenderPhone().equals(userPhoneNumber)) {
             view = View.inflate(context, R.layout.my_message, null);
             TextView message = view.findViewById(R.id.myMessageTextView);
-            message.setText(currentMessage.getMessage());
+            if (!currentMessage.getMessage().contains("https")) {
+                message.setText(currentMessage.getMessage());
+                ImageView imageView = view.findViewById(R.id.myMessageIV);
+                imageView.setVisibility(View.GONE);
+            }
             TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
             timeTV.setText(time);
             if (currentMessage.getSeen() == 1) {
@@ -60,11 +73,16 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
                 seenImage.setImageResource(R.drawable.ic_baseline_done_all_24);
             }
         } else {
+
             view = View.inflate(context, R.layout.their_message, null);
             TextView usernameTV = view.findViewById(R.id.usernameMessageTV);
             ImageView imageView = view.findViewById(R.id.imageView);
-            TextView message = view.findViewById(R.id.theirMessageTV);
-            message.setText(currentMessage.getMessage());
+            if (!currentMessage.getMessage().contains("https")) {
+                TextView message = view.findViewById(R.id.theirMessageTV);
+                message.setText(currentMessage.getMessage());
+                ImageView imageView2 = view.findViewById(R.id.theirMessageIV);
+                imageView2.setVisibility(View.GONE);
+            }
             usernameTV.setText(username);
             TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);
             timeTV.setText(time);
