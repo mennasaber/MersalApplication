@@ -40,7 +40,6 @@ public class ContactsAdapter extends ArrayAdapter<User> {
             Picasso.with(context).load(currentUser.getImage()).into(userImage);
         usernameTextView.setText(currentUser.getUsername());
         phoneNumberTextView.setText(currentUser.getPhoneNumber());
-           
         return view;
     }
 }

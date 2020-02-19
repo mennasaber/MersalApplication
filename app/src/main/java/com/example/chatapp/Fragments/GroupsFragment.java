@@ -120,7 +120,7 @@ public class GroupsFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), GroupActivity.class);
                 intent.putExtra("receiverNumber", chatsAdapter.getItem(i).getUser().getPhoneNumber());
                 intent.putExtra("receiverUsername", chatsAdapter.getItem(i).getUser().getUsername());
-                intent.putExtra("receiverImage", chatsAdapter.getItem(i).getUser().getImage());
+                intent.putExtra("c", chatsAdapter.getItem(i).getUser().getImage());
                 startActivity(intent);
             }
         });

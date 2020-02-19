@@ -71,10 +71,10 @@ public class GroupActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     StorageReference recordsFolder;
     ArrayList<Message> messageArrayList;
-    String userPhoneNumber, chatId , groupName;
+    String userPhoneNumber, chatId, groupName;
+    String groupImage;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
-
     private boolean record = false;
     private MediaRecorder mediaRecorder;
     private String fileName;
@@ -85,6 +85,7 @@ public class GroupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group);
         chatId = getIntent().getStringExtra("receiverNumber");
         groupName = getIntent().getStringExtra("receiverUsername");
+        groupImage = getIntent().getStringExtra("receiverImage");
         recordButton = findViewById(R.id.groupRecordButton);
         loadImageButton = findViewById(R.id.groupLoadImageButton);
 
@@ -100,7 +101,6 @@ public class GroupActivity extends AppCompatActivity {
         mUser = mAuth.getCurrentUser();
 
 
-
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             // Disable the default and enable the custom
@@ -114,7 +114,11 @@ public class GroupActivity extends AppCompatActivity {
             customTitle.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
+                    Intent intent = new Intent(GroupActivity.this, GroupDetailsActivity.class);
+                    intent.putExtra("groupId", chatId);
+                    intent.putExtra("groupName", groupName);
+                    intent.putExtra("groupImage", groupImage);
+                    startActivity(intent);
                 }
             });
             // Apply the custom view
@@ -156,8 +160,8 @@ public class GroupActivity extends AppCompatActivity {
                         break;
                     case R.id.forward:
                         mode.finish();
-                        Intent intent = new Intent(getApplicationContext(), AllContacts.class) ;
-                        startActivityForResult(intent,1);
+                        Intent intent = new Intent(getApplicationContext(), AllContacts.class);
+                        startActivityForResult(intent, 1);
                         break;
                     default:
                         break;
@@ -335,7 +339,7 @@ public class GroupActivity extends AppCompatActivity {
         selectedItems.clear();
     }
 
-    private  void sendMessage(Message message){
+    private void sendMessage(Message message) {
         String messageId = System.currentTimeMillis() + "";
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
         databaseReference.child(chatId).child(messageId).setValue(message);
@@ -392,11 +396,10 @@ public class GroupActivity extends AppCompatActivity {
                     });
                 }
             });
-        }
-        else {
+        } else {
             super.onActivityResult(requestCode, resultCode, data);
             SharedPreferences sharedPreferences = getSharedPreferences("forward", MODE_PRIVATE);
-            String thisReciever = chatId ;
+            String thisReciever = chatId;
             String receiverNumber = sharedPreferences.getString("recNumber", "");
             String thisChat = chatId;
             chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
@@ -408,7 +411,7 @@ public class GroupActivity extends AppCompatActivity {
                 sendMessage(selectedItems.get(i));
             }
             chatId = thisChat;
-            chatId=thisReciever ;
+            chatId = thisReciever;
         }
     }
 
@@ -467,6 +470,7 @@ public class GroupActivity extends AppCompatActivity {
             v.vibrate(150);
         }
     }
+
     // get the chat id in firebase in order to put the new messages between the
     // 2 Contacts with the old ones .
     String getChatId(String num1, String num2) {
@@ -478,8 +482,6 @@ public class GroupActivity extends AppCompatActivity {
         }
         return num2 + num1;
     }
-
-
 
 
     @Override

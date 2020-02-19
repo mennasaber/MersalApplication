@@ -4,15 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorAccent"
-    tools:context=".GroupDetailsActivity">
+    android:background="@color/colorPrimary"
+    tools:context=".Activities.GroupDetailsActivity">
 
     <RelativeLayout
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimary"
+        android:background="@color/colorAccent"
         android:padding="20dp"
+        android:elevation="@dimen/cardview_compat_inset_shadow"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -34,10 +35,11 @@
             android:layout_toRightOf="@id/groupImageDetails"
             android:text="Group Name"
             android:textColor="@color/colorWhite"
-            android:textSize="15sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/membersNumberTV"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/groupNameDetails"
@@ -46,7 +48,7 @@
             android:layout_toRightOf="@id/groupImageDetails"
             android:text="num of members"
             android:textColor="@color/colorGray"
-            android:textSize="10dp"
+            android:textSize="15dp"
             android:textStyle="bold" />
     </RelativeLayout>
 
@@ -55,12 +57,28 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="110dp"
-        android:background="@color/colorPrimary"
+        android:layout_marginBottom="30dp"
+        android:background="@color/colorAccent"
         android:divider="@drawable/divider"
         android:dividerHeight="0.5px"
-        android:padding="5dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:padding="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/leaveGroupTV"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/relativeLayout" />
+
+    <TextView
+        android:id="@+id/leaveGroupTV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhite"
+        android:gravity="center"
+        android:paddingBottom="4dp"
+        android:text="Delete and Leave Group"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
