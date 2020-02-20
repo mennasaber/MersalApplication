@@ -12,6 +12,9 @@ import androidx.fragment.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatapp.Fragments.ChatsFragment;
@@ -28,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
@@ -37,6 +41,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ArrayList<User> allUsers = new ArrayList<>();
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle actionBarDrawerToggle;
+    View header ;
+    ImageView profileImage ;
+    TextView phoneNum , userName ;
 
     @Override
 
@@ -51,12 +58,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         actionBarDrawerToggle.syncState();
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         navigationView.setNavigationItemSelectedListener(this);
-
+        header = navigationView.getHeaderView(0);
+        profileImage = header.findViewById(R.id.profileImage) ;
+        phoneNum = header.findViewById(R.id.phoneText) ;
+        userName = header.findViewById(R.id.usernameText) ;
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frameLayout, new ChatsFragment());
         fragmentTransaction.commit();
-
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         //getting list of users form firebase
@@ -71,6 +80,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 for (int i = 0; i < allUsers.size(); i++) {
                     if (allUsers.get(i).getPhoneNumber().equals(firebaseUser.getPhoneNumber().substring(2))) {
                         currentUser = allUsers.get(i);
+                        userName.setText(currentUser.getUsername()) ;
+                        phoneNum.setText(currentUser.getPhoneNumber()) ;
+                        if (!currentUser.getImage().equals(""))
+                        Picasso.with(getApplicationContext()).load(currentUser.getImage()).into(profileImage);
                         break;
                     }
                 }
@@ -108,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 break;
             case R.id.savedMessagesOption:
                 Intent intent2 = new Intent(this, SavedMessagesActivity.class);
+                intent2.putExtra("mUserPic" , currentUser.getImage()) ;
                 startActivity(intent2);
                 break;
         }

@@ -9,6 +9,7 @@ import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +36,8 @@ public class ContactProfileActivity extends AppCompatActivity {
 
     TextView userPhone, userName, confirmationMessage;
     Button blockButton, confirm;
-    String blockId;
+    ImageView contactPic ;
+    String blockId ,recieverImage;
     AlertDialog.Builder alertBuilder;
     AlertDialog alertDialog;
     FirebaseAuth firebaseAuth;
@@ -52,9 +55,12 @@ public class ContactProfileActivity extends AppCompatActivity {
         userName = findViewById(R.id.usernameTextView2);
         userPhone = findViewById(R.id.phoneNumberTextView2);
         blockButton = findViewById(R.id.blockButton);
-
+        contactPic = findViewById(R.id.profilepicture2);
         userPhone.setText(getIntent().getStringExtra("recieverNum"));
         userName.setText(getIntent().getStringExtra("recieverUserName"));
+        recieverImage = getIntent().getStringExtra("recieverPic");
+        if(!recieverImage.equals(""))
+            Picasso.with(getApplicationContext()).load(recieverImage).into(contactPic);
         blockButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -43,7 +43,6 @@ public class ChatsFragment extends Fragment {
     ListView chatsListView;
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
     Message lastMessage;
-
     public static String getContactName(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
@@ -82,7 +81,7 @@ public class ChatsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 chats.clear();
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    String chatId = d.getKey();
+                    final String chatId = d.getKey();
                     if (chatId.contains(splitNumber[1])) {
                         final String[] numbers = chatId.split(splitNumber[1]);
                         if(numbers[0].equals(""))
@@ -93,8 +92,21 @@ public class ChatsFragment extends Fragment {
                             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                 for (DataSnapshot d : dataSnapshot.getChildren())
                                     lastMessage = d.getValue(Message.class);
-                                chats.add(new Chat(new User(username, "", numbers[0]), lastMessage));
-                                chatsAdapter.notifyDataSetChanged();
+                                //getting the chat user image
+                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("users") ;
+                                databaseReference.child(numbers[0]).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
+                                        chatsAdapter.notifyDataSetChanged();
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
                             }
 
                             @Override

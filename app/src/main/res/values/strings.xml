@@ -28,4 +28,5 @@
     <string name="delete_message">Delete Message</string>
     <string name="save_message">Save Message</string>
     <string name="forward_message">Forward Message</string>
+    <string name="rec_length">Rec Length</string>
 </resources>

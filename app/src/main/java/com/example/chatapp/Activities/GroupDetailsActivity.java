@@ -27,6 +27,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -85,6 +86,8 @@ public class GroupDetailsActivity extends AppCompatActivity {
         membersNumber = findViewById(R.id.membersNumberTV);
         leaveGroupTV = findViewById(R.id.leaveGroupTV);
 
+               if (!groupImage.equals(""))
+            Picasso.with(getApplicationContext()).load(groupImage).into(groupImageIV);
         membersArrayList = new ArrayList<>();
         membersAdapter = new ContactsAdapter(GroupDetailsActivity.this, R.layout.contact_item, membersArrayList);
         membersLV.setAdapter(membersAdapter);

@@ -48,7 +48,6 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         ImageView seenImageView = view.findViewById(R.id.seenChatImage);
         ImageView UnReadImageView = view.findViewById(R.id.UnReadImageView);
         Chat currentChat = getItem(position);
-        //Picasso.with(context).load(currentChat.get).into(imageView);   :))))))
         String time = currentChat.getLastMessage().getTime();
 
         DateFormat df = new SimpleDateFormat("HH:mm");
@@ -62,7 +61,8 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         } catch (ParseException pe) {
             pe.printStackTrace();
         }
-
+        if(!currentChat.getUser().getImage().equals(""))
+            Picasso.with(context).load(currentChat.getUser().getImage()).into(imageView);
         usernameTV.setText(currentChat.getUser().getUsername());
         lastMessageTV.setText(currentChat.getLastMessage().getMessage());
         timeTV.setText(time);

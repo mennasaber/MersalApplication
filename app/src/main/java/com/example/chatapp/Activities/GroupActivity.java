@@ -85,10 +85,9 @@ public class GroupActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group);
         chatId = getIntent().getStringExtra("receiverNumber");
         groupName = getIntent().getStringExtra("receiverUsername");
-        groupImage = getIntent().getStringExtra("receiverImage");
+        groupImage = getIntent().getStringExtra("gImage");
         recordButton = findViewById(R.id.groupRecordButton);
         loadImageButton = findViewById(R.id.groupLoadImageButton);
-
         fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
         fileName += "/audioRecordTest.3gp";
 
@@ -118,6 +117,7 @@ public class GroupActivity extends AppCompatActivity {
                     intent.putExtra("groupId", chatId);
                     intent.putExtra("groupName", groupName);
                     intent.putExtra("groupImage", groupImage);
+
                     startActivity(intent);
                 }
             });

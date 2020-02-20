@@ -80,7 +80,8 @@ public class SavedMessagesActivity extends AppCompatActivity {
                         messageArrayList.add(message);
                     }
                 }
-                savedMessagesAdapter = new SavedMessagesAdapter(SavedMessagesActivity.this, R.layout.their_message, messageArrayList);
+                savedMessagesAdapter = new SavedMessagesAdapter(SavedMessagesActivity.this, R.layout.their_message, messageArrayList,
+                        getIntent().getStringExtra("mUserPic"));
                 savedMessagesLV.setAdapter(savedMessagesAdapter);
             }
 

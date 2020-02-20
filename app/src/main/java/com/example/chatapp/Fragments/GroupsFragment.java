@@ -79,16 +79,17 @@ public class GroupsFragment extends Fragment {
                                 lastMessageDR.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        for (DataSnapshot c : dataSnapshot.getChildren()) {
+                                        for (DataSnapshot c : dataSnapshot.getChildren())
                                             lastMessage = c.getValue(Message.class);
-                                        }
+
                                         if (lastMessage == null) {
                                             lastMessage = new Message("No Messages Yet", "", "", "", 0);
                                         }
-                                        chats.add(new Chat(new User(group.getGroupName(), "", group.getGroupId()), lastMessage));
-                                        lastMessage = new Message("No Messages Yet", "", "", "", 0);
-                                        chatsAdapter.notifyDataSetChanged();
-                                    }
+                                                chats.add(new Chat(new User(group.getGroupName(),
+                                                        group.getGroupImage(), group.getGroupId()), lastMessage));
+                                                lastMessage = new Message("No Messages Yet", "", "", "", 0);
+                                                chatsAdapter.notifyDataSetChanged();
+                                            }
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError databaseError) {
@@ -120,7 +121,7 @@ public class GroupsFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), GroupActivity.class);
                 intent.putExtra("receiverNumber", chatsAdapter.getItem(i).getUser().getPhoneNumber());
                 intent.putExtra("receiverUsername", chatsAdapter.getItem(i).getUser().getUsername());
-                intent.putExtra("c", chatsAdapter.getItem(i).getUser().getImage());
+                intent.putExtra("gImage", chatsAdapter.getItem(i).getUser().getImage());
                 startActivity(intent);
             }
         });

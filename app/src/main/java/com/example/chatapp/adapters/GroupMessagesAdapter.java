@@ -1,10 +1,13 @@
 package com.example.chatapp.Adapters;
 
 import android.content.Context;
+import android.media.MediaPlayer;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,12 +25,15 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+
+import static com.example.chatapp.R.drawable.play;
 
 public class GroupMessagesAdapter extends ArrayAdapter<Message> {
 
@@ -44,7 +50,7 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view = convertView;
         String userPhoneNumber = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhoneNumber();
-        Message currentMessage = getItem(position);
+        final Message currentMessage = getItem(position);
         String time = currentMessage.getTime();
         DateFormat df = new SimpleDateFormat("HH:mm");
         DateFormat outputFormat = new SimpleDateFormat("hh:mm aa");
@@ -60,16 +66,42 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
         if (Objects.requireNonNull(currentMessage).getSenderPhone().equals(userPhoneNumber)) {
             view = View.inflate(context, R.layout.my_message, null);
             ImageView imageView = view.findViewById(R.id.myMessageIV);
+            TextView message = view.findViewById(R.id.myMessageTextView);
             TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
-            if (!currentMessage.getMessage().contains("https")) {
-                TextView message = view.findViewById(R.id.myMessageTextView);
-                message.setText(currentMessage.getMessage());
+            LinearLayout recordMess = view.findViewById(R.id.recordMess);
+            if (currentMessage.getMessage().contains("recordsFolder")) {
                 imageView.setVisibility(View.GONE);
+                final ImageView playButton = view.findViewById(R.id.playButton) ;
+                playButton.setImageResource(play);
+                playButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final MediaPlayer mediaPlayer = new MediaPlayer() ;
+
+                        try {
+                            mediaPlayer.setDataSource(currentMessage.getMessage());
+                            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                @Override
+                                public void onPrepared(MediaPlayer mp) {
+                                    mp.start();
+                                }
+                            });
+                            mediaPlayer.prepare();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+            else if (currentMessage.getMessage().contains("imagesFolder")) {
+                Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
+                recordMess.setVisibility(View.GONE);
             }
             else {
-                Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
+                message.setText(currentMessage.getMessage());
+                imageView.setVisibility(View.GONE);
+                recordMess.setVisibility(View.GONE);
             }
-
             timeTV.setText(time);
             if (currentMessage.getSeen() == 1) {
                 ImageView seenImage = view.findViewById(R.id.seenImage);
@@ -79,14 +111,41 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
             view = View.inflate(context, R.layout.their_message, null);
             final TextView usernameTV = view.findViewById(R.id.usernameMessageTV);
             final ImageView imageView = view.findViewById(R.id.imageView);
-            if (!currentMessage.getMessage().contains("https")) {
-                TextView message = view.findViewById(R.id.theirMessageTV);
-                message.setText(currentMessage.getMessage());
-                ImageView imageView2 = view.findViewById(R.id.theirMessageIV);
+            TextView message = view.findViewById(R.id.theirMessageTV);
+            ImageView imageView2 = view.findViewById(R.id.theirMessageIV);
+            ImageView theirPlayButton = view.findViewById(R.id.theirPlayButton);
+            LinearLayout theirRecordMess = view.findViewById(R.id.theirRecordMess) ;
+            if (currentMessage.getMessage().contains("recordsFolder")) {
                 imageView2.setVisibility(View.GONE);
+                theirPlayButton.setImageResource(play);
+                theirPlayButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final MediaPlayer mediaPlayer = new MediaPlayer() ;
+
+                        try {
+                            mediaPlayer.setDataSource(currentMessage.getMessage());
+                            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                @Override
+                                public void onPrepared(MediaPlayer mp) {
+                                    mp.start();
+                                }
+                            });
+                            mediaPlayer.prepare();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
+            else if (currentMessage.getMessage().contains("imagesFolder")) {
+                Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
+                theirRecordMess.setVisibility(View.GONE);
             }
             else {
-                Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
+                message.setText(currentMessage.getMessage());
+                imageView2.setVisibility(View.GONE);
+                theirRecordMess.setVisibility(View.GONE);
             }
             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("users");
             databaseReference.child(currentMessage.getSenderPhone()).addValueEventListener(new ValueEventListener() {

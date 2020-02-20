@@ -45,7 +45,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
+        app:civ_border_width="2dp"
+        app:civ_border_color="@color/colorWhite"
         android:id="@+id/groupImage"
         android:layout_width="131dp"
         android:layout_height="153dp"

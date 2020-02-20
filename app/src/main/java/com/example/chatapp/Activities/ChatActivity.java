@@ -67,6 +67,7 @@ public class ChatActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     String receiverNumber;
     String receiverUsername;
+    String recieverImage ;
     String chatId;
     boolean blocked;
     ArrayList<Message> messageArrayList;
@@ -87,6 +88,7 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chat);
         receiverNumber = getIntent().getStringExtra("receiverNumber");
         receiverUsername = getIntent().getStringExtra("receiverUsername");
+        recieverImage = getIntent().getStringExtra("receiverImage");
         recordButton = findViewById(R.id.recordButton);
         loadImageButton = findViewById(R.id.loadImageButton);
 
@@ -159,7 +161,7 @@ public class ChatActivity extends AppCompatActivity {
         messageArrayList = new ArrayList<>();
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
         userPhoneNumber = splitNumber[1];
-        messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, receiverUsername);
+        messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, receiverUsername , recieverImage);
         messagesLV.setAdapter(messagesAdapter);
         mDatabaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
@@ -487,6 +489,7 @@ public class ChatActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), ContactProfileActivity.class);
                 intent.putExtra("recieverUserName", receiverUsername);
                 intent.putExtra("recieverNum", receiverNumber);
+                intent.putExtra("recieverPic",recieverImage);
                 startActivity(intent);
                 break;
 

@@ -25,10 +25,11 @@ import java.util.Objects;
 
 public class SavedMessagesAdapter extends ArrayAdapter<Message> {
     Context context;
-
-    public SavedMessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects) {
+    String image;
+    public SavedMessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects , String image) {
         super(context, resource, objects);
         this.context = context;
+        this.image=image ;
     }
 
     @NonNull
@@ -53,6 +54,8 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
         ImageView messagePic = view.findViewById(R.id.theirMessageIV);
         TextView message = view.findViewById(R.id.theirMessageTV);
         TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);
+        if(!image.equals(""))
+            Picasso.with(context).load(image).into(profPic);
         if (currentMessage.getMessage().contains("https")) {
             Picasso.with(context).load(currentMessage.getMessage()).into(messagePic);
         }

@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/colorAccent"
     android:padding="5dp">
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
+        app:civ_border_width="2dp"
+        app:civ_border_color="@color/colorWhite"
         android:id="@+id/imageView"
         android:layout_width="35dp"
         android:layout_height="35dp"
@@ -70,6 +74,20 @@
             android:layout_gravity="left|top"
             android:paddingBottom="2dp"
             android:textColor="@color/colorWhite" />
+
+        <LinearLayout
+            android:id="@+id/theirRecordMess"
+            android:layout_width="wrap_content"
+            android:background="@color/colorWhite"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/theirPlayButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop" />
+
+        </LinearLayout>
         <TextView
             android:id="@+id/timeTheirMessageTV"
             android:layout_width="wrap_content"
@@ -78,7 +96,5 @@
             android:gravity="center_vertical"
             android:textColor="@android:color/darker_gray"
             android:textSize="10sp" />
-
-
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

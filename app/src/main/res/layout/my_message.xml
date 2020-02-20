@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="@color/colorAccent"
     android:padding="5dp">
 
     <LinearLayout
+        android:id="@+id/layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
@@ -22,16 +25,29 @@
             android:paddingBottom="2dp"
             android:textColor="@color/colorWhite"
             android:textSize="17sp" />
+
         <ImageView
             android:id="@+id/myMessageIV"
             android:layout_width="250dp"
             android:layout_height="250dp"
-            android:scaleType="centerCrop"
             android:layout_gravity="right"
             android:paddingBottom="2dp"
-            android:textColor="@color/colorWhite"
+            android:scaleType="centerCrop"
             android:src="@drawable/background"
-             />
+            android:textColor="@color/colorWhite" />
+        <LinearLayout
+            android:id="@+id/recordMess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/colorMyMessage">
+
+            <ImageView
+                android:id="@+id/playButton"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop" />
+
+        </LinearLayout>
         <LinearLayout
             android:id="@+id/seenLayout"
             android:layout_width="wrap_content"
@@ -45,14 +61,17 @@
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorLightYellow"
                 android:textSize="10sp" />
-
             <ImageView
                 android:id="@+id/seenImage"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="2dp"
                 android:src="@drawable/ic_baseline_done_24" />
+
         </LinearLayout>
+
+
+
 
     </LinearLayout>
 

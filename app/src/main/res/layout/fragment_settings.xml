@@ -15,18 +15,20 @@
 
         <ImageView
             android:layout_width="match_parent"
-            android:layout_height="230dp"
+            android:layout_height="200dp"
             android:scaleType="centerCrop"
             android:src="@drawable/header_background5" />
 
     </androidx.cardview.widget.CardView>
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
+        app:civ_border_width="2dp"
+        app:civ_border_color="@color/colorWhite"
         android:id="@+id/profilepicture"
         android:layout_width="120dp"
         android:layout_height="120dp"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="120dp"
         android:scaleType="centerCrop"
         android:src="@mipmap/ic_launcher" />
     <ImageButton
@@ -61,7 +63,7 @@
             android:layout_toRightOf="@id/usernameicon"
             android:text="@string/user_name"
             android:textColor="@android:color/white"
-            android:textSize="22sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
 
         <ImageView
@@ -83,7 +85,7 @@
             android:layout_toRightOf="@id/phonenumicon"
             android:text="@string/user_phone_number"
             android:textColor="@android:color/white"
-            android:textSize="22sp"
+            android:textSize="16sp"
             android:textStyle="bold" />
     </RelativeLayout>
 

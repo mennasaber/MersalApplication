@@ -39,6 +39,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -50,14 +51,13 @@ import static android.app.Activity.RESULT_OK;
 public class SettingsFragment extends Fragment {
     final static int PERMISSION_CODE = 1001;
     final static int PICK_CODE = 1000;
-    ImageView profileImage;
     TextView username, phone;
-    Uri imageURI;
     FirebaseUser firebaseUser;
     AlertDialog.Builder alertBuilder;
     AlertDialog alertDialog;
     EditText editUsername;
     Button save;
+    ImageView profileImage ;
     ImageButton imageButton;
     StorageReference imageFolder;
 
@@ -66,13 +66,16 @@ public class SettingsFragment extends Fragment {
                              Bundle savedInstanceState) {
         final View mainView = inflater.inflate(R.layout.fragment_settings, container, false);
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        profileImage = mainView.findViewById(R.id.profilepicture);
         imageButton = mainView.findViewById(R.id.changeProfileImage);
         username = mainView.findViewById(R.id.usernameTextView);
         phone = mainView.findViewById(R.id.phoneNumberTextView);
+        profileImage = mainView.findViewById(R.id.profilepicture) ;
         MainActivity mainActivity = (MainActivity) getActivity();
         username.setText(mainActivity.currentUser.getUsername());
         phone.setText(firebaseUser.getPhoneNumber().substring(2));
+        if (!mainActivity.currentUser.getImage().equals(""))
+            Picasso.with(getContext()).load(mainActivity.currentUser.getImage()).into(profileImage);
+
         imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
 
         username.setOnLongClickListener(new View.OnLongClickListener() {
@@ -121,7 +124,7 @@ public class SettingsFragment extends Fragment {
                         public void onSuccess(Uri uri) {
                             profileImage.setImageURI(imageData);
                             DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
-                            databaseReference.child(firebaseUser.getPhoneNumber().substring(2)).child("image").setValue(String.valueOf(imageData));
+                            databaseReference.child(firebaseUser.getPhoneNumber().substring(2)).child("image").setValue(String.valueOf(uri));
                         }
                     });
                 }
