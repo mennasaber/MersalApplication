@@ -78,6 +78,7 @@ public class GroupActivity extends AppCompatActivity {
     private boolean record = false;
     private MediaRecorder mediaRecorder;
     private String fileName;
+    String seeners  ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,7 +96,7 @@ public class GroupActivity extends AppCompatActivity {
         recordsFolder = FirebaseStorage.getInstance().getReference("recordsFolder");
 
         firebaseDatabase = FirebaseDatabase.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("GroupsMessages");
+        databaseReference = FirebaseDatabase.getInstance().getReference().child("GroupsChats");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
 
@@ -209,6 +210,7 @@ public class GroupActivity extends AppCompatActivity {
                 }
             }
         });
+
         //Loading group messages
         databaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
@@ -217,8 +219,11 @@ public class GroupActivity extends AppCompatActivity {
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     Message message = d.getValue(Message.class);
                     if (message != null) {
-                        message.messageId = d.getKey();
-                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
+                        message.setMessageId(d.getKey());
+                        seeners = message.getSeeners();
+                        Toast.makeText(getApplicationContext() , seeners , Toast.LENGTH_SHORT).show();
+                        if (!seeners.contains(userPhoneNumber))
+                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners+userPhoneNumber);
                         messageArrayList.add(message);
                     }
                 }
@@ -236,7 +241,7 @@ public class GroupActivity extends AppCompatActivity {
                 if (!messageEditText.getText().toString().trim().equals("")) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     sendMessage(new Message(messageEditText.getText().toString(), dateFormat.format(new Date())
-                            , userPhoneNumber, chatId, 0));
+                            , userPhoneNumber, chatId, userPhoneNumber));
                 }
             }
         });
@@ -326,7 +331,7 @@ public class GroupActivity extends AppCompatActivity {
     private void SaveMessages() {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("savedMessages").child(userPhoneNumber);
         for (int i = 0; i < selectedItems.size(); i++) {
-            databaseReference.child(selectedItems.get(i).messageId).setValue(selectedItems.get(i));
+            databaseReference.child(selectedItems.get(i).getMessageId()).setValue(selectedItems.get(i));
         }
         groupMessagesAdapter.notifyDataSetChanged();
         selectedItems.clear();
@@ -334,14 +339,14 @@ public class GroupActivity extends AppCompatActivity {
 
     private void DeleteMessages() {
         for (int i = 0; i < selectedItems.size(); i++) {
-            databaseReference.child(chatId).child(selectedItems.get(i).messageId).removeValue();
+            databaseReference.child(chatId).child(selectedItems.get(i).getMessageId()).removeValue();
         }
         selectedItems.clear();
     }
 
     private void sendMessage(Message message) {
         String messageId = System.currentTimeMillis() + "";
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("GroupsChats");
         databaseReference.child(chatId).child(messageId).setValue(message);
         messageEditText.setText("");
     }
@@ -390,7 +395,7 @@ public class GroupActivity extends AppCompatActivity {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                             String messageId = System.currentTimeMillis() + "";
                             Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
-                                    , userPhoneNumber, chatId, 0);
+                                    , userPhoneNumber, chatId, userPhoneNumber);
                             databaseReference.child(chatId).child(messageId).setValue(message);
                         }
                     });
@@ -405,7 +410,7 @@ public class GroupActivity extends AppCompatActivity {
             chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
             for (int i = 0; i < selectedItems.size(); i++) {
                 selectedItems.get(i).setReceiverPhone(receiverNumber);
-                selectedItems.get(i).setSeen(0);
+                selectedItems.get(i).setSeeners(userPhoneNumber);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 selectedItems.get(i).setTime(dateFormat.format(new Date()));
                 sendMessage(selectedItems.get(i));
@@ -427,7 +432,7 @@ public class GroupActivity extends AppCompatActivity {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                         String messageId = System.currentTimeMillis() + "";
                         Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
-                                , userPhoneNumber, chatId, 0);
+                                , userPhoneNumber, chatId, userPhoneNumber);
                         databaseReference.child(chatId).child(messageId).setValue(message);
 
                     }

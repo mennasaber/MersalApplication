@@ -7,13 +7,21 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.example.chatapp.Activities.GroupDetailsActivity;
 import com.example.chatapp.Models.Chat;
+import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
@@ -25,7 +33,7 @@ import java.util.Objects;
 
 public class ChatsAdapter extends ArrayAdapter<Chat> {
     Context context;
-
+    String users="";
     public ChatsAdapter(@NonNull Context context, int resource, @NonNull List<Chat> objects) {
         super(context, resource, objects);
         this.context = context;
@@ -66,16 +74,38 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         usernameTV.setText(currentChat.getUser().getUsername());
         lastMessageTV.setText(currentChat.getLastMessage().getMessage());
         timeTV.setText(time);
-        if (currentChat.getLastMessage().getSeen() == 1 && currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
-            seenImageView.setImageResource(R.drawable.ic_baseline_done_all_24);
-        else if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
-            seenImageView.setVisibility(View.GONE);
-        if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber) && currentChat.getLastMessage().getSeen() == 0) {
-            UnReadImageView.setVisibility(View.VISIBLE);
-            lastMessageTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
-            timeTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
-        } else
-            UnReadImageView.setVisibility(View.INVISIBLE);
+
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(currentChat.getLastMessage().getReceiverPhone());
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                    User user = d.getValue(User.class);
+                    users+=user.getPhoneNumber();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }});
+
+        try {
+            if (currentChat.getLastMessage().getSeeners().length() > 11 && currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber)
+                    ||  currentChat.getLastMessage().getReceiverPhone().length()!=11&&currentChat.getLastMessage().getSeeners().length()==users.length())
+                seenImageView.setImageResource(R.drawable.ic_baseline_done_all_24);
+            else if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
+                seenImageView.setVisibility(View.GONE);
+            if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber) && currentChat.getLastMessage().getSeeners().equals("1")) {
+                UnReadImageView.setVisibility(View.VISIBLE);
+                lastMessageTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
+                timeTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
+            } else
+                UnReadImageView.setVisibility(View.INVISIBLE);
+        }
+        catch (NullPointerException n){
+        }
+
         return view;
     }
 }

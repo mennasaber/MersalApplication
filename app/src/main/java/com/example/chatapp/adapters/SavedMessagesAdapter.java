@@ -56,14 +56,14 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
         TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);
         if(!image.equals(""))
             Picasso.with(context).load(image).into(profPic);
-        if (currentMessage.getMessage().contains("https")) {
+        if (currentMessage.getMessage().contains("imagesFolder")) {
             Picasso.with(context).load(currentMessage.getMessage()).into(messagePic);
         }
         else {
             message.setText(currentMessage.getMessage());
             messagePic.setVisibility(View.GONE);
         }
-        usernameTV.setText(currentMessage.username);
+        usernameTV.setText(currentMessage.getUsername());
         timeTV.setText(time);
         return view;
     }

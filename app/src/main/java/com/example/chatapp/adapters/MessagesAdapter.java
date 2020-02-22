@@ -107,7 +107,7 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             }
             TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
             timeTV.setText(time);
-            if (currentMessage.getSeen() == 1) {
+            if (currentMessage.getSeeners()=="1") {
                 ImageView seenImage = view.findViewById(R.id.seenImage);
                 seenImage.setImageResource(R.drawable.ic_baseline_done_all_24);
             }

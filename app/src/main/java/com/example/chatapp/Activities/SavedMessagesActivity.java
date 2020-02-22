@@ -74,9 +74,9 @@ public class SavedMessagesActivity extends AppCompatActivity {
                     Message message = d.getValue(Message.class);
                     if (message != null) {
                         if (message.getSenderPhone().equals(userPhoneNumber))
-                            message.username = "Me";
+                            message.setUsername("Me");
                         else
-                            message.username = getContactName(SavedMessagesActivity.this, message.getSenderPhone());
+                            message.setUsername(getContactName(SavedMessagesActivity.this, message.getSenderPhone()));
                         messageArrayList.add(message);
                     }
                 }

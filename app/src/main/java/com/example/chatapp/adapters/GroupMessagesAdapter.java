@@ -39,7 +39,7 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
 
 
     Context context;
-
+    String users ;
     public GroupMessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects) {
         super(context, resource, objects);
         this.context = context;
@@ -103,7 +103,23 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
                 recordMess.setVisibility(View.GONE);
             }
             timeTV.setText(time);
-            if (currentMessage.getSeen() == 1) {
+           /* final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("groupUsers");
+            databaseReference.child(currentMessage.getReceiverPhone()).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    User user = dataSnapshot.getValue(User.class);
+                    users+=user.getPhoneNumber() ;
+                    Toast.makeText(context , users , Toast.LENGTH_SHORT).show();
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+            //if (users!=null&&users.length()==currentMessage.getSeeners().length())*/
+            if (true) {
                 ImageView seenImage = view.findViewById(R.id.seenImage);
                 seenImage.setImageResource(R.drawable.ic_baseline_done_all_24);
             }

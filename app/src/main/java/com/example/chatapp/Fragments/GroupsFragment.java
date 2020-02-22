@@ -75,7 +75,7 @@ public class GroupsFragment extends Fragment {
                             final Group group = g.getValue(Group.class);
 
                             if (groupsIds.contains(group.getGroupId())) { // get the last message
-                                final DatabaseReference lastMessageDR = FirebaseDatabase.getInstance().getReference().child("GroupsMessages").child(group.getGroupId());
+                                final DatabaseReference lastMessageDR = FirebaseDatabase.getInstance().getReference().child("GroupsChats").child(group.getGroupId());
                                 lastMessageDR.addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -83,11 +83,11 @@ public class GroupsFragment extends Fragment {
                                             lastMessage = c.getValue(Message.class);
 
                                         if (lastMessage == null) {
-                                            lastMessage = new Message("No Messages Yet", "", "", "", 0);
+                                            lastMessage = new Message("No Messages Yet", "", "", "", "");
                                         }
                                                 chats.add(new Chat(new User(group.getGroupName(),
                                                         group.getGroupImage(), group.getGroupId()), lastMessage));
-                                                lastMessage = new Message("No Messages Yet", "", "", "", 0);
+                                                lastMessage = new Message("No Messages Yet", "", "", "", "");
                                                 chatsAdapter.notifyDataSetChanged();
                                             }
 

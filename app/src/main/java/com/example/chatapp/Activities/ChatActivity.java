@@ -170,9 +170,9 @@ public class ChatActivity extends AppCompatActivity {
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     Message message = d.getValue(Message.class);
                     if (!message.getSenderPhone().equals(splitNumber[1]))
-                        mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seen").setValue(1);
+                        mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(1);
 
-                    message.messageId = d.getKey();
+                    message.setMessageId(d.getKey());
                     messageArrayList.add(message);
 
 
@@ -192,7 +192,7 @@ public class ChatActivity extends AppCompatActivity {
                 if (!messageEditText.getText().toString().trim().equals("")) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     sendMessage(new Message(messageEditText.getText().toString(), dateFormat.format(new Date())
-                            , userPhoneNumber, receiverNumber, 0));
+                            , userPhoneNumber, receiverNumber, userPhoneNumber));
                 }
             }
         });
@@ -347,7 +347,7 @@ public class ChatActivity extends AppCompatActivity {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                         String messageId = System.currentTimeMillis() + "";
                         Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
-                                , userPhoneNumber, receiverNumber, 0);
+                                , userPhoneNumber, receiverNumber, userPhoneNumber);
                         mDatabaseReference.child(chatId).child(messageId).setValue(message);
 
                     }
@@ -394,7 +394,7 @@ public class ChatActivity extends AppCompatActivity {
                             SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                             String messageId = System.currentTimeMillis() + "";
                             Message message = new Message(String.valueOf(uri), dateFormat.format(new Date())
-                                    , userPhoneNumber, receiverNumber, 0);
+                                    , userPhoneNumber, receiverNumber, userPhoneNumber);
                             mDatabaseReference.child(chatId).child(messageId).setValue(message);
                         }
                     });
@@ -408,7 +408,7 @@ public class ChatActivity extends AppCompatActivity {
             chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
             for (int i = 0; i < selectedItems.size(); i++) {
                 selectedItems.get(i).setReceiverPhone(receiverNumber);
-                selectedItems.get(i).setSeen(0);
+                selectedItems.get(i).setSeeners(userPhoneNumber);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 selectedItems.get(i).setTime(dateFormat.format(new Date()));
                 sendMessage(selectedItems.get(i));
@@ -448,7 +448,7 @@ public class ChatActivity extends AppCompatActivity {
     private void SaveMessages() {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("savedMessages").child(userPhoneNumber);
         for (int i = 0; i < selectedItems.size(); i++) {
-            databaseReference.child(selectedItems.get(i).messageId).setValue(selectedItems.get(i));
+            databaseReference.child(selectedItems.get(i).getMessageId()).setValue(selectedItems.get(i));
         }
         messagesAdapter.notifyDataSetChanged();
         selectedItems.clear();
@@ -456,7 +456,7 @@ public class ChatActivity extends AppCompatActivity {
 
     private void DeleteMessages() {
         for (int i = 0; i < selectedItems.size(); i++) {
-            mDatabaseReference.child(chatId).child(selectedItems.get(i).messageId).removeValue();
+            mDatabaseReference.child(chatId).child(selectedItems.get(i).getMessageId()).removeValue();
         }
         selectedItems.clear();
     }

@@ -93,8 +93,8 @@ public class ChatsFragment extends Fragment {
                                 for (DataSnapshot d : dataSnapshot.getChildren())
                                     lastMessage = d.getValue(Message.class);
                                 //getting the chat user image
-                                DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("users") ;
-                                databaseReference.child(numbers[0]).addValueEventListener(new ValueEventListener() {
+                                DatabaseReference mdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users") ;
+                                mdatabaseReference.child(numbers[0]).addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
