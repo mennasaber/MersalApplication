@@ -33,7 +33,6 @@ import java.util.Objects;
 
 public class ChatsAdapter extends ArrayAdapter<Chat> {
     Context context;
-    String users="";
     public ChatsAdapter(@NonNull Context context, int resource, @NonNull List<Chat> objects) {
         super(context, resource, objects);
         this.context = context;
@@ -74,31 +73,13 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         usernameTV.setText(currentChat.getUser().getUsername());
         lastMessageTV.setText(currentChat.getLastMessage().getMessage());
         timeTV.setText(time);
-
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(currentChat.getLastMessage().getReceiverPhone());
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                users = "" ;
-                for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    User user = d.getValue(User.class);
-                    users+=user.getPhoneNumber();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }});
-
         try {
             if (currentChat.getLastMessage().getSeeners().equals("All"))
                 seenImageView.setImageResource(R.drawable.ic_baseline_done_all_24);
             else if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
                 seenImageView.setVisibility(View.GONE);
             if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber) && !currentChat.getLastMessage().getSeeners().equals("All")||
-                    !currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber)&&!currentChat.getLastMessage().getSeeners().contains(userPhoneNumber)&&
-                            !currentChat.getLastMessage().getSeeners().equals("All")) {
+                   !currentChat.getLastMessage().getSeeners().contains(userPhoneNumber)&& !currentChat.getLastMessage().getSeeners().equals("All")) {
                 UnReadImageView.setVisibility(View.VISIBLE);
                 lastMessageTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
                 timeTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));

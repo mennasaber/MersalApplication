@@ -233,12 +233,10 @@ public class GroupActivity extends AppCompatActivity {
                                         User user = d.getValue(User.class);
                                         users+=user.getPhoneNumber() ;
                                     }
-                                    if (!seeners.contains(userPhoneNumber)) {
                                         if (users.length()!=seeners.length()+11)
                                         databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners + userPhoneNumber);
                                         else
                                             databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
-                                    }
                                 }
 
                                 @Override
