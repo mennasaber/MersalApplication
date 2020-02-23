@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.example.chatapp.Adapters.GroupMessagesAdapter;
 import com.example.chatapp.Models.Message;
+import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -78,7 +79,7 @@ public class GroupActivity extends AppCompatActivity {
     private boolean record = false;
     private MediaRecorder mediaRecorder;
     private String fileName;
-    String seeners  ;
+    String seeners ,users ;;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -216,14 +217,37 @@ public class GroupActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 messageArrayList.clear();
-                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                for (final DataSnapshot d : dataSnapshot.getChildren()) {
                     Message message = d.getValue(Message.class);
                     if (message != null) {
                         message.setMessageId(d.getKey());
                         seeners = message.getSeeners();
                         Toast.makeText(getApplicationContext() , seeners , Toast.LENGTH_SHORT).show();
-                        if (!seeners.contains(userPhoneNumber))
-                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners+userPhoneNumber);
+
+                        if (!seeners.contains(userPhoneNumber)) {
+                           DatabaseReference mdatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(chatId);
+                            mdatabaseReference.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    for (DataSnapshot d : dataSnapshot.getChildren()) {
+                                        User user = d.getValue(User.class);
+                                        users+=user.getPhoneNumber() ;
+                                    }
+                                    if (!seeners.contains(userPhoneNumber)) {
+                                        if (users.length()!=seeners.length()+11)
+                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners + userPhoneNumber);
+                                        else
+                                            databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
                         messageArrayList.add(message);
                     }
                 }
