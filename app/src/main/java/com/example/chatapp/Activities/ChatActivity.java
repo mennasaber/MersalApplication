@@ -170,7 +170,7 @@ public class ChatActivity extends AppCompatActivity {
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     Message message = d.getValue(Message.class);
                     if (!message.getSenderPhone().equals(splitNumber[1]))
-                        mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(1);
+                        mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
 
                     message.setMessageId(d.getKey());
                     messageArrayList.add(message);
@@ -192,7 +192,7 @@ public class ChatActivity extends AppCompatActivity {
                 if (!messageEditText.getText().toString().trim().equals("")) {
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     sendMessage(new Message(messageEditText.getText().toString(), dateFormat.format(new Date())
-                            , userPhoneNumber, receiverNumber, userPhoneNumber));
+                            , userPhoneNumber, receiverNumber, "0"));
                 }
             }
         });

@@ -79,6 +79,7 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                users = "" ;
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     User user = d.getValue(User.class);
                     users+=user.getPhoneNumber();
@@ -91,12 +92,12 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
             }});
 
         try {
-            if (currentChat.getLastMessage().getSeeners().length() > 11 && currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber)
+            if (currentChat.getLastMessage().getSeeners().equals("All") && currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber)
                     ||  currentChat.getLastMessage().getReceiverPhone().length()!=11&&currentChat.getLastMessage().getSeeners().length()==users.length())
                 seenImageView.setImageResource(R.drawable.ic_baseline_done_all_24);
             else if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
                 seenImageView.setVisibility(View.GONE);
-            if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber) && currentChat.getLastMessage().getSeeners().equals("1")) {
+            if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber) && !currentChat.getLastMessage().getSeeners().equals("All")) {
                 UnReadImageView.setVisibility(View.VISIBLE);
                 lastMessageTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
                 timeTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));

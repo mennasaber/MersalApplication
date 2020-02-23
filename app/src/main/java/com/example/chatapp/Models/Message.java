@@ -3,11 +3,11 @@ package com.example.chatapp.Models;
 public class Message  {
      String username;
      String messageId;
-    String message;
-    String time;
-    String senderPhone;
-    String receiverPhone;
-    String seeners ;
+     String message;
+     String time;
+     String senderPhone;
+     String receiverPhone;
+     String seeners ;
 
     public Message() {
     }
