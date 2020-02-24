@@ -431,6 +431,7 @@ public class GroupActivity extends AppCompatActivity {
             String thisChat = chatId;
             chatId = getChatId(mUser.getPhoneNumber().substring(2), receiverNumber);
             for (int i = 0; i < selectedItems.size(); i++) {
+                selectedItems.get(i).setSenderPhone(userPhoneNumber);
                 selectedItems.get(i).setReceiverPhone(receiverNumber);
                 selectedItems.get(i).setSeeners(userPhoneNumber);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());

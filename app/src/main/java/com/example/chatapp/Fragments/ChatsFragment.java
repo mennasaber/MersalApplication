@@ -75,11 +75,9 @@ public class ChatsFragment extends Fragment {
 
         chatsAdapter = new ChatsAdapter(view.getContext(), R.layout.chat_item, chats);
         chatsListView.setAdapter(chatsAdapter);
-
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                chats.clear();
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     final String chatId = d.getKey();
                     if (chatId.contains(splitNumber[1])) {
@@ -97,6 +95,14 @@ public class ChatsFragment extends Fragment {
                                 mdatabaseReference.child(numbers[0]).addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        try {
+                                            for (int i = 0 ; i<chats.size();i++){
+                                                if(chats.get(i).getUser().getPhoneNumber().equals(dataSnapshot.getValue(User.class).getPhoneNumber()))
+                                                    chats.remove(i);
+                                            }
+                                        }
+                                        catch (Exception e ){}
+
                                         chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
                                         chatsAdapter.notifyDataSetChanged();
                                     }
@@ -106,7 +112,12 @@ public class ChatsFragment extends Fragment {
 
                                     }
                                 });
-
+                                /*for(int i = 0 ; i< chats.size()-1 ; i++ )
+                                    for(int j = i+1 ; j<chats.size();j++)
+                                        if (chats.get(i).getUser().getPhoneNumber().equals(chats.get(j).getUser().getPhoneNumber())) {
+                                            chats.remove(i);
+                                            i--;
+                                        }*/
                             }
 
                             @Override
@@ -117,7 +128,6 @@ public class ChatsFragment extends Fragment {
                     }
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
 

@@ -7,6 +7,7 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -32,7 +33,7 @@ public class SavedMessagesActivity extends AppCompatActivity {
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
     DatabaseReference databaseReference;
-
+    MediaPlayer mediaPlayer ;
     public static String getContactName(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
@@ -58,7 +59,7 @@ public class SavedMessagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_saved_messages);
         savedMessagesLV = findViewById(R.id.savedMessagesLV);
-
+        mediaPlayer = new MediaPlayer() ;
         Objects.requireNonNull(getSupportActionBar()).setTitle("Saved Messages");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -81,7 +82,7 @@ public class SavedMessagesActivity extends AppCompatActivity {
                     }
                 }
                 savedMessagesAdapter = new SavedMessagesAdapter(SavedMessagesActivity.this, R.layout.their_message, messageArrayList,
-                        getIntent().getStringExtra("mUserPic"));
+                        getIntent().getStringExtra("mUserPic"),mediaPlayer);
                 savedMessagesLV.setAdapter(savedMessagesAdapter);
             }
 

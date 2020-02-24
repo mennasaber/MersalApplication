@@ -109,6 +109,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case R.id.contactsOption:
                 fragment = new ContactsFragment();
                 break;
+            case R.id.chats:
+                fragment = new ChatsFragment();
+                break;
             case R.id.settingOption:
                 fragment = new SettingsFragment();
                 break;

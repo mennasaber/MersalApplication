@@ -42,9 +42,7 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         View view = convertView;
-        String userPhoneNumber = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getPhoneNumber();
-        final String[] splitNumber = userPhoneNumber.split("\\+2");
-        userPhoneNumber = splitNumber[1];
+        String userPhoneNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber().substring(2);
         if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.chat_item, null);
         }
@@ -74,19 +72,20 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         lastMessageTV.setText(currentChat.getLastMessage().getMessage());
         timeTV.setText(time);
         try {
-            if (currentChat.getLastMessage().getSeeners().equals("All"))
+            if (currentChat.getLastMessage().getSeeners().equals("All")&&!currentChat.getLastMessage().getReceiverPhone().equals(userPhoneNumber))
                 seenImageView.setImageResource(R.drawable.ic_baseline_done_all_24);
             else if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
                 seenImageView.setVisibility(View.GONE);
             if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber) && !currentChat.getLastMessage().getSeeners().equals("All")||
-                   !currentChat.getLastMessage().getSeeners().contains(userPhoneNumber)&& !currentChat.getLastMessage().getSeeners().equals("All")) {
+                   !currentChat.getLastMessage().getSeeners().contains(userPhoneNumber)&& !currentChat.getLastMessage().getSeeners().equals("All")&&
+                           !currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber)) {
                 UnReadImageView.setVisibility(View.VISIBLE);
                 lastMessageTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
                 timeTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
             } else
                 UnReadImageView.setVisibility(View.INVISIBLE);
         }
-        catch (NullPointerException n){
+        catch (Exception n){
         }
 
         return view;
