@@ -524,6 +524,7 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        finish();
         Intent intent = new Intent(ChatActivity.this, MainActivity.class);
         intent.putExtra("fragmentName", "chats");
         startActivity(intent);

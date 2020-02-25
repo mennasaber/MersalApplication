@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.example.chatapp.R;
+import com.example.chatapp.WelcomeActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -29,7 +30,7 @@ public class VerificationActivity extends AppCompatActivity implements View.OnCl
 
 
         if (firebaseUser != null) {
-            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            startActivity(new Intent(getApplicationContext(), WelcomeActivity.class));
             finish();
         }
     }
