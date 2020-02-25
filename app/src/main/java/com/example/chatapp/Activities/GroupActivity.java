@@ -231,14 +231,16 @@ public class GroupActivity extends AppCompatActivity {
                                     User user = d.getValue(User.class);
                                     users+=user.getPhoneNumber() ;
                                 }
-                                Toast.makeText(getApplicationContext() , users , Toast.LENGTH_SHORT).show();
                                 if (!closed&&!seeners.equals("All")&&!seeners.contains(userPhoneNumber)) {
                                     if (users.length() > seeners.length()) {
-                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners + userPhoneNumber);
                                         seeners+=userPhoneNumber ;
+                                        if (users.length() == seeners.length()) {
+                                            seeners = "All";
+                                            databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
+                                        }
+                                        else
+                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners);
                                     }
-                                    if (users.length() == seeners.length())
-                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
                                 }
                             }
                             @Override
@@ -258,6 +260,7 @@ public class GroupActivity extends AppCompatActivity {
 
             }
         });
+        
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -362,6 +365,7 @@ public class GroupActivity extends AppCompatActivity {
 
     private void DeleteMessages() {
         for (int i = 0; i < selectedItems.size(); i++) {
+            if (selectedItems.get(i).getSenderPhone().equals(userPhoneNumber))
             databaseReference.child(chatId).child(selectedItems.get(i).getMessageId()).removeValue();
         }
         selectedItems.clear();
