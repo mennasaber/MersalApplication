@@ -2,24 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@android:color/black">
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="32dp"
-        android:id="@+id/editUsername"
-        android:textColorHint="@android:color/white"
-        android:textColor="@android:color/white"
-        android:hint="@string/type_new_username"/>
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="32dp"
-        android:id="@+id/save"
-        android:text="@string/save"
-        android:background="@color/colorLightYellow"
+    android:background="@android:color/white"
+    android:orientation="vertical">
 
-        />
+    <EditText
+        android:id="@+id/editUsername"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="32dp"
+        android:hint="@string/type_new_username"
+        android:textColor="@color/colorAccent"
+        android:textColorHighlight="@color/colorGray"
+        android:textColorHint="@android:color/darker_gray" />
+
+    <Button
+        android:id="@+id/save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="32dp"
+        android:background="@color/colorAccent"
+        android:text="@string/save"
+        android:textColor="@color/colorWhite" />
 
 </LinearLayout>

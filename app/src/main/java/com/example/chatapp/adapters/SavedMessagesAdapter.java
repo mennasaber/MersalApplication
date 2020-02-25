@@ -2,6 +2,7 @@ package com.example.chatapp.Adapters;
 
 import android.content.Context;
 import android.media.MediaPlayer;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -32,11 +33,12 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
     Context context;
     String image;
     MediaPlayer mediaPlayer;
-    public SavedMessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects , String image , MediaPlayer mediaPlayer) {
+
+    public SavedMessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects, String image, MediaPlayer mediaPlayer) {
         super(context, resource, objects);
         this.context = context;
-        this.image=image ;
-        this.mediaPlayer=mediaPlayer ;
+        this.image = image;
+        this.mediaPlayer = mediaPlayer;
     }
 
     @NonNull
@@ -54,28 +56,26 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
         } catch (ParseException pe) {
             pe.printStackTrace();
         }
-        if (view == null)
-            view = View.inflate(context, R.layout.their_message, null);
+        view = LayoutInflater.from(context).inflate(R.layout.their_message, null);
         TextView usernameTV = view.findViewById(R.id.usernameMessageTV);
         ImageView profPic = view.findViewById(R.id.imageView);
         ImageView messagePic = view.findViewById(R.id.theirMessageIV);
         TextView message = view.findViewById(R.id.theirMessageTV);
         TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);
         LinearLayout theirRecordMess = view.findViewById(R.id.theirRecordMess);
-        final ImageView theirPlayButton = view.findViewById(R.id.theirPlayButton) ;
-        if(!image.equals(""))
+        final ImageView theirPlayButton = view.findViewById(R.id.theirPlayButton);
+        if (!image.equals(""))
             Picasso.with(context).load(image).into(profPic);
         if (currentMessage.getMessage().contains("imagesFolder")) {
             Picasso.with(context).load(currentMessage.getMessage()).into(messagePic);
             theirRecordMess.setVisibility(View.GONE);
-        }
-        else if  (currentMessage.getMessage().contains("recordsFolder")){
+        } else if (currentMessage.getMessage().contains("recordsFolder")) {
             messagePic.setVisibility(View.GONE);
             theirPlayButton.setImageResource(play);
             theirPlayButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                     mediaPlayer = new MediaPlayer() ;
+                    mediaPlayer = new MediaPlayer();
                     try {
                         mediaPlayer.setDataSource(currentMessage.getMessage());
                         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -90,8 +90,7 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
                     }
                 }
             });
-        }
-        else {
+        } else {
             message.setText(currentMessage.getMessage());
             messagePic.setVisibility(View.GONE);
             theirRecordMess.setVisibility(View.GONE);

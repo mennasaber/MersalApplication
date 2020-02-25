@@ -66,6 +66,7 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         } catch (ParseException pe) {
             pe.printStackTrace();
         }
+
         if(!currentChat.getUser().getImage().equals(""))
             Picasso.with(context).load(currentChat.getUser().getImage()).into(imageView);
         usernameTV.setText(currentChat.getUser().getUsername());
@@ -87,7 +88,23 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         }
         catch (Exception n){
         }
-
+        if(currentChat.getLastMessage().getTime().equals("")){
+            seenImageView.setVisibility(View.GONE);
+            UnReadImageView.setVisibility(View.GONE);
+            lastMessageTV.setTextColor(view.getResources().getColor(R.color.colorGray));
+            timeTV.setVisibility(View.GONE);
+        }
+        if(currentChat.getLastMessage().getMessage().contains("imagesFolder")){
+            ImageView mediaImage = view.findViewById(R.id.mediaChatImage);
+            lastMessageTV.setVisibility(View.INVISIBLE);
+            mediaImage.setVisibility(View.VISIBLE);
+        }
+        else if(currentChat.getLastMessage().getMessage().contains("recordsFolder")){
+            ImageView mediaImage = view.findViewById(R.id.mediaChatImage);
+            lastMessageTV.setVisibility(View.INVISIBLE);
+            mediaImage.setImageResource(R.drawable.record_media);
+            mediaImage.setVisibility(View.VISIBLE);
+        }
         return view;
     }
 }

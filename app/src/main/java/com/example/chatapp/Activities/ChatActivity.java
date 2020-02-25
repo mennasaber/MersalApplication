@@ -2,6 +2,7 @@ package com.example.chatapp.Activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 
@@ -27,6 +28,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.chatapp.Models.Block;
@@ -67,7 +69,7 @@ public class ChatActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     String receiverNumber;
     String receiverUsername;
-    String recieverImage ;
+    String recieverImage;
     String chatId;
     boolean blocked;
     ArrayList<Message> messageArrayList;
@@ -152,6 +154,30 @@ public class ChatActivity extends AppCompatActivity {
             }
         };
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Disable the default and enable the custom
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayShowCustomEnabled(true);
+            View customView = getLayoutInflater().inflate(R.layout.actionbar_title, null);
+            // Get the textView of the title
+            TextView customTitle = (TextView) customView.findViewById(R.id.actionbarTitle);
+            customTitle.setText(receiverUsername);
+            // Set the on click listener for the title
+            customTitle.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(getApplicationContext(), ContactProfileActivity.class);
+                    intent.putExtra("recieverUserName", receiverUsername);
+                    intent.putExtra("recieverNum", receiverNumber);
+                    intent.putExtra("recieverPic", recieverImage);
+                    startActivity(intent);
+                }
+            });
+            // Apply the custom view
+            actionBar.setCustomView(customView);
+        }
+
         Objects.requireNonNull(getSupportActionBar()).setTitle(receiverUsername);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -161,7 +187,7 @@ public class ChatActivity extends AppCompatActivity {
         messageArrayList = new ArrayList<>();
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
         userPhoneNumber = splitNumber[1];
-        messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, receiverUsername , recieverImage);
+        messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, receiverUsername, recieverImage);
         messagesLV.setAdapter(messagesAdapter);
         mDatabaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
@@ -210,19 +236,17 @@ public class ChatActivity extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if(!messageEditText.getText().toString().trim().equals("")){
+                if (!messageEditText.getText().toString().trim().equals("")) {
                     sendButton.setVisibility(View.VISIBLE);
                     recordButton.setVisibility(View.INVISIBLE);
                     loadImageButton.setVisibility(View.INVISIBLE);
-                }
-                else
-                {
+                } else {
                     recordButton.setVisibility(View.VISIBLE);
                     sendButton.setVisibility(View.INVISIBLE);
                     loadImageButton.setVisibility(View.VISIBLE);
                 }
             }
-        }) ;
+        });
         loadImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -460,11 +484,12 @@ public class ChatActivity extends AppCompatActivity {
         }
         selectedItems.clear();
     }
-    private  void sendMessage(Message message){
-            String messageId = System.currentTimeMillis() + "";
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
-            databaseReference.child(chatId).child(messageId).setValue(message);
-            messageEditText.setText("");
+
+    private void sendMessage(Message message) {
+        String messageId = System.currentTimeMillis() + "";
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
+        databaseReference.child(chatId).child(messageId).setValue(message);
+        messageEditText.setText("");
     }
 
     // get the chat id in firebase in order to put the new messages between the
@@ -481,26 +506,10 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
-
-            case R.id.viewProfile:
-                Intent intent = new Intent(getApplicationContext(), ContactProfileActivity.class);
-                intent.putExtra("recieverUserName", receiverUsername);
-                intent.putExtra("recieverNum", receiverNumber);
-                intent.putExtra("recieverPic",recieverImage);
-                startActivity(intent);
-                break;
-
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.chat_menu, menu);
-        return super.onCreateOptionsMenu(menu);
     }
 
     private void Vibrate() {
@@ -510,5 +519,13 @@ public class ChatActivity extends AppCompatActivity {
         } else {
             v.vibrate(150);
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent intent = new Intent(ChatActivity.this, MainActivity.class);
+        intent.putExtra("fragmentName", "chats");
+        startActivity(intent);
     }
 }

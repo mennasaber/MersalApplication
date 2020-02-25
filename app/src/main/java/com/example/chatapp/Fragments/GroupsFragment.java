@@ -61,6 +61,7 @@ public class GroupsFragment extends Fragment {
         mdataReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                chats.clear();
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     groupsIds.add(d.getValue(String.class));
 
@@ -71,6 +72,7 @@ public class GroupsFragment extends Fragment {
                 chatsDR.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        chats.clear();
                         for (DataSnapshot g : dataSnapshot.getChildren()) {
                             final Group group = g.getValue(Group.class);
 
@@ -85,18 +87,12 @@ public class GroupsFragment extends Fragment {
                                         if (lastMessage == null) {
                                             lastMessage = new Message("No Messages Yet", "", "", "", "");
                                         }
-                                            try {
-                                                for(int i = 0 ; i< chats.size();i++){
-                                                    if (lastMessage.getReceiverPhone().equals(chats.get(i).getLastMessage().getReceiverPhone()))
-                                                        chats.remove(i) ;
-                                                }
-                                            }
-                                            catch (Exception e ){}
-                                                chats.add(new Chat(new User(group.getGroupName(),
-                                                        group.getGroupImage(), group.getGroupId()), lastMessage));
-                                                lastMessage = new Message("No Messages Yet", "", "", "", "");
-                                                chatsAdapter.notifyDataSetChanged();
-                                            }
+
+                                        chats.add(new Chat(new User(group.getGroupName(),
+                                                group.getGroupImage(), group.getGroupId()), lastMessage));
+                                        lastMessage = new Message("No Messages Yet", "", "", "", "");
+                                        chatsAdapter.notifyDataSetChanged();
+                                    }
 
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError databaseError) {

@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -62,10 +63,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         profileImage = header.findViewById(R.id.profileImage) ;
         phoneNum = header.findViewById(R.id.phoneText) ;
         userName = header.findViewById(R.id.usernameText) ;
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frameLayout, new ChatsFragment());
+
+        if ("groups".equals(getIntent().getStringExtra("fragmentName"))) {
+            fragmentTransaction.replace(R.id.frameLayout, new GroupsFragment());
+        } else {
+            fragmentTransaction.replace(R.id.frameLayout, new ChatsFragment());
+        }
         fragmentTransaction.commit();
+
+
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
         //getting list of users form firebase

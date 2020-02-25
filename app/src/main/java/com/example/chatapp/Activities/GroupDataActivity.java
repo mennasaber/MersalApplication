@@ -50,6 +50,7 @@ public class GroupDataActivity extends AppCompatActivity {
     Uri imageURI;
     ImageView imageView;
     String imageEncoded = "";
+    StorageReference imageFolder;
     private ArrayList<User> membersList = SelectGroupMembersActivity.usersSelected;
     private Group group;
     private FloatingActionButton createGroupFAB;
@@ -59,7 +60,6 @@ public class GroupDataActivity extends AppCompatActivity {
     private DatabaseReference databaseReference3;
     private UserGroups userGroups;
     private String userPhoneNumber;
-    StorageReference imageFolder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,7 +103,10 @@ public class GroupDataActivity extends AppCompatActivity {
                     databaseReference1.child(group.getGroupId()).setValue(group);
                     databaseReference3.child(group.getGroupId()).setValue(membersList);
                     UpdateMembersGroups();
-                    Intent intent = new Intent(GroupDataActivity.this, MainActivity.class);
+                    Intent intent = new Intent(GroupDataActivity.this, GroupActivity.class);
+                    intent.putExtra("receiverNumber", group.getGroupId());
+                    intent.putExtra("receiverUsername", group.getGroupName());
+                    intent.putExtra("gImage", group.getGroupImage());
                     startActivity(intent);
                 }
             }

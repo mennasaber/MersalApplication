@@ -516,9 +516,18 @@ public class GroupActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                finish();
+                onBackPressed();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        finish();
+        Intent intent = new Intent(GroupActivity.this,MainActivity.class);
+        intent.putExtra("fragmentName","groups");
+        startActivity(intent);
     }
 }
 

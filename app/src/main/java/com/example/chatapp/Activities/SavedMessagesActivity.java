@@ -11,8 +11,13 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.view.ActionMode;
+import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.chatapp.Adapters.SavedMessagesAdapter;
 import com.example.chatapp.Models.Message;
@@ -33,7 +38,10 @@ public class SavedMessagesActivity extends AppCompatActivity {
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
     DatabaseReference databaseReference;
-    MediaPlayer mediaPlayer ;
+    MediaPlayer mediaPlayer;
+    Message selectedMessage;
+    private ActionMode currentActionMode;
+
     public static String getContactName(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
@@ -59,10 +67,47 @@ public class SavedMessagesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_saved_messages);
         savedMessagesLV = findViewById(R.id.savedMessagesLV);
-        mediaPlayer = new MediaPlayer() ;
+        mediaPlayer = new MediaPlayer();
         Objects.requireNonNull(getSupportActionBar()).setTitle("Saved Messages");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        selectedMessage = null;
+        final ActionMode.Callback callback = new ActionMode.Callback() {
+            @Override
+            public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+                currentActionMode = mode;
+                mode.setTitle("");
+                mode.getMenuInflater().inflate(R.menu.action_bar_saved, menu);
+                return true;
+            }
 
+            @Override
+            public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+                return false;
+            }
+
+            @Override
+            public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.deleteMessageSaved:
+                        mode.finish();
+                        databaseReference.child(selectedMessage.getMessageId()).removeValue();
+                        messageArrayList.remove(selectedMessage);
+                        selectedMessage = null;
+                        savedMessagesAdapter.notifyDataSetChanged();
+                        Toast.makeText(SavedMessagesActivity.this, "Deleted", Toast.LENGTH_SHORT).show();
+                        break;
+                    default:
+                        break;
+                }
+                return false;
+            }
+
+
+            @Override
+            public void onDestroyActionMode(ActionMode mode) {
+                currentActionMode = null;
+            }
+        };
         messageArrayList = new ArrayList<>();
         userPhoneNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
         final String[] splitNumber = userPhoneNumber.split("\\+2");
@@ -82,7 +127,7 @@ public class SavedMessagesActivity extends AppCompatActivity {
                     }
                 }
                 savedMessagesAdapter = new SavedMessagesAdapter(SavedMessagesActivity.this, R.layout.their_message, messageArrayList,
-                        getIntent().getStringExtra("mUserPic"),mediaPlayer);
+                        getIntent().getStringExtra("mUserPic"), mediaPlayer);
                 savedMessagesLV.setAdapter(savedMessagesAdapter);
             }
 
@@ -91,7 +136,29 @@ public class SavedMessagesActivity extends AppCompatActivity {
 
             }
         });
-
+        savedMessagesLV.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if (!view.isSelected() && selectedMessage == null) {
+                    selectedMessage = savedMessagesAdapter.getItem(i);
+                    startActionMode(callback);
+                    view.setSelected(true);
+                    view.setBackgroundResource(R.color.colorLightYellow);
+                }
+                return true;
+            }
+        });
+        savedMessagesLV.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                if (selectedMessage != null && selectedMessage == savedMessagesAdapter.getItem(i)) {
+                    selectedMessage = null;
+                    view.setSelected(false);
+                    view.setBackgroundResource(R.color.colorAccent);
+                    currentActionMode.finish();
+                }
+            }
+        });
     }
 
     @Override

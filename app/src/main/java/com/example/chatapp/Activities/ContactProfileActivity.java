@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -71,6 +72,9 @@ public class ContactProfileActivity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance();
         mDatabaseReference = mDatabase.getReference().child("Blocks");
         mDatabaseReference.keepSynced(true);
+
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Profile");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // checking if one user blocked another
         final DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Blocks").child(blockId);
@@ -142,4 +146,11 @@ public class ContactProfileActivity extends AppCompatActivity {
         return num2 + num1;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

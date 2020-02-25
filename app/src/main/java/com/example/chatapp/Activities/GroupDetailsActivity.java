@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.chatapp.Adapters.ContactsAdapter;
 import com.example.chatapp.Models.User;
@@ -78,7 +79,7 @@ public class GroupDetailsActivity extends AppCompatActivity {
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         String[] split = firebaseUser.getPhoneNumber().split("\\+2");
-        userPhoneNumber = split[0];
+        userPhoneNumber = split[1];
 
         membersLV = findViewById(R.id.membersDetails);
         groupImageIV = findViewById(R.id.groupImageDetails);
@@ -86,7 +87,7 @@ public class GroupDetailsActivity extends AppCompatActivity {
         membersNumber = findViewById(R.id.membersNumberTV);
         leaveGroupTV = findViewById(R.id.leaveGroupTV);
 
-               if (!groupImage.equals(""))
+        if (!groupImage.equals(""))
             Picasso.with(getApplicationContext()).load(groupImage).into(groupImageIV);
         membersArrayList = new ArrayList<>();
         membersAdapter = new ContactsAdapter(GroupDetailsActivity.this, R.layout.contact_item, membersArrayList);
@@ -117,11 +118,43 @@ public class GroupDetailsActivity extends AppCompatActivity {
         leaveGroupTV.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                databaseReference.child(userPhoneNumber).removeValue();
-//                DatabaseReference databaseReference2 = FirebaseDatabase.getInstance().getReference("userGroups").child(userPhoneNumber).child("groupsIds");
-//                databaseReference2.child(groupId).removeValue();
-//                Intent intent = new Intent(GroupDetailsActivity.this, MainActivity.class);
-//                startActivity(intent);
+                Intent intent = new Intent(GroupDetailsActivity.this, MainActivity.class);
+                startActivity(intent);
+                final DatabaseReference databaseReference_ = FirebaseDatabase.getInstance().getReference("groupUsers").child(groupId);
+                databaseReference_.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot d : dataSnapshot.getChildren()) {
+                            if (d.getValue(User.class).getPhoneNumber().equals(userPhoneNumber)) {
+                                databaseReference_.child(d.getKey()).removeValue();
+                                break;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                final DatabaseReference databaseReference2 = FirebaseDatabase.getInstance().getReference("userGroups").child(userPhoneNumber).child("groupsIds");
+                databaseReference2.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        for (DataSnapshot d : dataSnapshot.getChildren()) {
+                            if (d.getValue(String.class).equals(groupId)) {
+                                databaseReference2.child(d.getKey()).removeValue();
+                                break;
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+                Toast.makeText(GroupDetailsActivity.this, "Done", Toast.LENGTH_SHORT).show();
             }
         });
     }

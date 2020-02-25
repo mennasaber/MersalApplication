@@ -16,7 +16,7 @@
         android:layout_marginLeft="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
-        android:src="@mipmap/ic_launcher"
+        android:src="@drawable/person"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -84,7 +84,18 @@
         app:layout_constraintStart_toEndOf="@+id/chatImageView"
         app:layout_constraintTop_toBottomOf="@+id/usernameChatTextView"
         app:layout_constraintVertical_bias="0.0" />
-
+    <ImageView
+        android:id="@+id/mediaChatImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="6dp"
+        android:layout_marginLeft="6dp"
+        android:layout_marginBottom="9dp"
+        android:src="@drawable/image"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/seenChatImage"
+        app:layout_constraintTop_toBottomOf="@+id/usernameChatTextView" />
     <ImageView
         android:id="@+id/UnReadImageView"
         android:layout_width="wrap_content"
