@@ -137,4 +137,9 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.READ_CONTACTS},
                 REQUEST_READ_CONTACTS);
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
 }

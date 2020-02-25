@@ -85,24 +85,38 @@ public class ChatsFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 chats.clear();
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
+
                     final String chatId = d.getKey();
                     if (chatId.contains(splitNumber[1])) {
                         final String[] numbers = chatId.split(splitNumber[1]);
                         if (numbers[0].equals(""))
                             numbers[0] = numbers[1];
                         final String username = getContactName(view.getContext(), numbers[0]);
-                        databaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                for (DataSnapshot d : dataSnapshot.getChildren())
-                                    lastMessage = d.getValue(Message.class);
-                                //getting the chat user image
-                                DatabaseReference mdatabaseReference = FirebaseDatabase.getInstance().getReference().child("users");
-                                mdatabaseReference.child(numbers[0]).addValueEventListener(new ValueEventListener() {
+                                // getting last message for this chat
+                                DatabaseReference mDatabaseReference2 = FirebaseDatabase.getInstance().getReference().child("Chats");
+                                mDatabaseReference2.child(chatId).addValueEventListener(new ValueEventListener() {
                                     @Override
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot d : dataSnapshot.getChildren())
+                                            lastMessage = d.getValue(Message.class);
 
+                                        if (lastMessage == null) {
+                                            lastMessage = new Message("No Messages", "00:00", "", "", "");
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                    }
+                                });
+
+                                //getting the chat user image
+                                DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users");
+                                mDatabaseReference.child(numbers[0]).addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         for (Iterator<Chat> iterator = chats.iterator(); iterator.hasNext(); ) {
                                             if (iterator.next().getUser().getPhoneNumber().equals(dataSnapshot.getValue(User.class).getPhoneNumber())) {
                                                 iterator.remove();
@@ -110,6 +124,7 @@ public class ChatsFragment extends Fragment {
                                             }
                                         }
                                         chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
+                                        lastMessage = new Message("No Messages", "", "", "", "");
                                         chatsAdapter.notifyDataSetChanged();
                                     }
 
@@ -118,22 +133,9 @@ public class ChatsFragment extends Fragment {
 
                                     }
                                 });
-                                /*for(int i = 0 ; i< chats.size()-1 ; i++ )
-                                    for(int j = i+1 ; j<chats.size();j++)
-                                        if (chats.get(i).getUser().getPhoneNumber().equals(chats.get(j).getUser().getPhoneNumber())) {
-                                            chats.remove(i);
-                                            i--;
-                                        }*/
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
+                        }
                     }
                 }
-            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

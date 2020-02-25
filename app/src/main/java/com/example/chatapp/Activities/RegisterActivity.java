@@ -152,4 +152,9 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             });
         }
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
 }
