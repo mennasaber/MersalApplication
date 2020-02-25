@@ -211,7 +211,6 @@ public class GroupActivity extends AppCompatActivity {
                 }
             }
         });
-
         //Loading group messages
         databaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
             @Override
@@ -222,34 +221,34 @@ public class GroupActivity extends AppCompatActivity {
                     if (message != null) {
                         message.setMessageId(d.getKey());
                         seeners = message.getSeeners();
-                        Toast.makeText(getApplicationContext() , seeners , Toast.LENGTH_SHORT).show();
-
-                        if (!seeners.contains(userPhoneNumber)) {
-                           DatabaseReference mdatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(chatId);
-                            mdatabaseReference.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    for (DataSnapshot d : dataSnapshot.getChildren()) {
-                                        User user = d.getValue(User.class);
-                                        users+=user.getPhoneNumber() ;
-                                    }
-                                    if (!closed) {
-                                        if (users.length() > seeners.length() && !seeners.equals("All"))
-                                            databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners + userPhoneNumber);
-                                        else
-                                            databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
-                                    }
+                        //getting group users
+                        DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(chatId);
+                        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                users="" ;
+                                for (DataSnapshot d : dataSnapshot.getChildren()) {
+                                    User user = d.getValue(User.class);
+                                    users+=user.getPhoneNumber() ;
                                 }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                                Toast.makeText(getApplicationContext() , users , Toast.LENGTH_SHORT).show();
+                                if (!closed&&!seeners.equals("All")&&!seeners.contains(userPhoneNumber)) {
+                                    if (users.length() > seeners.length()) {
+                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners + userPhoneNumber);
+                                        seeners+=userPhoneNumber ;
+                                    }
+                                    if (users.length() == seeners.length())
+                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
                                 }
-                            });
+                            }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
 
                         }
                         messageArrayList.add(message);
-                    }
                 }
                 groupMessagesAdapter.notifyDataSetChanged();
             }

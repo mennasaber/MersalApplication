@@ -177,7 +177,6 @@ public class SettingsFragment extends Fragment {
                     pickImageFromGallery();
                 } else {
                     Toast.makeText(getContext(), "Permission denied...!", Toast.LENGTH_SHORT).show();
-
                 }
                 break;
         }
