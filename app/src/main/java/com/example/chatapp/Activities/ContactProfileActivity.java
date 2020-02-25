@@ -153,4 +153,9 @@ public class ContactProfileActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
 }

@@ -80,7 +80,7 @@ public class ChatActivity extends AppCompatActivity {
     ImageButton recordButton;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
-    private boolean record = false;
+    private boolean record = false  , closed ;
     private MediaRecorder mediaRecorder;
     private String fileName;
 
@@ -108,7 +108,7 @@ public class ChatActivity extends AppCompatActivity {
 
         selectedItems = new ArrayList<>();
         blocked = false;
-
+        closed = false ;
         final ActionMode.Callback callback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -195,7 +195,8 @@ public class ChatActivity extends AppCompatActivity {
                 messageArrayList.clear();
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     Message message = d.getValue(Message.class);
-                    if (!message.getSenderPhone().equals(splitNumber[1]))
+                    if (message!=null)
+                    if (!message.getSenderPhone().equals(splitNumber[1])&&!closed)
                         mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
 
                     message.setMessageId(d.getKey());
@@ -527,6 +528,8 @@ public class ChatActivity extends AppCompatActivity {
         finish();
         Intent intent = new Intent(ChatActivity.this, MainActivity.class);
         intent.putExtra("fragmentName", "chats");
+        closed = true ;
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 }

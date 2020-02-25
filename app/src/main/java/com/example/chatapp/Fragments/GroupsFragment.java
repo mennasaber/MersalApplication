@@ -85,12 +85,12 @@ public class GroupsFragment extends Fragment {
                                             lastMessage = c.getValue(Message.class);
 
                                         if (lastMessage == null) {
-                                            lastMessage = new Message("No Messages Yet", "", "", "", "");
+                                            lastMessage = new Message("No Messages", "", "", "", "");
                                         }
 
                                         chats.add(new Chat(new User(group.getGroupName(),
                                                 group.getGroupImage(), group.getGroupId()), lastMessage));
-                                        lastMessage = new Message("No Messages Yet", "", "", "", "");
+                                        lastMessage = new Message("No Messages", "", "", "", "");
                                         chatsAdapter.notifyDataSetChanged();
                                     }
 

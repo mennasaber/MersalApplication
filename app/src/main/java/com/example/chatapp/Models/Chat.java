@@ -4,6 +4,8 @@ public class Chat {
     User user;
     Message lastMessage;
 
+    public Chat() {}
+
     public Chat(User user, Message lastMessage) {
         this.user = user;
         this.lastMessage = lastMessage;

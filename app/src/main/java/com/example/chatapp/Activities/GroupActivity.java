@@ -76,7 +76,7 @@ public class GroupActivity extends AppCompatActivity {
     String groupImage;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
-    private boolean record = false;
+    private boolean record = false,closed;
     private MediaRecorder mediaRecorder;
     private String fileName;
     String seeners ,users ;;
@@ -100,7 +100,7 @@ public class GroupActivity extends AppCompatActivity {
         databaseReference = FirebaseDatabase.getInstance().getReference().child("GroupsChats");
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
-
+        closed = false ;
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -233,10 +233,12 @@ public class GroupActivity extends AppCompatActivity {
                                         User user = d.getValue(User.class);
                                         users+=user.getPhoneNumber() ;
                                     }
-                                        if (users.length()!=seeners.length()+11)
-                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners + userPhoneNumber);
+                                    if (!closed) {
+                                        if (users.length() > seeners.length() && !seeners.equals("All"))
+                                            databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners + userPhoneNumber);
                                         else
                                             databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
+                                    }
                                 }
 
                                 @Override
@@ -524,6 +526,7 @@ public class GroupActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        closed = true;
         finish();
         Intent intent = new Intent(GroupActivity.this,MainActivity.class);
         intent.putExtra("fragmentName","groups");

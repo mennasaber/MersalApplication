@@ -108,6 +108,7 @@ public class GroupDataActivity extends AppCompatActivity {
                     intent.putExtra("receiverUsername", group.getGroupName());
                     intent.putExtra("gImage", group.getGroupImage());
                     startActivity(intent);
+                    finish();
                 }
             }
         });

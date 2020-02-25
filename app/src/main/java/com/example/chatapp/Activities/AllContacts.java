@@ -81,6 +81,12 @@ public class AllContacts extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
+
     private void requestPermission() {
         ActivityCompat.requestPermissions(Objects.requireNonNull(this), new String[]{android.Manifest.permission.READ_CONTACTS},
                 REQUEST_READ_CONTACTS);

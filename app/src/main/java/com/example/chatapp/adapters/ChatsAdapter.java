@@ -63,7 +63,7 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
                 date = df.parse(time);
                 time = outputFormat.format(date);
             }
-        } catch (ParseException pe) {
+        } catch (Exception pe) {
             pe.printStackTrace();
         }
 
@@ -86,8 +86,7 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
             } else
                 UnReadImageView.setVisibility(View.INVISIBLE);
         }
-        catch (Exception n){
-        }
+        catch (Exception n){ }
         if(currentChat.getLastMessage().getTime().equals("")){
             seenImageView.setVisibility(View.GONE);
             UnReadImageView.setVisibility(View.GONE);

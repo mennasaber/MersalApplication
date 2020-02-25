@@ -170,4 +170,8 @@ public class SavedMessagesActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+    protected void onStop() {
+        super.onStop();
+        finish();
+    }
 }
