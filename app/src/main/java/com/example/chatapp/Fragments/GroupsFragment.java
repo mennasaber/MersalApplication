@@ -41,6 +41,7 @@ public class GroupsFragment extends Fragment {
     ChatsAdapter chatsAdapter;
     ListView groupsListView;
     Message lastMessage;
+    String users ;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -120,12 +121,27 @@ public class GroupsFragment extends Fragment {
 
         groupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getActivity(), GroupActivity.class);
-                intent.putExtra("receiverNumber", chatsAdapter.getItem(i).getUser().getPhoneNumber());
-                intent.putExtra("receiverUsername", chatsAdapter.getItem(i).getUser().getUsername());
-                intent.putExtra("gImage", chatsAdapter.getItem(i).getUser().getImage());
-                startActivity(intent);
+            public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
+                //getting group users
+                DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(chatsAdapter.getItem(i).getLastMessage().getReceiverPhone());
+                mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                        users = "" ;
+                        for (DataSnapshot d : dataSnapshot.getChildren())
+                            users+=d.getValue(User.class).getPhoneNumber();
+
+                        Intent intent = new Intent(getActivity(), GroupActivity.class);
+                        intent.putExtra("receiverNumber", chatsAdapter.getItem(i).getUser().getPhoneNumber());
+                        intent.putExtra("receiverUsername", chatsAdapter.getItem(i).getUser().getUsername());
+                        intent.putExtra("gImage", chatsAdapter.getItem(i).getUser().getImage());
+                        intent.putExtra("gUsers",users);
+                        Toast.makeText(getContext() , users , Toast.LENGTH_SHORT).show();
+                        startActivity(intent);
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError){}});
+
             }
         });
         return view;
