@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.Activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -6,10 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-import com.example.chatapp.Activities.MainActivity;
-
-import java.util.Timer;
-import java.util.TimerTask;
+import com.example.chatapp.R;
 
 public class WelcomeActivity extends AppCompatActivity {
 
@@ -24,6 +21,6 @@ public class WelcomeActivity extends AppCompatActivity {
                 finish();
                 startActivity(intent);
             }
-        }, 10000);
+        }, 500);
     }
 }

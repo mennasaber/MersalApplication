@@ -93,49 +93,56 @@ public class ChatsFragment extends Fragment {
                             numbers[0] = numbers[1];
                         final String username = getContactName(view.getContext(), numbers[0]);
 
-                                // getting last message for this chat
-                                DatabaseReference mDatabaseReference2 = FirebaseDatabase.getInstance().getReference().child("Chats");
-                                mDatabaseReference2.child(chatId).addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        for (DataSnapshot d : dataSnapshot.getChildren())
-                                            lastMessage = d.getValue(Message.class);
+                        // getting last message for this chat
+                        DatabaseReference mDatabaseReference2 = FirebaseDatabase.getInstance().getReference().child("Chats");
+                        mDatabaseReference2.child(chatId).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                for (DataSnapshot d : dataSnapshot.getChildren())
+                                    lastMessage = d.getValue(Message.class);
 
-                                        if (lastMessage == null) {
-                                            lastMessage = new Message("No Messages", "00:00", "", "", "");
-                                        }
+                                if (lastMessage == null) {
+                                    lastMessage = new Message("No Messages", "00:00", "", "", "");
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                            }
+                        });
+
+                        //getting the chat user image
+                        DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users");
+                        mDatabaseReference.child(numbers[0]).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                boolean removed = false;
+                                int chatIndex = -1;
+                                for (Iterator<Chat> iterator = chats.iterator(); iterator.hasNext(); ) {
+                                    chatIndex++;
+                                    if (iterator.next().getUser().getPhoneNumber().equals(dataSnapshot.getValue(User.class).getPhoneNumber())) {
+                                        iterator.remove();
+                                        removed = true;
+                                        break;
                                     }
+                                }
+                                if (removed)
+                                    chats.add(chatIndex, new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
+                                else
+                                    chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
+                                lastMessage = new Message("No Messages", "", "", "", "");
+                                chatsAdapter.notifyDataSetChanged();
+                            }
 
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError databaseError) {
 
-                                    }
-                                });
-
-                                //getting the chat user image
-                                DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("users");
-                                mDatabaseReference.child(numbers[0]).addValueEventListener(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                        for (Iterator<Chat> iterator = chats.iterator(); iterator.hasNext(); ) {
-                                            if (iterator.next().getUser().getPhoneNumber().equals(dataSnapshot.getValue(User.class).getPhoneNumber())) {
-                                                iterator.remove();
-                                                break;
-                                            }
-                                        }
-                                        chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
-                                        lastMessage = new Message("No Messages", "", "", "", "");
-                                        chatsAdapter.notifyDataSetChanged();
-                                    }
-
-                                    @Override
-                                    public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                                    }
-                                });
-                        }
+                            }
+                        });
                     }
                 }
+            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {

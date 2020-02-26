@@ -31,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class GroupsFragment extends Fragment {
 
@@ -41,7 +42,7 @@ public class GroupsFragment extends Fragment {
     ChatsAdapter chatsAdapter;
     ListView groupsListView;
     Message lastMessage;
-    String users ;
+    String users;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,13 +85,25 @@ public class GroupsFragment extends Fragment {
                                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                                         for (DataSnapshot c : dataSnapshot.getChildren())
                                             lastMessage = c.getValue(Message.class);
-
                                         if (lastMessage == null) {
-                                            lastMessage = new Message("No Messages", "", "", "", "");
+                                            lastMessage = new Message("No Messages", "", "", group.getGroupId(), "");
                                         }
-
-                                        chats.add(new Chat(new User(group.getGroupName(),
-                                                group.getGroupImage(), group.getGroupId()), lastMessage));
+                                        boolean removed = false;
+                                        int chatIndex = -1;
+                                        for (Iterator<Chat> iterator = chats.iterator(); iterator.hasNext(); ) {
+                                            chatIndex++;
+                                            if (iterator.next().getUser().getPhoneNumber().equals(lastMessage.getReceiverPhone())) {
+                                                iterator.remove();
+                                                removed = true;
+                                                break;
+                                            }
+                                        }
+                                        if (removed)
+                                            chats.add(chatIndex, new Chat(new User(group.getGroupName(),
+                                                    group.getGroupImage(), group.getGroupId()), lastMessage));
+                                        else
+                                            chats.add(new Chat(new User(group.getGroupName(),
+                                                    group.getGroupImage(), group.getGroupId()), lastMessage));
                                         lastMessage = new Message("No Messages", "", "", "", "");
                                         chatsAdapter.notifyDataSetChanged();
                                     }
@@ -123,24 +136,27 @@ public class GroupsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
                 //getting group users
-                DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(chatsAdapter.getItem(i).getLastMessage().getReceiverPhone());
+                DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(chatsAdapter.getItem(i).getUser().getPhoneNumber());
                 mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        users = "" ;
+                        users = "";
                         for (DataSnapshot d : dataSnapshot.getChildren())
-                            users+=d.getValue(User.class).getPhoneNumber();
+                            users += d.getValue(User.class).getPhoneNumber();
 
                         Intent intent = new Intent(getActivity(), GroupActivity.class);
                         intent.putExtra("receiverNumber", chatsAdapter.getItem(i).getUser().getPhoneNumber());
                         intent.putExtra("receiverUsername", chatsAdapter.getItem(i).getUser().getUsername());
                         intent.putExtra("gImage", chatsAdapter.getItem(i).getUser().getImage());
-                        intent.putExtra("gUsers",users);
-                        Toast.makeText(getContext() , users , Toast.LENGTH_SHORT).show();
+                        intent.putExtra("gUsers", users);
+                        Toast.makeText(getContext(), users, Toast.LENGTH_SHORT).show();
                         startActivity(intent);
                     }
+
                     @Override
-                    public void onCancelled(@NonNull DatabaseError databaseError){}});
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                    }
+                });
 
             }
         });

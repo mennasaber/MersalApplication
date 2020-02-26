@@ -73,9 +73,9 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
         lastMessageTV.setText(currentChat.getLastMessage().getMessage());
         timeTV.setText(time);
         try {
-            if (currentChat.getLastMessage().getSeeners().equals("All")&&!currentChat.getLastMessage().getReceiverPhone().equals(userPhoneNumber))
+            if (currentChat.getLastMessage().getSeeners().equals("All")&&currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
                 seenImageView.setImageResource(R.drawable.ic_baseline_done_all_24);
-            else if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
+            if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
                 seenImageView.setVisibility(View.GONE);
             if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber) && !currentChat.getLastMessage().getSeeners().equals("All")||
                    !currentChat.getLastMessage().getSeeners().contains(userPhoneNumber)&& !currentChat.getLastMessage().getSeeners().equals("All")&&
