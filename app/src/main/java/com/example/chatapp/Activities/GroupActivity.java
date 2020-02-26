@@ -79,7 +79,8 @@ public class GroupActivity extends AppCompatActivity {
     private boolean record = false,closed;
     private MediaRecorder mediaRecorder;
     private String fileName;
-    String seeners ,users ;;
+    String seeners ,users ;
+    Message message ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +89,7 @@ public class GroupActivity extends AppCompatActivity {
         chatId = getIntent().getStringExtra("receiverNumber");
         groupName = getIntent().getStringExtra("receiverUsername");
         groupImage = getIntent().getStringExtra("gImage");
+        users = getIntent().getStringExtra("gUsers");
         recordButton = findViewById(R.id.groupRecordButton);
         loadImageButton = findViewById(R.id.groupLoadImageButton);
         fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
@@ -216,48 +218,31 @@ public class GroupActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 messageArrayList.clear();
-                for (final DataSnapshot d : dataSnapshot.getChildren()) {
-                    Message message = d.getValue(Message.class);
-                    if (message != null) {
+                // checking seen
+                for ( DataSnapshot d : dataSnapshot.getChildren()) {
+                     message = d.getValue(Message.class);
                         message.setMessageId(d.getKey());
+                        Toast.makeText(GroupActivity.this, message.getMessageId() , Toast.LENGTH_SHORT).show();
                         seeners = message.getSeeners();
-                        //getting group users
-                        DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(chatId);
-                        mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                users="" ;
-                                for (DataSnapshot d : dataSnapshot.getChildren()) {
-                                    User user = d.getValue(User.class);
-                                    users+=user.getPhoneNumber() ;
-                                }
-                                Toast.makeText(getApplicationContext() , users , Toast.LENGTH_SHORT).show();
+                                Toast.makeText(GroupActivity.this, closed + seeners + seeners.contains(userPhoneNumber), Toast.LENGTH_LONG).show();
                                 if (!closed&&!seeners.equals("All")&&!seeners.contains(userPhoneNumber)) {
                                     if (users.length() > seeners.length()) {
-                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue(seeners + userPhoneNumber);
                                         seeners+=userPhoneNumber ;
+                                        if (users.length() == seeners.length()) {
+                                            seeners = "All";
+                                            databaseReference.child(chatId).child(Objects.requireNonNull(message.getMessageId())).child("seeners").setValue("All");
+                                        }
+                                        else
+                                            databaseReference.child(chatId).child(Objects.requireNonNull(message.getMessageId())).child("seeners").setValue(seeners);
                                     }
-                                    if (users.length() == seeners.length())
-                                        databaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
                                 }
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-                            }
-                        });
-
-                        }
                         messageArrayList.add(message);
                 }
                 groupMessagesAdapter.notifyDataSetChanged();
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+            public void onCancelled(@NonNull DatabaseError databaseError) {}});
+        
         sendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -362,6 +347,7 @@ public class GroupActivity extends AppCompatActivity {
 
     private void DeleteMessages() {
         for (int i = 0; i < selectedItems.size(); i++) {
+            if (selectedItems.get(i).getSenderPhone().equals(userPhoneNumber))
             databaseReference.child(chatId).child(selectedItems.get(i).getMessageId()).removeValue();
         }
         selectedItems.clear();

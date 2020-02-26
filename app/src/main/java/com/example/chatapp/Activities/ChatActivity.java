@@ -481,7 +481,8 @@ public class ChatActivity extends AppCompatActivity {
 
     private void DeleteMessages() {
         for (int i = 0; i < selectedItems.size(); i++) {
-            mDatabaseReference.child(chatId).child(selectedItems.get(i).getMessageId()).removeValue();
+            if (selectedItems.get(i).getSenderPhone().equals(userPhoneNumber))
+                mDatabaseReference.child(chatId).child(selectedItems.get(i).getMessageId()).removeValue();
         }
         selectedItems.clear();
     }
