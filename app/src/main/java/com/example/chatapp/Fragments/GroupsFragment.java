@@ -136,7 +136,8 @@ public class GroupsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
                 //getting group users
-                DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers").child(chatsAdapter.getItem(i).getUser().getPhoneNumber());
+                DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference("groupUsers")
+                        .child(chatsAdapter.getItem(i).getUser().getPhoneNumber());
                 mDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -149,7 +150,6 @@ public class GroupsFragment extends Fragment {
                         intent.putExtra("receiverUsername", chatsAdapter.getItem(i).getUser().getUsername());
                         intent.putExtra("gImage", chatsAdapter.getItem(i).getUser().getImage());
                         intent.putExtra("gUsers", users);
-                        Toast.makeText(getContext(), users, Toast.LENGTH_SHORT).show();
                         startActivity(intent);
                     }
 

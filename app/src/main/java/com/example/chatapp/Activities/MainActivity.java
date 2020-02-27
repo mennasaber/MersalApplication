@@ -1,5 +1,12 @@
 package com.example.chatapp.Activities;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,20 +16,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.chatapp.Fragments.ChatsFragment;
 import com.example.chatapp.Fragments.ContactsFragment;
 import com.example.chatapp.Fragments.GroupsFragment;
 import com.example.chatapp.Fragments.SettingsFragment;
 import com.example.chatapp.Models.User;
+import com.example.chatapp.Notification.Token;
 import com.example.chatapp.R;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -32,6 +31,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     View header ;
     ImageView profileImage ;
     TextView phoneNum , userName ;
+    String mUID ;
 
     @Override
 
@@ -63,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         profileImage = header.findViewById(R.id.profileImage) ;
         phoneNum = header.findViewById(R.id.phoneText) ;
         userName = header.findViewById(R.id.usernameText) ;
-
+        mUID = FirebaseAuth.getInstance().getUid() ;
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -102,6 +103,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
+
+        updateToken(FirebaseInstanceId.getInstance().getToken());
+    }
+    
+
+    public void updateToken(String token){
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Tokens");
+        Token mToken = new Token(token) ;
+        databaseReference.child(mUID).setValue(mToken);
     }
 
     @Override

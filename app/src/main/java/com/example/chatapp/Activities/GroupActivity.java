@@ -186,8 +186,7 @@ public class GroupActivity extends AppCompatActivity {
         messageArrayList = new ArrayList<>();
         groupMessagesAdapter = new GroupMessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList);
         messagesLV.setAdapter(groupMessagesAdapter);
-        final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
-        userPhoneNumber = splitNumber[1];
+        userPhoneNumber = mUser.getPhoneNumber().substring(2);
 
         messageEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -222,9 +221,7 @@ public class GroupActivity extends AppCompatActivity {
                 for ( DataSnapshot d : dataSnapshot.getChildren()) {
                      message = d.getValue(Message.class);
                         message.setMessageId(d.getKey());
-                        Toast.makeText(GroupActivity.this, message.getMessageId() , Toast.LENGTH_SHORT).show();
                         seeners = message.getSeeners();
-                                Toast.makeText(GroupActivity.this, closed + seeners + seeners.contains(userPhoneNumber), Toast.LENGTH_LONG).show();
                                 if (!closed&&!seeners.equals("All")&&!seeners.contains(userPhoneNumber)) {
                                     if (users.length() > seeners.length()) {
                                         seeners+=userPhoneNumber ;
@@ -423,7 +420,9 @@ public class GroupActivity extends AppCompatActivity {
                 selectedItems.get(i).setSeeners(userPhoneNumber);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 selectedItems.get(i).setTime(dateFormat.format(new Date()));
-                sendMessage(selectedItems.get(i));
+                String messageId = System.currentTimeMillis() + "";
+                DatabaseReference mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
+                mDatabaseReference.child(chatId).child(messageId).setValue(selectedItems.get(i));
             }
             chatId = thisChat;
             chatId = thisReciever;

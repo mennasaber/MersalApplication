@@ -1,11 +1,5 @@
 package com.example.chatapp.Activities;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -31,10 +25,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.example.chatapp.Adapters.MessagesAdapter;
 import com.example.chatapp.Models.Block;
 import com.example.chatapp.Models.Message;
+import com.example.chatapp.Notification.APIService;
+import com.example.chatapp.Notification.Client;
+import com.example.chatapp.Notification.Data;
+import com.example.chatapp.Notification.Response;
+import com.example.chatapp.Notification.Sender;
+import com.example.chatapp.Notification.Token;
 import com.example.chatapp.R;
-import com.example.chatapp.Adapters.MessagesAdapter;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -54,6 +59,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class ChatActivity extends AppCompatActivity {
     final static int PERMISSION_CODE = 1001;
@@ -83,7 +91,9 @@ public class ChatActivity extends AppCompatActivity {
     private boolean record = false  , closed ;
     private MediaRecorder mediaRecorder;
     private String fileName;
-
+    String hisUid ;
+    APIService apiService;
+    boolean notify = false ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -93,10 +103,11 @@ public class ChatActivity extends AppCompatActivity {
         recieverImage = getIntent().getStringExtra("receiverImage");
         recordButton = findViewById(R.id.recordButton);
         loadImageButton = findViewById(R.id.loadImageButton);
-
+        hisUid = getIntent().getStringExtra("hisUid");
         fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
         fileName += "/audioRecordTest.3gp";
 
+        apiService = Client.getRetrofit("https://fcm.googleapis.com/").create(APIService.class);
         imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
         recordsFolder = FirebaseStorage.getInstance().getReference("recordsFolder");
 
@@ -185,8 +196,7 @@ public class ChatActivity extends AppCompatActivity {
         messageEditText = findViewById(R.id.messageEditText);
         messagesLV = findViewById(R.id.messagesLV);
         messageArrayList = new ArrayList<>();
-        final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
-        userPhoneNumber = splitNumber[1];
+        userPhoneNumber = mUser.getPhoneNumber().substring(2);
         messagesAdapter = new MessagesAdapter(getApplicationContext(), R.layout.my_message, messageArrayList, receiverUsername, recieverImage);
         messagesLV.setAdapter(messagesAdapter);
         mDatabaseReference.child(chatId).addValueEventListener(new ValueEventListener() {
@@ -196,7 +206,7 @@ public class ChatActivity extends AppCompatActivity {
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     Message message = d.getValue(Message.class);
                     if (message!=null)
-                    if (!message.getSenderPhone().equals(splitNumber[1])&&!closed)
+                    if (!message.getSenderPhone().equals(userPhoneNumber)&&!closed)
                         mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
 
                     message.setMessageId(d.getKey());
@@ -217,6 +227,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!messageEditText.getText().toString().trim().equals("")) {
+                    notify=true;
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     sendMessage(new Message(messageEditText.getText().toString(), dateFormat.format(new Date())
                             , userPhoneNumber, receiverNumber, "0"));
@@ -434,6 +445,7 @@ public class ChatActivity extends AppCompatActivity {
             for (int i = 0; i < selectedItems.size(); i++) {
                 selectedItems.get(i).setReceiverPhone(receiverNumber);
                 selectedItems.get(i).setSeeners(userPhoneNumber);
+                selectedItems.get(i).setSenderPhone(userPhoneNumber);
                 SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                 selectedItems.get(i).setTime(dateFormat.format(new Date()));
                 sendMessage(selectedItems.get(i));
@@ -487,11 +499,59 @@ public class ChatActivity extends AppCompatActivity {
         selectedItems.clear();
     }
 
-    private void sendMessage(Message message) {
+    private void sendMessage(final Message message) {
         String messageId = System.currentTimeMillis() + "";
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
         databaseReference.child(chatId).child(messageId).setValue(message);
         messageEditText.setText("");
+
+        final String msg = message.getMessage();
+        final DatabaseReference database = FirebaseDatabase.getInstance().getReference("users").child(mUser.getPhoneNumber());
+        database.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(notify){
+                    sendNotification(receiverNumber , receiverUsername , msg);
+                }
+                notify=false;
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void sendNotification(final String hisUid, final String username, final String msg) {
+        DatabaseReference allTokens = FirebaseDatabase.getInstance().getReference("Tokens");
+        //Query query = allTokens.orderByKey().equalTo(hisUid);
+        allTokens.child(hisUid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                    Token token = ds.getValue(Token.class);
+                    Data data = new Data(mUser.getPhoneNumber() , username+":"+msg ,"New Message" ,hisUid ,R.drawable.mersal_icon);
+                    Sender sender = new Sender(data,token.getToken()) ;
+                    apiService.sendNotification(sender).enqueue(new Callback<Response>() {
+                        @Override
+                        public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
+                            Toast.makeText(ChatActivity.this, response.message(), Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onFailure(Call<Response> call, Throwable t) {
+
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     // get the chat id in firebase in order to put the new messages between the

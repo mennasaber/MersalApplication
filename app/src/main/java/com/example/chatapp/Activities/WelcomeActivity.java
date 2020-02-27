@@ -18,9 +18,9 @@ public class WelcomeActivity extends AppCompatActivity {
             @Override
             public void run() {
                 Intent intent = new Intent(WelcomeActivity.this,MainActivity.class);
-                finish();
                 startActivity(intent);
+                finish();
             }
-        }, 500);
+        }, 2000);
     }
 }
