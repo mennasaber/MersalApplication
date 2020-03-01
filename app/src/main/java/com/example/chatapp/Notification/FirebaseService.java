@@ -18,7 +18,7 @@ public class FirebaseService extends FirebaseMessagingService {
         Toast.makeText(this, ""+s, Toast.LENGTH_SHORT).show();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         String tokenRefresh = String.valueOf(FirebaseInstanceId.getInstance().getToken());
-        if (user==null)
+        if (user!=null)
             updateToken(tokenRefresh);
     }
 

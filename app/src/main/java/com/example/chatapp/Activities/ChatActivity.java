@@ -74,20 +74,20 @@ public class ChatActivity extends AppCompatActivity {
     MessagesAdapter messagesAdapter;
     DatabaseReference mDatabaseReference;
     FirebaseUser mUser;
-    String receiverNumber,receiverUsername, recieverImage,chatId, hisUid ;
+    String receiverNumber, receiverUsername, recieverImage, chatId, hisUid;
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
     ImageButton loadImageButton;
     StorageReference imageFolder;
     StorageReference recordsFolder;
     ImageButton recordButton;
-    private ActionMode currentActionMode;
-    private ArrayList<Message> selectedItems;
-    private boolean record = false  , closed ;
-    private MediaRecorder mediaRecorder;
-    private String fileName;
     APIService apiService;
     boolean notify = false, blocked;
+    private ActionMode currentActionMode;
+    private ArrayList<Message> selectedItems;
+    private boolean record = false, closed;
+    private MediaRecorder mediaRecorder;
+    private String fileName;
     private MediaPlayer mediaPlayer;
 
     @Override
@@ -110,7 +110,7 @@ public class ChatActivity extends AppCompatActivity {
 
         selectedItems = new ArrayList<>();
         blocked = false;
-        closed = false ;
+        closed = false;
         final ActionMode.Callback callback = new ActionMode.Callback() {
             @Override
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
@@ -196,9 +196,9 @@ public class ChatActivity extends AppCompatActivity {
                 messageArrayList.clear();
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     Message message = d.getValue(Message.class);
-                    if (message!=null)
-                    if (!message.getSenderPhone().equals(userPhoneNumber)&&!closed)
-                        mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
+                    if (message != null)
+                        if (!message.getSenderPhone().equals(userPhoneNumber) && !closed)
+                            mDatabaseReference.child(chatId).child(Objects.requireNonNull(d.getKey())).child("seeners").setValue("All");
 
                     message.setMessageId(d.getKey());
                     messageArrayList.add(message);
@@ -218,7 +218,7 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!messageEditText.getText().toString().trim().equals("")) {
-                    notify=true;
+                    notify = true;
                     SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
                     sendMessage(new Message(messageEditText.getText().toString(), dateFormat.format(new Date())
                             , userPhoneNumber, receiverNumber, "0"));
@@ -334,7 +334,7 @@ public class ChatActivity extends AppCompatActivity {
                         if (record) {
                             stopRecord();
                             Vibrate();
-                            saveRecordToDB();
+
                             Toast.makeText(ChatActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                         }
                         break;
@@ -346,10 +346,16 @@ public class ChatActivity extends AppCompatActivity {
 
     private void stopRecord() {
         if (record) {
-            mediaRecorder.stop();
-            mediaRecorder.release();
-            mediaRecorder = null;
-            record = false;
+            try {
+                mediaRecorder.stop();
+                mediaRecorder.release();
+                mediaRecorder = null;
+                record = false;
+                saveRecordToDB();
+            } catch (Exception e) {
+                mediaRecorder = null;
+                record = false;
+            }
         }
     }
 
@@ -515,12 +521,15 @@ public class ChatActivity extends AppCompatActivity {
         database.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(notify)
-                    sendNotification(receiverNumber , hisUid , msg);
-                notify=false;
+                if (notify)
+                    sendNotification(receiverNumber, hisUid, msg);
+                notify = false;
             }
+
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}});
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 
     private void sendNotification(final String hisUid, final String username, final String msg) {
@@ -528,19 +537,28 @@ public class ChatActivity extends AppCompatActivity {
         allTokens.child(hisUid).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     Token token = ds.getValue(Token.class);
-                    Data data = new Data(mUser.getUid() , msg ,username ,hisUid ,R.drawable.mersal_icon);
-                    Sender sender = new Sender(data,token.getToken()) ;
+                    Data data = new Data(mUser.getUid(), msg, username, hisUid, R.drawable.mersal_icon);
+                    Sender sender = new Sender(data, token.getToken());
                     apiService.sendNotification(sender).enqueue(new Callback<Response>() {
                         @Override
                         public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                             Toast.makeText(ChatActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                         }
+
                         @Override
-                        public void onFailure(Call<Response> call, Throwable t) {}});}}
+                        public void onFailure(Call<Response> call, Throwable t) {
+                        }
+                    });
+                }
+            }
+
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}});}
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
 
     // get the chat id in firebase in order to put the new messages between the
     // 2 Contacts with the old ones .
@@ -577,17 +595,18 @@ public class ChatActivity extends AppCompatActivity {
         finish();
         Intent intent = new Intent(ChatActivity.this, MainActivity.class);
         intent.putExtra("fragmentName", "chats");
-        closed = true ;
+        closed = true;
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
+
     @Override
     protected void onPause() {
-        if (mediaPlayer!=null||mediaPlayer.isPlaying()){
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             mediaPlayer.release();
         }
-        mediaPlayer=null;
+        mediaPlayer = null;
         this.finish();
         super.onPause();
     }

@@ -15,15 +15,20 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.chatapp.Activities.ChatActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-public class FirebaseMessaging extends com.google.firebase.messaging.FirebaseMessagingService {
+import java.util.Date;
+import java.util.Objects;
+
+public class FirebaseMessaging extends FirebaseMessagingService {
     String UID ;
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        UID = FirebaseAuth.getInstance().getCurrentUser().getUid() ;
+        UID = Objects.requireNonNull(FirebaseAuth.getInstance().getCurrentUser()).getUid() ;
         String sent = remoteMessage.getData().get("sent");
+        assert sent != null;
         if(sent.equals(UID)){
             if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O)
                 sendOAndAboveNotification(remoteMessage) ;
@@ -54,9 +59,10 @@ public class FirebaseMessaging extends com.google.firebase.messaging.FirebaseMes
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int j = 0 ;
         if (i>0){
-            j=1 ;
+            j=i ;
         }
-        notificationManager.notify(j,builder.build());
+        int m = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+        notificationManager.notify(m,builder.build());
     }
 
     private void sendOAndAboveNotification(RemoteMessage remoteMessage) {
@@ -77,11 +83,11 @@ public class FirebaseMessaging extends com.google.firebase.messaging.FirebaseMes
         OreoAndAboveNotification notification1 = new OreoAndAboveNotification(this) ;
         Notification.Builder builder  = notification1.getONotifications(title , body ,pendingIntent , soundUri , icon) ;
 
-        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int j = 0 ;
         if (i>0){
-            j=1 ;
+            j=i ;
         }
-        notification1.getManager().notify(j,builder.build());
+        int m = (int) ((new Date().getTime() / 1000L) % Integer.MAX_VALUE);
+        notification1.getManager().notify(m,builder.build());
     }
 }
