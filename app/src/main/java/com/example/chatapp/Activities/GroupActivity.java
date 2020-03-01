@@ -1,16 +1,11 @@
 package com.example.chatapp.Activities;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Typeface;
+import android.media.MediaPlayer;
 import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
@@ -31,9 +26,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.chatapp.Adapters.GroupMessagesAdapter;
 import com.example.chatapp.Models.Message;
-import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -81,6 +80,7 @@ public class GroupActivity extends AppCompatActivity {
     private String fileName;
     String seeners ,users ;
     Message message ;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -276,6 +276,20 @@ public class GroupActivity extends AppCompatActivity {
                     selectedItems.add(messageArrayList.get(i));
                     view.setSelected(true);
                     view.setBackgroundResource(R.color.colorLightYellow);
+                }
+                mediaPlayer = new MediaPlayer();
+                mediaPlayer.reset();
+                try {
+                    mediaPlayer.setDataSource(messageArrayList.get(i).getMessage());
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mp) {
+                            mp.start();
+                        }
+                    });
+                    mediaPlayer.prepare();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -515,6 +529,16 @@ public class GroupActivity extends AppCompatActivity {
         Intent intent = new Intent(GroupActivity.this,MainActivity.class);
         intent.putExtra("fragmentName","groups");
         startActivity(intent);
+    }
+    @Override
+    protected void onPause() {
+        if (mediaPlayer!=null||mediaPlayer.isPlaying()){
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+        mediaPlayer=null;
+        this.finish();
+        super.onPause();
     }
 }
 

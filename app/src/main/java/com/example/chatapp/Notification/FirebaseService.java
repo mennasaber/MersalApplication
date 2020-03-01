@@ -1,5 +1,7 @@
 package com.example.chatapp.Notification;
 
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -13,8 +15,9 @@ public class FirebaseService extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String s) {
         super.onNewToken(s);
+        Toast.makeText(this, ""+s, Toast.LENGTH_SHORT).show();
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        String tokenRefresh = FirebaseInstanceId.getInstance().getToken();
+        String tokenRefresh = String.valueOf(FirebaseInstanceId.getInstance().getToken());
         if (user==null)
             updateToken(tokenRefresh);
     }
@@ -23,6 +26,6 @@ public class FirebaseService extends FirebaseMessagingService {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Tokens");
         Token token = new Token(tokenRefresh) ;
-        databaseReference.child(user.getPhoneNumber()).setValue(token) ;
+        databaseReference.child(user.getUid()).setValue(token) ;
     }
 }

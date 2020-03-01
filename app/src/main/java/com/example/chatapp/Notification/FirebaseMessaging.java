@@ -22,7 +22,7 @@ public class FirebaseMessaging extends com.google.firebase.messaging.FirebaseMes
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-        UID = FirebaseAuth.getInstance().getUid() ;
+        UID = FirebaseAuth.getInstance().getCurrentUser().getUid() ;
         String sent = remoteMessage.getData().get("sent");
         if(sent.equals(UID)){
             if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.O)

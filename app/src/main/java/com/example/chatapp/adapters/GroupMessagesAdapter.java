@@ -1,15 +1,12 @@
 package com.example.chatapp.Adapters;
 
 import android.content.Context;
-import android.media.MediaPlayer;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,7 +22,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -68,30 +64,12 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
             ImageView imageView = view.findViewById(R.id.myMessageIV);
             TextView message = view.findViewById(R.id.myMessageTextView);
             TextView timeTV = view.findViewById(R.id.timeMyMessageTV);
+            ImageView playButton = view.findViewById(R.id.playButton) ;
             LinearLayout recordMess = view.findViewById(R.id.recordMess);
             if (currentMessage.getMessage().contains("recordsFolder")) {
                 imageView.setVisibility(View.GONE);
-                final ImageView playButton = view.findViewById(R.id.playButton) ;
-                playButton.setImageResource(play);
-                playButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final MediaPlayer mediaPlayer = new MediaPlayer() ;
 
-                        try {
-                            mediaPlayer.setDataSource(currentMessage.getMessage());
-                            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                                @Override
-                                public void onPrepared(MediaPlayer mp) {
-                                    mp.start();
-                                }
-                            });
-                            mediaPlayer.prepare();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                playButton.setImageResource(play);
             }
             else if (currentMessage.getMessage().contains("imagesFolder")) {
                 Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
@@ -119,25 +97,6 @@ public class GroupMessagesAdapter extends ArrayAdapter<Message> {
             if (currentMessage.getMessage().contains("recordsFolder")) {
                 imageView2.setVisibility(View.GONE);
                 theirPlayButton.setImageResource(play);
-                theirPlayButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final MediaPlayer mediaPlayer = new MediaPlayer() ;
-
-                        try {
-                            mediaPlayer.setDataSource(currentMessage.getMessage());
-                            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                                @Override
-                                public void onPrepared(MediaPlayer mp) {
-                                    mp.start();
-                                }
-                            });
-                            mediaPlayer.prepare();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
             }
             else if (currentMessage.getMessage().contains("imagesFolder")) {
                 Picasso.with(context).load(currentMessage.getMessage()).into(imageView);

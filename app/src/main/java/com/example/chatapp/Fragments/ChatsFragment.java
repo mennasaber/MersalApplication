@@ -5,29 +5,24 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.fragment.app.Fragment;
-
 import android.provider.ContactsContract;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 
 import com.example.chatapp.Activities.ChatActivity;
+import com.example.chatapp.Adapters.ChatsAdapter;
 import com.example.chatapp.Models.Chat;
-import com.example.chatapp.Models.Group;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.Models.User;
+import com.example.chatapp.Notification.Token;
 import com.example.chatapp.R;
-import com.example.chatapp.Adapters.ChatsAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,6 +30,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -143,12 +139,8 @@ public class ChatsFragment extends Fragment {
                     }
                 }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+            public void onCancelled(@NonNull DatabaseError databaseError) {}});
 
         chatsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -160,6 +152,15 @@ public class ChatsFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        updateToken(FirebaseInstanceId.getInstance().getToken());
         return view;
     }
+   private void updateToken(String token){
+        DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("Tokens");
+       Token token1 = new Token(token);
+       databaseReference1.child(mUser.getUid()).setValue(token1);
+
+
+   }
 }

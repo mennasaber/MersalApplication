@@ -1,11 +1,7 @@
 package com.example.chatapp.Activities;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.net.Uri;
@@ -19,6 +15,9 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.chatapp.Adapters.SavedMessagesAdapter;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
@@ -29,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -127,7 +127,7 @@ public class SavedMessagesActivity extends AppCompatActivity {
                     }
                 }
                 savedMessagesAdapter = new SavedMessagesAdapter(SavedMessagesActivity.this, R.layout.their_message, messageArrayList,
-                        getIntent().getStringExtra("mUserPic"), mediaPlayer);
+                        getIntent().getStringExtra("mUserPic"));
                 savedMessagesLV.setAdapter(savedMessagesAdapter);
             }
 
@@ -157,7 +157,22 @@ public class SavedMessagesActivity extends AppCompatActivity {
                     view.setBackgroundResource(R.color.colorAccent);
                     currentActionMode.finish();
                 }
-            }
+                        mediaPlayer = new MediaPlayer();
+                        mediaPlayer.reset();
+                        try {
+                            mediaPlayer.setDataSource(savedMessagesAdapter.getItem(i).getMessage());
+                            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                @Override
+                                public void onPrepared(MediaPlayer mp) {
+                                    mp.start();
+                                }
+                            });
+                            mediaPlayer.prepare();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
         });
     }
 
@@ -170,8 +185,15 @@ public class SavedMessagesActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
-    protected void onStop() {
-        super.onStop();
-        finish();
+
+    @Override
+    protected void onPause() {
+        if (mediaPlayer!=null||mediaPlayer.isPlaying()){
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
+        mediaPlayer=null;
+        this.finish();
+        super.onPause();
     }
 }

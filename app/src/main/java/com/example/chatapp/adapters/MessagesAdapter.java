@@ -1,17 +1,13 @@
 package com.example.chatapp.Adapters;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
-import android.os.AsyncTask;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,12 +17,7 @@ import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.example.chatapp.R.drawable.pause;
 import static com.example.chatapp.R.drawable.play;
 
 public class MessagesAdapter extends ArrayAdapter<Message> {
@@ -125,24 +115,6 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             Picasso.with(context).load(image).into(imageView);
             if (currentMessage.getMessage().contains("recordsFolder")){
                 imageView2.setVisibility(View.GONE);
-                theirPlayButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        MediaPlayer mediaPlayer = new MediaPlayer() ;
-                            try {
-                                mediaPlayer.setDataSource(currentMessage.getMessage());
-                                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                                    @Override
-                                    public void onPrepared(MediaPlayer mp) {
-                                        mp.start();
-                                    }
-                                });
-                                mediaPlayer.prepare();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                });
             }
             else if (currentMessage.getMessage().contains("imagesFolder")) {
                 Picasso.with(context).load(currentMessage.getMessage()).into(imageView2);

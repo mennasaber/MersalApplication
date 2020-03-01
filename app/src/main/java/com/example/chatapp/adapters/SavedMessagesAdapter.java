@@ -15,17 +15,13 @@ import androidx.annotation.Nullable;
 
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.R;
-import com.google.firebase.auth.FirebaseAuth;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 import static com.example.chatapp.R.drawable.play;
 
@@ -34,11 +30,10 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
     String image;
     MediaPlayer mediaPlayer;
 
-    public SavedMessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects, String image, MediaPlayer mediaPlayer) {
+    public SavedMessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects, String image) {
         super(context, resource, objects);
         this.context = context;
         this.image = image;
-        this.mediaPlayer = mediaPlayer;
     }
 
     @NonNull
@@ -72,25 +67,8 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
         } else if (currentMessage.getMessage().contains("recordsFolder")) {
             messagePic.setVisibility(View.GONE);
             theirPlayButton.setImageResource(play);
-            theirPlayButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mediaPlayer = new MediaPlayer();
-                    try {
-                        mediaPlayer.setDataSource(currentMessage.getMessage());
-                        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                            @Override
-                            public void onPrepared(MediaPlayer mp) {
-                                mp.start();
-                            }
-                        });
-                        mediaPlayer.prepare();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-        } else {
+        }
+            else {
             message.setText(currentMessage.getMessage());
             messagePic.setVisibility(View.GONE);
             theirRecordMess.setVisibility(View.GONE);
