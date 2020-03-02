@@ -1,18 +1,11 @@
 package com.example.chatapp.Activities;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,21 +13,21 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.example.chatapp.Models.Message;
-import com.example.chatapp.R;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.example.chatapp.Models.User;
+import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Objects;
 
 public class RegisterActivity extends AppCompatActivity implements View.OnClickListener {
@@ -98,12 +91,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("users");
-
+        FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
         if (phoneNumber.contains("+2")) {
             String[] array = phoneNumber.split("\\+2");
             phoneNumber = array[1];
         }
-        user = new User(usernameEditText.getText().toString().trim(), String.valueOf(imageURI), phoneNumber);
+        user = new User(usernameEditText.getText().toString().trim(), String.valueOf(imageURI), phoneNumber ,mUser.getUid());
         myRef.child(user.getPhoneNumber()).setValue(user);
     }
 

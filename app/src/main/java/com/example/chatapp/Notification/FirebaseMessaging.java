@@ -44,7 +44,6 @@ public class FirebaseMessaging extends FirebaseMessagingService {
         String title = remoteMessage.getData().get("title");
         String body = remoteMessage.getData().get("body");
 
-        RemoteMessage.Notification notification = remoteMessage.getNotification();
         int i = Integer.parseInt(user.replaceAll("[\\D]",""));
         Intent intent = new Intent(this , ChatActivity.class);
         Bundle bundle = new Bundle() ;
@@ -71,7 +70,6 @@ public class FirebaseMessaging extends FirebaseMessagingService {
         String title = remoteMessage.getData().get("title");
         String body = remoteMessage.getData().get("body");
 
-        RemoteMessage.Notification notification = remoteMessage.getNotification();
         int i = Integer.parseInt(user.replaceAll("[\\D]",""));
         Intent intent = new Intent(this , ChatActivity.class);
         Bundle bundle = new Bundle() ;

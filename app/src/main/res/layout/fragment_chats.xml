@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".Fragments.ChatsFragment">
     <ListView
         android:id="@+id/chatsListView"
@@ -12,4 +13,4 @@
         android:dividerHeight="0.5px"
         android:padding="5dp" />
 
-</FrameLayout>
+</LinearLayout>

@@ -3,10 +3,6 @@ package com.example.chatapp.Fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,14 +10,16 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.example.chatapp.Activities.ChatActivity;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 import com.example.chatapp.Activities.GroupActivity;
+import com.example.chatapp.Adapters.ChatsAdapter;
 import com.example.chatapp.Models.Chat;
 import com.example.chatapp.Models.Group;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
-import com.example.chatapp.Adapters.ChatsAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -100,10 +98,10 @@ public class GroupsFragment extends Fragment {
                                         }
                                         if (removed)
                                             chats.add(chatIndex, new Chat(new User(group.getGroupName(),
-                                                    group.getGroupImage(), group.getGroupId()), lastMessage));
+                                                    group.getGroupImage(), group.getGroupId(),group.getGroupId()), lastMessage));
                                         else
                                             chats.add(new Chat(new User(group.getGroupName(),
-                                                    group.getGroupImage(), group.getGroupId()), lastMessage));
+                                                    group.getGroupImage(), group.getGroupId(),group.getGroupId()), lastMessage));
                                         lastMessage = new Message("No Messages", "", "", "", "");
                                         chatsAdapter.notifyDataSetChanged();
                                     }

@@ -43,7 +43,6 @@ public class ChatsFragment extends Fragment {
     ListView chatsListView;
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Chats");
     Message lastMessage;
-
     public static String getContactName(Context context, String phoneNumber) {
         ContentResolver cr = context.getContentResolver();
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
@@ -73,7 +72,6 @@ public class ChatsFragment extends Fragment {
         mUser = FirebaseAuth.getInstance().getCurrentUser();
         chatsListView = view.findViewById(R.id.chatsListView);
         final String[] splitNumber = mUser.getPhoneNumber().split("\\+2");
-
         chatsAdapter = new ChatsAdapter(view.getContext(), R.layout.chat_item, chats);
         chatsListView.setAdapter(chatsAdapter);
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -124,9 +122,9 @@ public class ChatsFragment extends Fragment {
                                     }
                                 }
                                 if (removed)
-                                    chats.add(chatIndex, new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
+                                    chats.add(chatIndex, new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0],dataSnapshot.getValue(User.class).getUserId()), lastMessage));
                                 else
-                                    chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0]), lastMessage));
+                                    chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0],dataSnapshot.getValue(User.class).getUserId()), lastMessage));
                                 lastMessage = new Message("No Messages", "", "", "", "");
                                 chatsAdapter.notifyDataSetChanged();
                             }
@@ -149,6 +147,7 @@ public class ChatsFragment extends Fragment {
                 intent.putExtra("receiverNumber", chatsAdapter.getItem(i).getUser().getPhoneNumber());
                 intent.putExtra("receiverUsername", chatsAdapter.getItem(i).getUser().getUsername());
                 intent.putExtra("receiverImage", chatsAdapter.getItem(i).getUser().getImage());
+                intent.putExtra("hisUid", chatsAdapter.getItem(i).getUser().getUserId());
                 startActivity(intent);
             }
         });

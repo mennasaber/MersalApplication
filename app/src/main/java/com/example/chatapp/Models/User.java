@@ -1,17 +1,27 @@
 package com.example.chatapp.Models;
 
 public class User {
-    private String image;
-    private String phoneNumber;
-    private String username;
+     String image;
+     String phoneNumber;
+     String username;
+     String userId ;
 
     public User() {
     }
 
-    public User(String username, String image, String phoneNumber) {
-        this.username = username;
+    public User(String username, String image, String phoneNumber, String userId) {
         this.image = image;
         this.phoneNumber = phoneNumber;
+        this.username = username;
+        this.userId = userId;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getImage() {

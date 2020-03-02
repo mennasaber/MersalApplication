@@ -1,23 +1,13 @@
 package com.example.chatapp.Fragments;
 
 import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
-
-import android.provider.MediaStore;
-import android.util.Base64;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,8 +21,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+
 import com.example.chatapp.Activities.MainActivity;
-import com.example.chatapp.Activities.RegisterActivity;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,8 +39,6 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.squareup.picasso.Picasso;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Objects;
 
 import static android.app.Activity.RESULT_OK;
@@ -162,7 +154,7 @@ public class SettingsFragment extends Fragment {
                     FirebaseDatabase database = FirebaseDatabase.getInstance();
                     DatabaseReference databaseReference = database.getReference("users");
                     databaseReference.child(firebaseUser.getPhoneNumber().substring(2)).setValue
-                            (new User(username.getText().toString(), "", firebaseUser.getPhoneNumber().substring(2)));
+                            (new User(username.getText().toString(), "", firebaseUser.getPhoneNumber().substring(2),firebaseUser.getUid()));
                     alertDialog.hide();
                 }
             }

@@ -74,7 +74,7 @@ public class ChatActivity extends AppCompatActivity {
     MessagesAdapter messagesAdapter;
     DatabaseReference mDatabaseReference;
     FirebaseUser mUser;
-    String receiverNumber, receiverUsername, recieverImage, chatId, hisUid;
+    String receiverNumber, receiverUsername, recieverImage, chatId, hisUid;//??????????????????????????????
     ArrayList<Message> messageArrayList;
     String userPhoneNumber;
     ImageButton loadImageButton;
@@ -97,6 +97,7 @@ public class ChatActivity extends AppCompatActivity {
         receiverNumber = getIntent().getStringExtra("receiverNumber");
         receiverUsername = getIntent().getStringExtra("receiverUsername");
         recieverImage = getIntent().getStringExtra("receiverImage");
+        hisUid = getIntent().getStringExtra("hisUid");
         recordButton = findViewById(R.id.recordButton);
         loadImageButton = findViewById(R.id.loadImageButton);
         fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
@@ -173,6 +174,7 @@ public class ChatActivity extends AppCompatActivity {
                     intent.putExtra("recieverUserName", receiverUsername);
                     intent.putExtra("recieverNum", receiverNumber);
                     intent.putExtra("recieverPic", recieverImage);
+                    intent.putExtra("recieverUid", hisUid);
                     startActivity(intent);
                 }
             });
@@ -546,18 +548,10 @@ public class ChatActivity extends AppCompatActivity {
                         public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
                             Toast.makeText(ChatActivity.this, response.message(), Toast.LENGTH_SHORT).show();
                         }
-
                         @Override
-                        public void onFailure(Call<Response> call, Throwable t) {
-                        }
-                    });
-                }
-            }
-
+                        public void onFailure(Call<Response> call, Throwable t) {}});}}
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
+            public void onCancelled(@NonNull DatabaseError databaseError) {}});
     }
 
     // get the chat id in firebase in order to put the new messages between the
