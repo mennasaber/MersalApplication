@@ -59,8 +59,8 @@ public class SavedMessagesAdapter extends ArrayAdapter<Message> {
         TextView timeTV = view.findViewById(R.id.timeTheirMessageTV);
         LinearLayout theirRecordMess = view.findViewById(R.id.theirRecordMess);
         final ImageView theirPlayButton = view.findViewById(R.id.theirPlayButton);
-        if (!image.equals(""))
-            Picasso.with(context).load(image).into(profPic);
+       // if (!image.equals(""))
+            //Picasso.with(context).load(R.drawable.ic_baseline_star_24).into(profPic);
         if (currentMessage.getMessage().contains("imagesFolder")) {
             Picasso.with(context).load(currentMessage.getMessage()).into(messagePic);
             theirRecordMess.setVisibility(View.GONE);

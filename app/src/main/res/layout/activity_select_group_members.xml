@@ -7,19 +7,7 @@
     android:background="@color/colorAccent"
     tools:context=".Activities.SelectGroupMembersActivity">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:fontFamily="casual"
-        android:text="Select Members"
-        android:textColor="@color/colorLightYellow"
-        android:textSize="20sp"
-        android:textStyle="bold|italic"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton"
@@ -43,13 +31,13 @@
         android:id="@+id/contactsMembersLV"
         android:layout_width="match_parent"
         android:layout_height="688dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
         android:divider="@drawable/divider"
         android:dividerHeight="0.5px"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
 
     </ListView>

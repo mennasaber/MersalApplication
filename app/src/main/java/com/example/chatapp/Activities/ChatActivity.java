@@ -88,7 +88,6 @@ public class ChatActivity extends AppCompatActivity {
     private boolean record = false, closed;
     private MediaRecorder mediaRecorder;
     private String fileName;
-    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -293,20 +292,6 @@ public class ChatActivity extends AppCompatActivity {
                     selectedItems.add(messageArrayList.get(i));
                     view.setSelected(true);
                     view.setBackgroundResource(R.color.colorLightYellow);
-                }
-                mediaPlayer = new MediaPlayer();
-                mediaPlayer.reset();
-                try {
-                    mediaPlayer.setDataSource(messageArrayList.get(i).getMessage());
-                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            mp.start();
-                        }
-                    });
-                    mediaPlayer.prepare();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         });
@@ -586,22 +571,21 @@ public class ChatActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        closed = true;
         finish();
         Intent intent = new Intent(ChatActivity.this, MainActivity.class);
         intent.putExtra("fragmentName", "chats");
-        closed = true;
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
     }
 
     @Override
     protected void onPause() {
-        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
-            mediaPlayer.stop();
-            mediaPlayer.release();
-        }
-        mediaPlayer = null;
-        this.finish();
         super.onPause();
+        if(messagesAdapter.mediaPlayer.isPlaying()){
+            messagesAdapter.mediaPlayer.stop();
+            messagesAdapter.mediaPlayer.release();
+            messagesAdapter.mediaPlayer = new MediaPlayer();
+        }
     }
 }

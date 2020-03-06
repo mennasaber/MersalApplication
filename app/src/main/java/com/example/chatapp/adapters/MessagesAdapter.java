@@ -25,18 +25,21 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static com.example.chatapp.R.drawable.pause;
 import static com.example.chatapp.R.drawable.play;
 
 public class MessagesAdapter extends ArrayAdapter<Message> {
+    public MediaPlayer mediaPlayer = new MediaPlayer();
     Context context;
     String username;
-    String image ;
+    String image;
+    String dataResource = "";
 
-    public MessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects, String username ,String image) {
+    public MessagesAdapter(@NonNull Context context, int resource, @NonNull List<Message> objects, String username, String image) {
         super(context, resource, objects);
         this.context = context;
         this.username = username;
-        this.image = image ;
+        this.image = image;
     }
 
     @NonNull
@@ -58,39 +61,72 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
         final String[] splitNumber = userPhoneNumber.split("\\+2");
         userPhoneNumber = splitNumber[1];
         if (Objects.requireNonNull(currentMessage).getSenderPhone().equals(userPhoneNumber)) {
+
             view = View.inflate(context, R.layout.my_message, null);
             TextView message = view.findViewById(R.id.myMessageTextView);
             final ImageView imageView = view.findViewById(R.id.myMessageIV);
             LinearLayout recordMess = view.findViewById(R.id.recordMess);
-            final ImageView playButton = view.findViewById(R.id.playButton) ;
+            final ImageView playButton = view.findViewById(R.id.playButton);
             playButton.setImageResource(play);
-            if (currentMessage.getMessage().contains("recordsFolder")){
+            if (currentMessage.getMessage().contains("recordsFolder")) {
                 imageView.setVisibility(View.GONE);
                 playButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final MediaPlayer mediaPlayer = new MediaPlayer() ;
-
+                        if (!mediaPlayer.isPlaying()) {
+                            mediaPlayer = new MediaPlayer();
+                            playButton.setImageResource(R.drawable.pause);
                             try {
                                 mediaPlayer.setDataSource(currentMessage.getMessage());
+                                dataResource = currentMessage.getMessage();
                                 mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                                     @Override
                                     public void onPrepared(MediaPlayer mp) {
                                         mp.start();
                                     }
                                 });
+                                mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                    @Override
+                                    public void onCompletion(MediaPlayer mediaPlayer) {
+                                        playButton.setImageResource(play);
+                                    }
+                                });
                                 mediaPlayer.prepare();
                             } catch (IOException e) {
                                 e.printStackTrace();
+                            }
+                        } else if (currentMessage.getMessage().equals(dataResource)) {
+                            mediaPlayer.stop();
+                            mediaPlayer.release();
+                            mediaPlayer = new MediaPlayer();
+                            playButton.setImageResource(play);
                         }
+//                        else if (!currentMessage.getMessage().equals(dataResource)) {
+//                            mediaPlayer.stop();
+//                            mediaPlayer.release();
+//                            mediaPlayer = new MediaPlayer();
+//                            try {
+//                                playButton.setImageResource(R.drawable.pause);
+//                                mediaPlayer.setDataSource(currentMessage.getMessage());
+//                                dataResource = currentMessage.getMessage();
+//                                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                                    @Override
+//                                    public void onPrepared(MediaPlayer mp) {
+//                                        mp.start();
+//                                    }
+//                                });
+//                                mediaPlayer.prepare();
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+
                     }
                 });
-            }
-            else if (currentMessage.getMessage().contains("imagesFolder")){
+            } else if (currentMessage.getMessage().contains("imagesFolder")) {
                 Picasso.with(context).load(currentMessage.getMessage()).into(imageView);
                 recordMess.setVisibility(View.GONE);
-            }
-            else {
+            } else {
                 message.setText(currentMessage.getMessage());
                 imageView.setVisibility(View.GONE);
                 recordMess.setVisibility(View.GONE);
@@ -109,18 +145,72 @@ public class MessagesAdapter extends ArrayAdapter<Message> {
             TextView message = view.findViewById(R.id.theirMessageTV);
             ImageView imageView2 = view.findViewById(R.id.theirMessageIV);
             LinearLayout theirRecordMess = view.findViewById(R.id.theirRecordMess);
-            final ImageView theirPlayButton = view.findViewById(R.id.theirPlayButton) ;
+            final ImageView theirPlayButton = view.findViewById(R.id.theirPlayButton);
             theirPlayButton.setImageResource(play);
-            if(!image.equals(""))
-            Picasso.with(context).load(image).into(imageView);
-            if (currentMessage.getMessage().contains("recordsFolder")){
+            theirPlayButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!mediaPlayer.isPlaying()) {
+                        mediaPlayer = new MediaPlayer();
+                        theirPlayButton.setImageResource(pause);
+
+                        try {
+                            mediaPlayer.setDataSource(currentMessage.getMessage());
+                            dataResource = currentMessage.getMessage();
+                            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                                @Override
+                                public void onPrepared(MediaPlayer mp) {
+                                    mp.start();
+                                }
+                            });
+                            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                @Override
+                                public void onCompletion(MediaPlayer mediaPlayer) {
+                                    theirPlayButton.setImageResource(play);
+                                }
+                            });
+                            mediaPlayer.prepare();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (currentMessage.getMessage().equals(dataResource)) {
+                        mediaPlayer.stop();
+                        mediaPlayer.release();
+                        mediaPlayer = new MediaPlayer();
+                        theirPlayButton.setImageResource(play);
+                    }
+//                    else if (!currentMessage.getMessage().equals(dataResource)) {
+//                        mediaPlayer.stop();
+//                        mediaPlayer.release();
+//                        mediaPlayer = new MediaPlayer();
+//                        theirPlayButton.setImageResource(pause);
+//                        try {
+//                            mediaPlayer.setDataSource(currentMessage.getMessage());
+//                            dataResource = currentMessage.getMessage();
+//                            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//                                @Override
+//                                public void onPrepared(MediaPlayer mp) {
+//                                    mp.start();
+//                                }
+//                            });
+//                            mediaPlayer.prepare();
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+
+                }
+            });
+
+
+            if (!image.equals(""))
+                Picasso.with(context).load(image).into(imageView);
+            if (currentMessage.getMessage().contains("recordsFolder")) {
                 imageView2.setVisibility(View.GONE);
-            }
-            else if (currentMessage.getMessage().contains("imagesFolder")) {
+            } else if (currentMessage.getMessage().contains("imagesFolder")) {
                 Picasso.with(context).load(currentMessage.getMessage()).into(imageView2);
                 theirRecordMess.setVisibility(View.GONE);
-            }
-            else {
+            } else {
                 message.setText(currentMessage.getMessage());
                 imageView2.setVisibility(View.GONE);
                 theirRecordMess.setVisibility(View.GONE);

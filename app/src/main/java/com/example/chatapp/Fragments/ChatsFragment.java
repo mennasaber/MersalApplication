@@ -122,7 +122,7 @@ public class ChatsFragment extends Fragment {
                                     }
                                 }
                                 if (removed)
-                                    chats.add(chatIndex, new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0],dataSnapshot.getValue(User.class).getUserId()), lastMessage));
+                                    chats.add(0, new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0],dataSnapshot.getValue(User.class).getUserId()), lastMessage));
                                 else
                                     chats.add(new Chat(new User(username, dataSnapshot.getValue(User.class).getImage(), numbers[0],dataSnapshot.getValue(User.class).getUserId()), lastMessage));
                                 lastMessage = new Message("No Messages", "", "", "", "");

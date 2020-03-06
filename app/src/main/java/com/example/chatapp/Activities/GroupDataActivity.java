@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Base64;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -65,6 +66,8 @@ public class GroupDataActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_data);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("New group");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
         userPhoneNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
@@ -109,6 +112,11 @@ public class GroupDataActivity extends AppCompatActivity {
                     intent.putExtra("gImage", group.getGroupImage());
                     startActivity(intent);
                     finish();
+                }
+                else
+                {
+                    groupNameEditText.setError("Valid name is required");
+                    groupNameEditText.requestFocus();
                 }
             }
         });
@@ -196,5 +204,13 @@ public class GroupDataActivity extends AppCompatActivity {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_CODE);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

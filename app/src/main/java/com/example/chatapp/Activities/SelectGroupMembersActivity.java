@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
@@ -28,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class SelectGroupMembersActivity extends AppCompatActivity {
 
@@ -49,6 +51,8 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
         usersSelected = new ArrayList<>();
         floatingActionButton = findViewById(R.id.floatingActionButton);
         contactsMemberLV = findViewById(R.id.contactsMembersLV);
+        Objects.requireNonNull(getSupportActionBar()).setTitle("Select Members");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         if (ActivityCompat.checkSelfPermission(getApplicationContext().getApplicationContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
         } else {
             requestPermission();
@@ -140,6 +144,12 @@ public class SelectGroupMembersActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        finish();
+    }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

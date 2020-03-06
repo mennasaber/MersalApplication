@@ -277,20 +277,6 @@ public class GroupActivity extends AppCompatActivity {
                     view.setSelected(true);
                     view.setBackgroundResource(R.color.colorLightYellow);
                 }
-                mediaPlayer = new MediaPlayer();
-                mediaPlayer.reset();
-                try {
-                    mediaPlayer.setDataSource(messageArrayList.get(i).getMessage());
-                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                        @Override
-                        public void onPrepared(MediaPlayer mp) {
-                            mp.start();
-                        }
-                    });
-                    mediaPlayer.prepare();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
             }
         });
 
@@ -532,13 +518,12 @@ public class GroupActivity extends AppCompatActivity {
     }
     @Override
     protected void onPause() {
-        if (mediaPlayer!=null||mediaPlayer.isPlaying()){
-            mediaPlayer.stop();
-            mediaPlayer.release();
-        }
-        mediaPlayer=null;
-        this.finish();
         super.onPause();
+        if(groupMessagesAdapter.mediaPlayer.isPlaying()){
+            groupMessagesAdapter.mediaPlayer.stop();
+            groupMessagesAdapter.mediaPlayer.release();
+            groupMessagesAdapter.mediaPlayer = new MediaPlayer();
+        }
     }
 }
 

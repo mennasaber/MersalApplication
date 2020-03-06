@@ -97,11 +97,11 @@ public class GroupsFragment extends Fragment {
                                             }
                                         }
                                         if (removed)
-                                            chats.add(chatIndex, new Chat(new User(group.getGroupName(),
-                                                    group.getGroupImage(), group.getGroupId(),group.getGroupId()), lastMessage));
+                                            chats.add(0, new Chat(new User(group.getGroupName(),
+                                                    group.getGroupImage(), group.getGroupId(), group.getGroupId()), lastMessage));
                                         else
                                             chats.add(new Chat(new User(group.getGroupName(),
-                                                    group.getGroupImage(), group.getGroupId(),group.getGroupId()), lastMessage));
+                                                    group.getGroupImage(), group.getGroupId(), group.getGroupId()), lastMessage));
                                         lastMessage = new Message("No Messages", "", "", "", "");
                                         chatsAdapter.notifyDataSetChanged();
                                     }
