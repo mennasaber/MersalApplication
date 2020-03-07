@@ -2,10 +2,12 @@ package com.example.chatapp.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -21,22 +23,30 @@ import com.example.chatapp.Fragments.ContactsFragment;
 import com.example.chatapp.Fragments.GroupsFragment;
 import com.example.chatapp.Fragments.SettingsFragment;
 import com.example.chatapp.Models.User;
-import com.example.chatapp.Notification.Token;
 import com.example.chatapp.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.PhoneAuthProvider;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import retrofit2.Call;
+import retrofit2.Callback;
+
+public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener  {
     public static User currentUser;
     FirebaseUser firebaseUser;
     ArrayList<User> allUsers = new ArrayList<>();
@@ -46,13 +56,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     ImageView profileImage ;
     TextView phoneNum , userName ;
     String mUID ;
-
     @Override
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        mUID = FirebaseAuth.getInstance().getUid() ;
         NavigationView navigationView = findViewById(R.id.navigationView);
         drawerLayout = findViewById(R.id.drawerLayout);
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close);
@@ -64,7 +72,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         profileImage = header.findViewById(R.id.profileImage) ;
         phoneNum = header.findViewById(R.id.phoneText) ;
         userName = header.findViewById(R.id.usernameText) ;
-        mUID = FirebaseAuth.getInstance().getUid() ;
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
@@ -93,7 +100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         userName.setText(currentUser.getUsername()) ;
                         phoneNum.setText(currentUser.getPhoneNumber()) ;
                         if (!currentUser.getImage().equals(""))
-                        Picasso.with(getApplicationContext()).load(currentUser.getImage()).into(profileImage);
+                            Picasso.with(getApplicationContext()).load(currentUser.getImage()).into(profileImage);
                         break;
                     }
                 }
@@ -103,15 +110,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onCancelled(@NonNull DatabaseError databaseError) {
             }
         });
-
-        updateToken(FirebaseInstanceId.getInstance().getToken());
-    }
-
-
-    public void updateToken(String token){
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Tokens");
-        Token mToken = new Token(token) ;
-        databaseReference.child(mUID).setValue(mToken);
     }
 
     @Override
@@ -145,6 +143,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Intent intent2 = new Intent(this, SavedMessagesActivity.class);
                 intent2.putExtra("mUserPic" , currentUser.getImage()) ;
                 startActivity(intent2);
+                break;
+            case R.id.logout:
+                FirebaseAuth auth = FirebaseAuth.getInstance();
+                auth.signOut();
+                startActivity(new Intent(getApplicationContext(), VerificationActivity.class));
+                finish();
                 break;
         }
         if (fragment != null) {

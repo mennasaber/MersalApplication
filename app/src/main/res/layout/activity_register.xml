@@ -7,6 +7,19 @@
     android:background="@drawable/background"
     tools:context=".Activities.RegisterActivity">
 
+    <ProgressBar
+        android:id="@+id/indeterminateBar2"
+        style="?android:attr/progressBarStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginHorizontal="32dp"
+        android:background="@color/colorMyMessage"
+        android:elevation="10dp"
+        android:paddingVertical="32dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
     <EditText
         android:id="@+id/usernameEditText"
         android:layout_width="197dp"

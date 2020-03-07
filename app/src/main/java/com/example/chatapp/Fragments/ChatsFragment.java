@@ -21,7 +21,6 @@ import com.example.chatapp.Adapters.ChatsAdapter;
 import com.example.chatapp.Models.Chat;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.Models.User;
-import com.example.chatapp.Notification.Token;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -151,15 +150,6 @@ public class ChatsFragment extends Fragment {
                 startActivity(intent);
             }
         });
-
-        updateToken(FirebaseInstanceId.getInstance().getToken());
         return view;
     }
-   private void updateToken(String token){
-        DatabaseReference databaseReference1 = FirebaseDatabase.getInstance().getReference("Tokens");
-       Token token1 = new Token(token);
-       databaseReference1.child(mUser.getUid()).setValue(token1);
-
-
-   }
 }
