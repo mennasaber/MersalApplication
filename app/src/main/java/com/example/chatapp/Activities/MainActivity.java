@@ -1,10 +1,12 @@
 package com.example.chatapp.Activities;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +24,7 @@ import com.example.chatapp.Fragments.ChatsFragment;
 import com.example.chatapp.Fragments.ContactsFragment;
 import com.example.chatapp.Fragments.GroupsFragment;
 import com.example.chatapp.Fragments.SettingsFragment;
+import com.example.chatapp.Models.Block;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -51,10 +54,13 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
     FirebaseUser firebaseUser;
     ArrayList<User> allUsers = new ArrayList<>();
     private DrawerLayout drawerLayout;
+    AlertDialog.Builder alertBuilder;
+    AlertDialog alertDialog;
     private ActionBarDrawerToggle actionBarDrawerToggle;
     View header ;
+    Button confirm ;
     ImageView profileImage ;
-    TextView phoneNum , userName ;
+    TextView phoneNum , userName ,confirmationMessage;
     String mUID ;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,10 +153,7 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
                 startActivity(intent2);
                 break;
             case R.id.logout:
-                FirebaseAuth auth = FirebaseAuth.getInstance();
-                auth.signOut();
-                startActivity(new Intent(getApplicationContext(), VerificationActivity.class));
-                finish();
+            createPopupDialogue();
                 break;
         }
         if (fragment != null) {
@@ -161,5 +164,26 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
             drawerLayout.closeDrawer(GravityCompat.START);
         }
         return true;
+    }
+    private void createPopupDialogue() {
+        alertBuilder = new AlertDialog.Builder(this);
+        View view = getLayoutInflater().inflate(R.layout.block_confirmation_message, null);
+        confirm = view.findViewById(R.id.confirm);
+        confirmationMessage = view.findViewById(R.id.confirmationMessage);
+        confirmationMessage.setText("Are you sure you want to logout ?");
+        alertBuilder.setView(view);
+        alertDialog = alertBuilder.create();
+        alertDialog.show();
+        confirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            FirebaseAuth auth = FirebaseAuth.getInstance();
+                auth.signOut();
+                startActivity(new Intent(getApplicationContext(), VerificationActivity.class));
+                finish();
+                alertDialog.hide();
+
+            }
+        });
     }
 }
