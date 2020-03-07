@@ -426,6 +426,8 @@ public class GroupActivity extends AppCompatActivity {
             }
             chatId = thisChat;
             chatId = thisReciever;
+            groupMessagesAdapter.notifyDataSetChanged();
+            selectedItems.clear();
         }
     }
 

@@ -300,7 +300,6 @@ public class ChatActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        Toast.makeText(ChatActivity.this, "start", Toast.LENGTH_SHORT).show();
                         if (!record) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
@@ -317,12 +316,10 @@ public class ChatActivity extends AppCompatActivity {
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        Toast.makeText(ChatActivity.this, "stop", Toast.LENGTH_SHORT).show();
                         if (record) {
                             stopRecord();
                             Vibrate();
 
-                            Toast.makeText(ChatActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                         }
                         break;
                 }
@@ -450,6 +447,8 @@ public class ChatActivity extends AppCompatActivity {
             }
             chatId = thisChat;
             receiverNumber = thisReciever;
+            messagesAdapter.notifyDataSetChanged();
+            selectedItems.clear();
         }
     }
 

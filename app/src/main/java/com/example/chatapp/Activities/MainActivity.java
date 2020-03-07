@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         updateToken(FirebaseInstanceId.getInstance().getToken());
     }
-    
+
 
     public void updateToken(String token){
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Tokens");
