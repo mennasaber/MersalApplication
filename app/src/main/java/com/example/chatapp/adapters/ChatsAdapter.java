@@ -1,4 +1,4 @@
-package com.example.chatapp.Adapters;
+package com.example.chatapp.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -77,14 +77,14 @@ public class ChatsAdapter extends ArrayAdapter<Chat> {
                 seenImageView.setImageResource(R.drawable.ic_baseline_done_all_24);
             if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
                 seenImageView.setVisibility(View.GONE);
-            if (!currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber) && !currentChat.getLastMessage().getSeeners().equals("All")||
-                   !currentChat.getLastMessage().getSeeners().contains(userPhoneNumber)&& !currentChat.getLastMessage().getSeeners().equals("All")&&
-                           !currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber)) {
+              if(currentChat.getLastMessage().getSeeners().equals("All")||currentChat.getLastMessage().getSeeners().contains(userPhoneNumber)||
+                currentChat.getLastMessage().getSenderPhone().equals(userPhoneNumber))
+                UnReadImageView.setVisibility(View.INVISIBLE);
+            else {
                 UnReadImageView.setVisibility(View.VISIBLE);
                 lastMessageTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
                 timeTV.setTextColor(view.getResources().getColor(R.color.colorUnRead));
-            } else
-                UnReadImageView.setVisibility(View.INVISIBLE);
+            }
         }
         catch (Exception n){ }
         if(currentChat.getLastMessage().getTime().equals("")){

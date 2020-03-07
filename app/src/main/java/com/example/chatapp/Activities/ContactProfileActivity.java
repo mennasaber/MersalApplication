@@ -36,7 +36,6 @@ public class ContactProfileActivity extends AppCompatActivity {
     FirebaseUser mUser;
     FirebaseDatabase mDatabase;
     DatabaseReference mDatabaseReference;
-    private String recieverId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +51,6 @@ public class ContactProfileActivity extends AppCompatActivity {
         userPhone.setText(getIntent().getStringExtra("recieverNum"));
         userName.setText(getIntent().getStringExtra("recieverUserName"));
         recieverImage = getIntent().getStringExtra("recieverPic");
-        recieverId = getIntent().getStringExtra("recieverUid");
         if(!recieverImage.equals(""))
             Picasso.with(getApplicationContext()).load(recieverImage).into(contactPic);
         blockButton.setOnClickListener(new View.OnClickListener() {

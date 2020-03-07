@@ -9,12 +9,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-
 import com.example.chatapp.Activities.GroupActivity;
-import com.example.chatapp.Adapters.ChatsAdapter;
+import com.example.chatapp.adapters.ChatsAdapter;
 import com.example.chatapp.Models.Chat;
 import com.example.chatapp.Models.Group;
 import com.example.chatapp.Models.Message;
