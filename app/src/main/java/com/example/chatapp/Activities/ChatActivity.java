@@ -34,12 +34,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.chatapp.Adapters.MessagesAdapter;
 import com.example.chatapp.Models.Block;
 import com.example.chatapp.Models.Message;
-import com.example.chatapp.Notification.APIService;
-import com.example.chatapp.Notification.Client;
-import com.example.chatapp.Notification.Data;
-import com.example.chatapp.Notification.Response;
-import com.example.chatapp.Notification.Sender;
-import com.example.chatapp.Notification.Token;
 import com.example.chatapp.R;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -81,7 +75,6 @@ public class ChatActivity extends AppCompatActivity {
     StorageReference imageFolder;
     StorageReference recordsFolder;
     ImageButton recordButton;
-    APIService apiService;
     boolean notify = false, blocked;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
@@ -101,7 +94,6 @@ public class ChatActivity extends AppCompatActivity {
         loadImageButton = findViewById(R.id.loadImageButton);
         fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
         fileName += "/audioRecordTest.3gp";
-        apiService = Client.getRetrofit("https://fcm.googleapis.com/").create(APIService.class);
         imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
         recordsFolder = FirebaseStorage.getInstance().getReference("recordsFolder");
         mDatabaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
@@ -502,42 +494,9 @@ public class ChatActivity extends AppCompatActivity {
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("Chats");
         databaseReference.child(chatId).child(messageId).setValue(message);
         messageEditText.setText("");
-
-        final String msg = message.getMessage();
-        final DatabaseReference database = FirebaseDatabase.getInstance().getReference("users").child(mUser.getUid());
-        database.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (notify)
-                    sendNotification(receiverNumber, hisUid, msg);
-                notify = false;
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
     }
 
-    private void sendNotification(final String hisUid, final String username, final String msg) {
-        DatabaseReference allTokens = FirebaseDatabase.getInstance().getReference("Tokens");
-        allTokens.child(hisUid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    Token token = ds.getValue(Token.class);
-                    Data data = new Data(mUser.getUid(), msg, username, hisUid, R.drawable.mersal_icon);
-                    Sender sender = new Sender(data, token.getToken());
-                    apiService.sendNotification(sender).enqueue(new Callback<Response>() {
-                        @Override
-                        public void onResponse(Call<Response> call, retrofit2.Response<Response> response) {
-                            Toast.makeText(ChatActivity.this, response.message(), Toast.LENGTH_SHORT).show();
-                        }
-                        @Override
-                        public void onFailure(Call<Response> call, Throwable t) {}});}}
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {}});
-    }
+
 
     // get the chat id in firebase in order to put the new messages between the
     // 2 Contacts with the old ones .

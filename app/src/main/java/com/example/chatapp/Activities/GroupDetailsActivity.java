@@ -17,7 +17,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.chatapp.Adapters.ContactsAdapter;
+import com.example.chatapp.adapters.ContactsAdapter;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.Models.UserGroups;
 import com.example.chatapp.R;

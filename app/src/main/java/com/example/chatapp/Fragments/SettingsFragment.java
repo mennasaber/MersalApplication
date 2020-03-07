@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,6 +57,7 @@ public class SettingsFragment extends Fragment {
     ImageView profileImage ;
     ImageButton imageButton;
     StorageReference imageFolder;
+    ProgressBar progressBar ;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,6 +68,7 @@ public class SettingsFragment extends Fragment {
         username = mainView.findViewById(R.id.usernameTextView);
         phone = mainView.findViewById(R.id.phoneNumberTextView);
         profileImage = mainView.findViewById(R.id.profilepicture) ;
+        progressBar=mainView.findViewById(R.id.indeterminateBar);
         MainActivity mainActivity = (MainActivity) getActivity();
         username.setText(mainActivity.currentUser.getUsername());
         phone.setText(firebaseUser.getPhoneNumber().substring(2));
@@ -109,12 +112,14 @@ public class SettingsFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
+            progressBar.setVisibility(View.VISIBLE);
             final Uri imageData = Objects.requireNonNull(data).getData();
             final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
             imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
                     imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {

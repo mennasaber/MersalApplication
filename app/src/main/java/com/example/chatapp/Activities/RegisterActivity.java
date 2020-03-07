@@ -1,6 +1,7 @@
 package com.example.chatapp.Activities;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +29,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.util.Objects;
 
@@ -35,36 +38,39 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     final static int PICK_CODE = 1000;
     public User user;
     ImageButton userImage;
-    Uri imageURI;
+    String imageURI;
     StorageReference firebaseStorage;
     ImageView imageView;
     StorageReference imageFolder;
     private EditText usernameEditText;
     private String phoneNumber;
+    Button nextRegisterButton ;
+    ProgressBar progressBar ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        progressBar=findViewById(R.id.indeterminateBar2);
         imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
         imageView = findViewById(R.id.userImage);
         firebaseStorage = FirebaseStorage.getInstance().getReference();
         phoneNumber = getIntent().getStringExtra("phoneNumber");
         usernameEditText = findViewById(R.id.usernameEditText);
-        Button nextRegisterButton = findViewById(R.id.nextRegisterButton);
+        nextRegisterButton = findViewById(R.id.nextRegisterButton);
         userImage = findViewById(R.id.choiceImageRegister);
         userImage.setOnClickListener(this);
         nextRegisterButton.setOnClickListener(this);
+        imageURI="" ;
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.nextRegisterButton:
-                boolean validation = checkDataValidation();
-                if ((validation)) {
+                if (!usernameEditText.getText().equals("")) {
                     pushDataInDB();
-                    goToMainActivity();
+                    startActivity(new Intent(this , MainActivity.class));
                 }
                 break;
             case R.id.choiceImageRegister:
@@ -82,26 +88,15 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private void goToMainActivity() {
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-    }
-
     private void pushDataInDB() {
-
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("users");
+        DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users");
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
         if (phoneNumber.contains("+2")) {
             String[] array = phoneNumber.split("\\+2");
             phoneNumber = array[1];
         }
-        user = new User(usernameEditText.getText().toString().trim(), String.valueOf(imageURI), phoneNumber ,mUser.getUid());
+        user = new User(usernameEditText.getText().toString().trim(), String.valueOf(imageURI), phoneNumber, mUser.getUid());
         myRef.child(user.getPhoneNumber()).setValue(user);
-    }
-
-    private boolean checkDataValidation() {
-        return !usernameEditText.getText().toString().trim().equals("");
     }
 
     private void pickImageFromGallery() {
@@ -118,7 +113,6 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                     pickImageFromGallery();
                 } else {
                     Toast.makeText(this, "Permission denied...!", Toast.LENGTH_SHORT).show();
-
                 }
                 break;
         }
@@ -127,23 +121,32 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable final Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
-            final Uri imageData = Objects.requireNonNull(data).getData();
-            final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
-            imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Toast.makeText(RegisterActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
-                    imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            imageView.setImageURI(imageData);
-                            imageURI = imageData;
-                        }
-                    });
-                }
-            });
+        nextRegisterButton.setEnabled(false);
+        try {
+            if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
+                progressBar.setVisibility(View.VISIBLE);
+                final Uri imageData = Objects.requireNonNull(data).getData();
+                final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
+                imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        Toast.makeText(RegisterActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                        progressBar.setVisibility(View.GONE);
+                        imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                imageView.setImageURI(imageData);
+                                imageURI = imageData.toString();
+                                Picasso.with(getApplicationContext()).load(imageURI).into(imageView);
+                            }
+                        });
+                    }
+                });
+            }
+        }catch (Exception e){
+            Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
         }
+        nextRegisterButton.setEnabled(true);
     }
     @Override
     protected void onStop() {

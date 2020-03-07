@@ -6,6 +6,17 @@
     android:layout_height="match_parent"
     android:background="@color/colorAccent"
     tools:context=".Fragments.SettingsFragment">
+    <ProgressBar
+        android:id="@+id/indeterminateBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="32dp"
+        android:paddingVertical="32dp"
+        android:elevation="10dp"
+        android:background="@color/colorUnRead"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv"

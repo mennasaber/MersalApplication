@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.example.chatapp.Models.Group;
@@ -61,6 +62,7 @@ public class GroupDataActivity extends AppCompatActivity {
     private DatabaseReference databaseReference3;
     private UserGroups userGroups;
     private String userPhoneNumber;
+    ProgressBar progressBar ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,7 +70,7 @@ public class GroupDataActivity extends AppCompatActivity {
         setContentView(R.layout.activity_group_data);
         Objects.requireNonNull(getSupportActionBar()).setTitle("New group");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        progressBar = findViewById(R.id.indeterminateBar3);
         imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
         userPhoneNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
         String[] arr = userPhoneNumber.split("\\+2");
@@ -168,12 +170,14 @@ public class GroupDataActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
+            progressBar.setVisibility(View.VISIBLE);
             final Uri imageData = Objects.requireNonNull(data).getData();
             final StorageReference imageName = imageFolder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
             imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Toast.makeText(GroupDataActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.GONE);
                     imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {

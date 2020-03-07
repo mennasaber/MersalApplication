@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,6 +7,18 @@
     android:background="@color/colorAccent"
     tools:context=".Activities.GroupDataActivity">
 
+    <ProgressBar
+        android:id="@+id/indeterminateBar3"
+        style="@style/Animation.Design.BottomSheetDialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginHorizontal="32dp"
+        android:background="@color/colorUnRead"
+        android:elevation="10dp"
+        android:paddingVertical="32dp"
+        android:visibility="gone"
+        />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/createGroupFAB"
         android:layout_width="wrap_content"
@@ -15,7 +27,8 @@
         android:layout_marginRight="16dp"
         android:layout_marginBottom="16dp"
         android:backgroundTint="#0DCA14"
-        android:clickable="true"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
         android:src="@drawable/ic_baseline_trending_flat_24"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -35,40 +48,32 @@
         android:hint="Group Name"
         android:inputType="textPersonName"
         android:textAlignment="center"
-        android:textColor="@color/colorWhite"
+        android:textColor="@color/colorLightYellow"
         android:textColorHint="@color/colorGray"
         android:textCursorDrawable="@null"
         android:textSize="19sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_centerInParent="true" />
 
     <de.hdodenhof.circleimageview.CircleImageView
-        app:civ_border_width="2dp"
-        app:civ_border_color="@color/colorWhite"
         android:id="@+id/groupImage"
         android:layout_width="131dp"
         android:layout_height="153dp"
+        android:layout_above="@id/groupNameEditText"
+        android:layout_centerInParent="true"
         android:src="@mipmap/ic_launcher"
-        app:layout_constraintBottom_toTopOf="@+id/groupNameEditText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.7" />
+        app:civ_border_color="@color/colorWhite"
+        app:civ_border_width="2dp" />
 
     <ImageButton
         android:id="@+id/choiceImageGroupData"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_marginLeft="-45dp"
+        android:layout_centerInParent="true"
+        android:layout_toRightOf="@+id/groupImage"
+        android:layout_above="@+id/groupNameEditText"
         android:background="@android:color/transparent"
-        android:src="@drawable/camera"
-        app:layout_constraintBottom_toTopOf="@+id/groupNameEditText"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.659"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.836" />
+        android:src="@drawable/camera" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
