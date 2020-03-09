@@ -181,7 +181,7 @@ public class GroupDataActivity extends AppCompatActivity {
                         @Override
                         public void onSuccess(Uri uri) {
                             imageView.setImageURI(imageData);
-                            imageEncoded = String.valueOf(imageData);
+                            imageEncoded = String.valueOf(uri);
                         }
                     });
                 }

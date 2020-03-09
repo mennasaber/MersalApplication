@@ -1,4 +1,4 @@
-package com.example.chatapp.adapters;
+package com.example.chatapp.Adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,29 +7,19 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import com.example.chatapp.Activities.GroupDetailsActivity;
 import com.example.chatapp.Models.Chat;
-import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 public class ChatsAdapter extends ArrayAdapter<Chat> {
     Context context;

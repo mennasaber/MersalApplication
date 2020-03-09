@@ -37,13 +37,12 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     final static int PERMISSION_CODE = 1001;
     final static int PICK_CODE = 1000;
     public User user;
-    ImageButton userImage;
+    ImageButton chooseImage;
     String imageURI;
     StorageReference firebaseStorage;
     ImageView imageView;
     StorageReference imageFolder;
-    private EditText usernameEditText;
-    private String phoneNumber;
+    EditText usernameEditText;
     Button nextRegisterButton ;
     ProgressBar progressBar ;
 
@@ -55,11 +54,10 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         imageFolder = FirebaseStorage.getInstance().getReference("imagesFolder");
         imageView = findViewById(R.id.userImage);
         firebaseStorage = FirebaseStorage.getInstance().getReference();
-        phoneNumber = getIntent().getStringExtra("phoneNumber");
         usernameEditText = findViewById(R.id.usernameEditText);
         nextRegisterButton = findViewById(R.id.nextRegisterButton);
-        userImage = findViewById(R.id.choiceImageRegister);
-        userImage.setOnClickListener(this);
+        chooseImage = findViewById(R.id.choiceImageRegister);
+        chooseImage.setOnClickListener(this);
         nextRegisterButton.setOnClickListener(this);
         imageURI="" ;
     }
@@ -68,9 +66,14 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.nextRegisterButton:
-                if (!usernameEditText.getText().equals("")) {
-                    pushDataInDB();
-                    startActivity(new Intent(this , MainActivity.class));
+                try {
+                    if (!usernameEditText.getText().equals("")) {
+                        pushDataInDB();
+                        startActivity(new Intent(this, MainActivity.class));
+                    }
+                }
+                catch (Exception e ){
+                    Toast.makeText(this, "Failed to insert data", Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.choiceImageRegister:
@@ -91,11 +94,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     private void pushDataInDB() {
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users");
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (phoneNumber.contains("+2")) {
-            String[] array = phoneNumber.split("\\+2");
-            phoneNumber = array[1];
-        }
-        user = new User(usernameEditText.getText().toString().trim(), String.valueOf(imageURI), phoneNumber, mUser.getUid());
+        user = new User(usernameEditText.getText().toString().trim(), String.valueOf(imageURI), mUser.getPhoneNumber().substring(2), mUser.getUid());
         myRef.child(user.getPhoneNumber()).setValue(user);
     }
 
@@ -135,8 +134,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
                         imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {
-                                imageView.setImageURI(imageData);
-                                imageURI = imageData.toString();
+                                imageURI = uri.toString();
                                 Picasso.with(getApplicationContext()).load(imageURI).into(imageView);
                             }
                         });
@@ -147,9 +145,5 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
             Toast.makeText(this, "Failed", Toast.LENGTH_SHORT).show();
         }
         nextRegisterButton.setEnabled(true);
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
     }
 }

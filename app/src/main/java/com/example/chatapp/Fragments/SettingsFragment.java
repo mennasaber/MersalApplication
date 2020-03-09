@@ -45,7 +45,7 @@ import java.util.Objects;
 import static android.app.Activity.RESULT_OK;
 
 
-public class SettingsFragment extends Fragment {
+public class  SettingsFragment extends Fragment {
     final static int PERMISSION_CODE = 1001;
     final static int PICK_CODE = 1000;
     TextView username, phone;

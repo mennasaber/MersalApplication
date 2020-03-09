@@ -82,7 +82,6 @@ public class GroupActivity extends AppCompatActivity {
     String seeners ,users ;
     Message message ;
     private MediaPlayer mediaPlayer;
-    ProgressBar progressBar ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +95,6 @@ public class GroupActivity extends AppCompatActivity {
         loadImageButton = findViewById(R.id.groupLoadImageButton);
         fileName = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
         fileName += "/audioRecordTest.3gp";
-        progressBar = findViewById(R.id.indeterminateBar3);
         Folder = FirebaseStorage.getInstance().getReference("imagesFolder");
         recordsFolder = FirebaseStorage.getInstance().getReference("recordsFolder");
 
@@ -391,14 +389,12 @@ public class GroupActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
-            progressBar.setVisibility(View.VISIBLE);
             Uri imageData = Objects.requireNonNull(data).getData();
             final StorageReference imageName = Folder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
             imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                     Toast.makeText(GroupActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.GONE);
                     imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {

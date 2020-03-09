@@ -72,7 +72,8 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    goToRegisterActivity();
+                    startActivity( new Intent(getApplicationContext(), RegisterActivity.class));
+                    finish();
                 } else {
                     if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
                         codeEditText.setError("Invalid code entered");
@@ -82,14 +83,6 @@ public class VerifyVerificationActivity extends AppCompatActivity implements Vie
             }
         });
     }
-
-    private void goToRegisterActivity() {
-        Intent intent = new Intent(this, RegisterActivity.class);
-        intent.putExtra("phoneNumber", phoneNumber);
-        startActivity(intent);
-        finish();
-    }
-
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.verifyButton) {

@@ -19,7 +19,7 @@ import com.example.chatapp.Models.Chat;
 import com.example.chatapp.Models.Message;
 import com.example.chatapp.Models.User;
 import com.example.chatapp.R;
-import com.example.chatapp.adapters.ChatsAdapter;
+import com.example.chatapp.Adapters.ChatsAdapter;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
