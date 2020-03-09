@@ -61,8 +61,7 @@ public class GroupActivity extends AppCompatActivity {
     private final int REQUEST_RECORD_AUDIO_PERMISSION = 200;
     ImageButton loadImageButton;
     StorageReference Folder;
-    ImageButton recordButton;
-    ImageButton sendButton;
+    ImageButton recordButton,sendButton;
     EditText messageEditText;
     ListView messagesLV;
     GroupMessagesAdapter groupMessagesAdapter;
@@ -72,8 +71,7 @@ public class GroupActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     StorageReference recordsFolder;
     ArrayList<Message> messageArrayList;
-    String userPhoneNumber, chatId, groupName;
-    String groupImage;
+    String userPhoneNumber, chatId, groupName,groupImage;
     private ActionMode currentActionMode;
     private ArrayList<Message> selectedItems;
     private boolean record = false,closed;
@@ -81,7 +79,6 @@ public class GroupActivity extends AppCompatActivity {
     private String fileName;
     String seeners ,users ;
     Message message ;
-    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -301,7 +298,7 @@ public class GroupActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        Toast.makeText(GroupActivity.this, "start", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(GroupActivity.this, "start", Toast.LENGTH_SHORT).show();
                         if (!record) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
@@ -318,12 +315,12 @@ public class GroupActivity extends AppCompatActivity {
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        Toast.makeText(GroupActivity.this, "stop", Toast.LENGTH_SHORT).show();
+                    //    Toast.makeText(GroupActivity.this, "stop", Toast.LENGTH_SHORT).show();
                         if (record) {
                             stopRecord();
                             Vibrate();
                             saveRecordToDB();
-                            Toast.makeText(GroupActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                    //        Toast.makeText(GroupActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                         }
                         break;
                 }
