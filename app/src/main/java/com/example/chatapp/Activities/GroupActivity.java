@@ -303,7 +303,7 @@ public class GroupActivity extends AppCompatActivity {
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 switch (motionEvent.getAction()) {
                     case MotionEvent.ACTION_DOWN:
-                        Toast.makeText(GroupActivity.this, "start", Toast.LENGTH_SHORT).show();
+                       // Toast.makeText(GroupActivity.this, "start", Toast.LENGTH_SHORT).show();
                         if (!record) {
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                                 if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_DENIED) {
@@ -320,12 +320,12 @@ public class GroupActivity extends AppCompatActivity {
                         }
                         break;
                     case MotionEvent.ACTION_UP:
-                        Toast.makeText(GroupActivity.this, "stop", Toast.LENGTH_SHORT).show();
+                    //    Toast.makeText(GroupActivity.this, "stop", Toast.LENGTH_SHORT).show();
                         if (record) {
                             stopRecord();
                             Vibrate();
                             saveRecordToDB();
-                            Toast.makeText(GroupActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                    //        Toast.makeText(GroupActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                         }
                         break;
                 }
@@ -391,14 +391,14 @@ public class GroupActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_CODE && resultCode == RESULT_OK) {
-            progressBar.setVisibility(View.VISIBLE);
+            //progressBar.setVisibility(View.VISIBLE);
             Uri imageData = Objects.requireNonNull(data).getData();
             final StorageReference imageName = Folder.child("image" + Objects.requireNonNull(imageData).getLastPathSegment());
             imageName.putFile(imageData).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Toast.makeText(GroupActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
-                    progressBar.setVisibility(View.GONE);
+                 //   Toast.makeText(GroupActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                //    progressBar.setVisibility(View.GONE);
                     imageName.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
