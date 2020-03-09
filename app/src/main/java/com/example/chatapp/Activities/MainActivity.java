@@ -52,7 +52,6 @@ import retrofit2.Callback;
 public class MainActivity extends AppCompatActivity  implements NavigationView.OnNavigationItemSelectedListener  {
     public static User currentUser;
     FirebaseUser firebaseUser;
-    ArrayList<User> allUsers = new ArrayList<>();
     private DrawerLayout drawerLayout;
     AlertDialog.Builder alertBuilder;
     AlertDialog alertDialog;
@@ -91,31 +90,21 @@ public class MainActivity extends AppCompatActivity  implements NavigationView.O
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        //getting list of users form firebase
+        //getting current user data form firebase
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference databaseReference = database.getReference("users");
+        DatabaseReference databaseReference = database.getReference("users").child(firebaseUser.getPhoneNumber().substring(2));
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
-                    allUsers.add(d.getValue(User.class));
-                }
-                for (int i = 0; i < allUsers.size(); i++) {
-                    if (allUsers.get(i).getPhoneNumber().equals(firebaseUser.getPhoneNumber().substring(2))) {
-                        currentUser = allUsers.get(i);
-                        userName.setText(currentUser.getUsername()) ;
-                        phoneNum.setText(currentUser.getPhoneNumber()) ;
-                        if (!currentUser.getImage().equals(""))
-                            Picasso.with(getApplicationContext()).load(currentUser.getImage()).into(profileImage);
-                        break;
-                    }
+                    currentUser = dataSnapshot.getValue(User.class);
+                    userName.setText(currentUser.getUsername()) ;
+                    phoneNum.setText(currentUser.getPhoneNumber()) ;
+                    Picasso.with(getApplicationContext()).load(currentUser.getImage()).into(profileImage);
                 }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-            }
-        });
+            public void onCancelled(@NonNull DatabaseError databaseError) {}});
     }
 
     @Override
