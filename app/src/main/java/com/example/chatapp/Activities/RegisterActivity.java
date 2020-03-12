@@ -67,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
         switch (view.getId()) {
             case R.id.nextRegisterButton:
                 try {
-                    if (!usernameEditText.getText().equals("")) {
+                    if (!usernameEditText.getText().equals("")&&!imageURI.equals("")) {
                         pushDataInDB();
                         startActivity(new Intent(this, MainActivity.class));
                     }
@@ -92,6 +92,7 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void pushDataInDB() {
+
         DatabaseReference myRef = FirebaseDatabase.getInstance().getReference("users");
         FirebaseUser mUser = FirebaseAuth.getInstance().getCurrentUser();
         user = new User(usernameEditText.getText().toString().trim(), String.valueOf(imageURI), mUser.getPhoneNumber().substring(2), mUser.getUid());

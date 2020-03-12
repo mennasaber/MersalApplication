@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 public class ChatsFragment extends Fragment {
-
     FirebaseUser mUser;
     ArrayList<Chat> chats;
     ChatsAdapter chatsAdapter;
