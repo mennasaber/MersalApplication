@@ -42,6 +42,7 @@ public class ContactsFragment extends Fragment {
     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
     String mUserNumber = FirebaseAuth.getInstance().getCurrentUser().getPhoneNumber();
     final String[] splitNumber = mUserNumber.split("\\+2");
+    boolean permission = false;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -52,17 +53,20 @@ public class ContactsFragment extends Fragment {
 
 
         if (ActivityCompat.checkSelfPermission(Objects.requireNonNull(getActivity()).getApplicationContext(), Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
+            permission = true;
         } else {
             requestPermission();
         }
         // take aLot of time
+
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 for (DataSnapshot d : dataSnapshot.getChildren()) {
                     allUsers.add(d.getValue(User.class));
                 }
-                contactsHaveAccount = getContactsHaveAccount(allUsers);
+                if (permission)
+                    contactsHaveAccount = getContactsHaveAccount(allUsers);
                 contactsListView = view.findViewById(R.id.contactsListView);
                 contactsAdapter = new ContactsAdapter(Objects.requireNonNull(getActivity()).getApplicationContext(), R.layout.contact_item, contactsHaveAccount);
                 contactsListView.setAdapter(contactsAdapter);
@@ -94,6 +98,7 @@ public class ContactsFragment extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            permission = true;
 //            try {
 //                users = getAllContacts();
 //            } catch (RemoteException e) {
@@ -101,6 +106,7 @@ public class ContactsFragment extends Fragment {
 //            }
         } else {
             contactsHaveAccount = new ArrayList<>();
+            permission = false;
             // permission denied,Disable the
             // functionality that depends on this permission.
         }
