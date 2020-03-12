@@ -38,7 +38,9 @@ import java.util.Iterator;
 import java.util.Objects;
 
 public class ChatsFragment extends Fragment {
+
     public static final int REQUEST_READ_CONTACTS = 79;
+
     FirebaseUser mUser;
     ArrayList<Chat> chats;
     ChatsAdapter chatsAdapter;
